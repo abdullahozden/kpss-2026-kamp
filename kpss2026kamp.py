@@ -111,17 +111,17 @@ if menu == "📝 Plan Oluştur":
         ds = col1.selectbox("Ders", list(st.session_state.dersler.keys()))
         ka = col1.text_input("Konu")
         tr = col2.date_input("Tarih")
-        sh = col2.number_input("Hedef Soru", min_value=1, value=50)
+        sh = col2.number_input("Hedef Soru", min_value=1, value=100)
         vs = st.slider("Video Sayısı", 1, 10, 1)
         v_links = [st.text_input(f"Video {i+1} Linki", key=f"v_{i}") for i in range(vs)]
-        if st.form_submit_button("Planı Kaydet", use_container_width=True) and ka:
+        if st.form_submit_button("Planı Oluştur", use_container_width=True) and ka:
             v_json = json.dumps([{"url": l.strip(), "done": False} for l in v_links if l.strip()])
             new_p = pd.DataFrame([{"username": st.session_state.user, "password": user_df['password'].iloc[0], "ders": ds, "konu": ka, "tarih": str(tr), "videolar": v_json, "soru_hedef": sh, "soru_cozulen": 0, "tamamlandi": False, "id": int(datetime.now().timestamp())}])
             save_data(conn, pd.concat([all_db, new_p], ignore_index=True))
             st.success("Plan eklendi!"); st.rerun()
 
 # --- GÜNLÜK PLAN ---
-elif menu == "📅 Günlük Planım":
+elif menu == "📅 Ders Çalışma Planım":
     show_h = st.toggle("✅ Tamamlananları Göster")
     display_df = user_df[(user_df['tamamlandi'] == show_h) & (user_df['konu'] != "Hesap Aktif")]
     
@@ -174,3 +174,4 @@ elif menu == "🏆 Başarılarım":
             with st.expander("Detaylar"):
                 for _, b in b_df.iterrows():
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b> - {int(b["soru_cozulen"])} Soru</div>', unsafe_allow_html=True)
+
