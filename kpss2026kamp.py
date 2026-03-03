@@ -41,9 +41,8 @@ st.markdown("""
     /* Ana Arka Plan */
     .stApp { background-color: #0d1117; color: #c9d1d9; }
     
-    /* Yan Menü (Sidebar) Büyütme */
+    /* Yan Menü Büyütme */
     [data-testid="stSidebarNav"] span { font-size: 1.2rem !important; font-weight: 600 !important; }
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] label { font-size: 1.1rem !important; padding: 10px 0 !important; }
     
     /* Modern Header */
     .custom-header {
@@ -55,40 +54,39 @@ st.markdown("""
     /* Plan Kartları */
     .stExpander { background-color: #161b22 !important; border: 1px solid #30363d !important; border-radius: 12px !important; margin-bottom: 1rem !important; }
     
-    /* Video Kutusu Tasarımı */
+    /* Geliştirilmiş Video Kutusu (Görseldeki Kırmızı Alana Odaklı) */
     .video-container {
         background: #0d1117;
         border: 1px solid #30363d;
-        border-radius: 10px;
-        margin-bottom: 15px;
-        overflow: hidden; /* Kenarların dışa taşmasını engeller */
+        border-radius: 8px;
+        margin-bottom: 10px;
+        overflow: hidden;
     }
 
-    /* Kırmızı ile işaretlediğin kutucuk (Video Başlığı) */
-    .video-label-box {
-        background-color: #1f2937; /* Koyu gri tonu */
-        border-bottom: 1px solid #30363d;
-        padding: 5px 10px;
-        text-align: center;
-        color: #58a6ff;
-        font-weight: bold;
+    /* İşaretlediğin kutucuğun stili */
+    .video-label-bar {
+        background-color: #1c2128; /* Kutucuk rengi */
+        color: #58a6ff; /* Yazı rengi (Mavi) */
+        padding: 4px 8px;
         font-size: 0.85rem;
+        font-weight: 700;
+        text-align: center;
+        border-bottom: 1px solid #30363d;
+        letter-spacing: 0.5px;
     }
 
-    .video-content {
-        padding: 8px;
+    .video-body {
+        padding: 5px;
     }
     
-    /* Tamamlananlar (Arşiv) Satırı */
     .history-item {
         background: rgba(56, 139, 253, 0.1);
         padding: 12px 20px; border-radius: 12px; 
         border: 1px solid rgba(56, 139, 253, 0.2);
-        display: flex; align-items: center; justify-content: align-items;
     }
 
     .stat-card { background: #1c2128; padding: 15px; border-radius: 12px; border: 1px solid #30363d; text-align: center; margin-bottom: 10px; }
-    .success-card { background: #0d1117; padding: 12px; border-radius: 8px; border-left: 4px solid #238636; margin-bottom: 8px; border-top: 1px solid #30363d; border-right: 1px solid #30363d; border-bottom: 1px solid #30363d; }
+    .success-card { background: #0d1117; padding: 12px; border-radius: 8px; border-left: 4px solid #238636; margin-bottom: 8px; border: 1px solid #30363d; }
     div[data-testid="stNumberInput"] button { display: none !important; }
     </style>
     """, unsafe_allow_html=True)
@@ -219,11 +217,11 @@ elif menu == "📅 Günlük Planım":
                         for v_i, v in enumerate(v_l):
                             with v_cols[v_i % v_cols_num]:
                                 if not v['done']:
-                                    # YENİ TASARIM: ETİKET KUTUCUĞUN İÇİNE ALINDI
+                                    # GÖRSELDEKİ KIRMIZI ALAN TASARIMI BURADA
                                     st.markdown(f"""
                                         <div class="video-container">
-                                            <div class="video-label-box">{v_i+1}. Video</div>
-                                            <div class="video-content">
+                                            <div class="video-label-bar">{v_i+1}. Video</div>
+                                            <div class="video-body">
                                     """, unsafe_allow_html=True)
                                     st.video(v['url'])
                                     st.markdown('</div></div>', unsafe_allow_html=True)
