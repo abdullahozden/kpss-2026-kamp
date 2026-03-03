@@ -74,7 +74,7 @@ st.markdown("""
 
 # --- 4. SİDEBAR (MENÜ VE GİZLİ ADMİN) ---
 st.sidebar.title("📌 ANA MENÜ")
-menu = st.sidebar.radio("Sayfa Seçimi", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım"])
+menu = st.sidebar.radio("Sayfa Seçimi", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım"], label_visibility="collapsed")
 
 st.sidebar.markdown("---")
 
@@ -171,4 +171,59 @@ elif menu == "📅 Günlük Planım":
                                     else: st.success(f"Video {idx+1} Bitti")
                     with c_r:
                         st.markdown("**Soru Çözümü**")
-                        q = st.number_input("Adet", value=item['soru_cozulen'], key=f"q_{item['
+                        yeni_q = st.number_input("Çözülen", value=item['soru_cozulen'], key=f"q_{item['id']}")
+                        if yeni_q != item['soru_cozulen']:
+                            item['soru_cozulen'] = yeni_q
+                            save_data(st.session_state.data)
+                            st.rerun()
+                        
+                        prog = min(item['soru_cozulen'] / item['soru_hedef'], 1.0) if item['soru_hedef'] > 0 else 0
+                        st.progress(prog)
+                        st.caption(f"Hedef: {item['soru_hedef']}")
+                        
+                        if st.button("🌟 BİTİR", key=f"f_{item['id']}", use_container_width=True):
+                            item['tamamlandi'] = True
+                            save_data(st.session_state.data)
+                            st.balloons()
+                            st.rerun()
+
+    if show_history:
+        st.markdown("---")
+        st.markdown("### 📜 Tamamlanan Görev Arşivi")
+        if not tamamlananlar: st.caption("Henüz arşivlenmiş bir görev yok.")
+        else:
+            hist_dict = defaultdict(list)
+            for t in tamamlananlar: hist_dict[t['tarih']].append(t)
+            for gun in sorted(hist_dict.keys(), reverse=True):
+                st.markdown(f"<small style='color:#64748b;'>🗓️ {gun}</small>", unsafe_allow_html=True)
+                for item in hist_dict[gun]:
+                    h_info, h_btn = st.columns([5, 1.2])
+                    with h_info:
+                        st.markdown(f"""<div class="history-card-container"><span>✓ {item['ders']} - <b>{item['konu']}</b></span><span>{item['soru_cozulen']} Soru</span></div>""", unsafe_allow_html=True)
+                    with h_btn:
+                        if is_admin:
+                            if st.button("⏪ Geri Al", key=f"un_{item['id']}"):
+                                item['tamamlandi'] = False
+                                for v in item.get('videolar', []): v['done'] = False
+                                save_data(st.session_state.data)
+                                st.rerun()
+
+# --- 7. BAŞARILARIM ---
+elif menu == "🏆 Başarılarım":
+    st.subheader("🏆 Gelişim Raporu")
+    if not st.session_state.data:
+        st.warning("Henüz analiz edilecek veri yok.")
+    else:
+        for d, ikon in DERS_AYARLARI.items():
+            tum = [t for t in st.session_state.data if t['ders'] == d]
+            biten = [t for t in tum if t['tamamlandi']]
+            if tum:
+                yuzde = int((len(biten) / len(tum)) * 100)
+                st.markdown(f"### {ikon} {d}")
+                col_y, col_p = st.columns([1, 4])
+                with col_y:
+                    st.metric("Tamamlanma", f"%{yuzde}")
+                with col_p:
+                    st.write(f"{len(biten)} / {len(tum)} Konu Bitti")
+                    st.progress(len(biten) / len(tum))
+                st.divider()
