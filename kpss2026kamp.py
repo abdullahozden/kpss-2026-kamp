@@ -54,7 +54,30 @@ st.markdown("""
     
     /* Plan Kartları */
     .stExpander { background-color: #161b22 !important; border: 1px solid #30363d !important; border-radius: 12px !important; margin-bottom: 1rem !important; }
-    .video-item { background: #0d1117; padding: 8px; border-radius: 10px; border: 1px solid #30363d; margin-bottom: 10px; }
+    
+    /* Video Kutusu Tasarımı */
+    .video-container {
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        overflow: hidden; /* Kenarların dışa taşmasını engeller */
+    }
+
+    /* Kırmızı ile işaretlediğin kutucuk (Video Başlığı) */
+    .video-label-box {
+        background-color: #1f2937; /* Koyu gri tonu */
+        border-bottom: 1px solid #30363d;
+        padding: 5px 10px;
+        text-align: center;
+        color: #58a6ff;
+        font-weight: bold;
+        font-size: 0.85rem;
+    }
+
+    .video-content {
+        padding: 8px;
+    }
     
     /* Tamamlananlar (Arşiv) Satırı */
     .history-item {
@@ -67,14 +90,6 @@ st.markdown("""
     .stat-card { background: #1c2128; padding: 15px; border-radius: 12px; border: 1px solid #30363d; text-align: center; margin-bottom: 10px; }
     .success-card { background: #0d1117; padding: 12px; border-radius: 8px; border-left: 4px solid #238636; margin-bottom: 8px; border-top: 1px solid #30363d; border-right: 1px solid #30363d; border-bottom: 1px solid #30363d; }
     div[data-testid="stNumberInput"] button { display: none !important; }
-    
-    /* Video Sıra Sayısı Stili */
-    .video-label {
-        color: #58a6ff;
-        font-weight: bold;
-        margin-bottom: 5px;
-        font-size: 0.9rem;
-    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -204,10 +219,15 @@ elif menu == "📅 Günlük Planım":
                         for v_i, v in enumerate(v_l):
                             with v_cols[v_i % v_cols_num]:
                                 if not v['done']:
-                                    # SIRA SAYISI BURADA EKLENDİ
-                                    st.markdown(f'<div class="video-label">{v_i+1}. Video</div>', unsafe_allow_html=True)
-                                    st.markdown('<div class="video-item">', unsafe_allow_html=True)
-                                    st.video(v['url']); st.markdown('</div>', unsafe_allow_html=True)
+                                    # YENİ TASARIM: ETİKET KUTUCUĞUN İÇİNE ALINDI
+                                    st.markdown(f"""
+                                        <div class="video-container">
+                                            <div class="video-label-box">{v_i+1}. Video</div>
+                                            <div class="video-content">
+                                    """, unsafe_allow_html=True)
+                                    st.video(v['url'])
+                                    st.markdown('</div></div>', unsafe_allow_html=True)
+                                    
                                     if st.button(f"İzlendi ✅", key=f"v_{row['id']}_{v_i}", use_container_width=True):
                                         v['done'] = True
                                         all_db.loc[all_db['id'] == row['id'], 'videolar'] = json.dumps(v_l)
