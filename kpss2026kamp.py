@@ -4,12 +4,14 @@ import os
 from collections import defaultdict
 from datetime import datetime
 
+# --- 1. VERİ YÖNETİMİ ---
 DB_FILE = "kpss_2026_plani.json"
 
+# GÜVENLİK: Şifreyi Streamlit Cloud Secrets üzerinden alıyoruz
 try:
     ADMIN_PASSWORD = st.secrets["admin_password"]
 except:
-    ADMIN_PASSWORD = "admin" # Eğer lokaldeysen ve secrets yoksa varsayılan
+    ADMIN_PASSWORD = "admin" # Lokal test için varsayılan
 
 def load_data():
     if os.path.exists(DB_FILE):
@@ -36,6 +38,7 @@ DERS_AYARLARI = {
 
 st.set_page_config(page_title="2026 KPSS Kampım", layout="wide", page_icon="🎓")
 
+# MODERN TASARIM CSS
 st.markdown("""
     <style>
     .stApp { background-color: #0E1117; color: #FFFFFF; }
@@ -51,39 +54,56 @@ st.markdown("""
         background-color: #161B22; opacity: 0.6; padding: 8px 15px;
         border-radius: 10px; border: 1px dashed #30363D; margin-bottom: 8px;
     }
-    .stButton>button { border-radius: 8px; font-weight: 600; }
+    /* Admin Expander'ı daha zarif yapalım */
+    .st-emotion-cache-p4m0vl { background-color: transparent !important; }
     </style>
     """, unsafe_allow_html=True)
 
 if 'data' not in st.session_state:
     st.session_state.data = load_data()
 
+# Admin oturum kontrolü (Session State kullanarak daha stabil hale getiriyoruz)
+if 'is_admin_authenticated' not in st.session_state:
+    st.session_state.is_admin_authenticated = False
+
 # --- 3. ÜST BÖLÜM (HEADER) ---
 st.markdown("""
     <div class="custom-header">
         <h1 style="margin:0; font-size: 2.2rem;">🚀 <span style="color: #3b82f6;">2026 KPSS</span> KAMPIM</h1>
-        <p style="margin:0; color: #94a3b8; font-size: 1rem;">Güvenli Yönetim Paneli</p>
+        <p style="margin:0; color: #94a3b8; font-size: 1rem;">Başarıya giden yol disiplinden geçer.</p>
     </div>
     """, unsafe_allow_html=True)
 
-# --- 4. SİDEBAR & GÜVENLİK ---
-st.sidebar.title("🛠️ Kontrol Paneli")
-menu = st.sidebar.radio("📌 ANA MENÜ", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım"])
-st.sidebar.divider()
-st.sidebar.write("🔒 **Admin Girişi**")
-admin_input = st.sidebar.text_input("Şifre Giriniz", type="password")
+# --- 4. SİDEBAR (MENÜ VE GİZLİ ADMİN) ---
+st.sidebar.title("📌 ANA MENÜ")
+menu = st.sidebar.radio("Sayfa Seçimi", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım"], label_visibility="collapsed")
 
-is_admin = (admin_input == ADMIN_PASSWORD)
+st.sidebar.markdown("---")
 
-if is_admin:
-    st.sidebar.success("Yönetici Yetkisi Aktif! ✅")
-elif admin_input:
-    st.sidebar.error("Hatalı Şifre! ❌")
+# SAKLI ADMİN PANELİ (Sidebar'ın en altında küçük bir yer kaplar)
+with st.sidebar.expander("🔐 Yönetici Girişi"):
+    admin_pass_input = st.text_input("Şifre", type="password", key="admin_key")
+    login_btn = st.button("Sisteme Giriş Yap", use_container_width=True)
+    
+    if login_btn:
+        if admin_pass_input == ADMIN_PASSWORD:
+            st.session_state.is_admin_authenticated = True
+            st.success("Yetki Verildi! ✅")
+            st.rerun()
+        else:
+            st.error("Hatalı Şifre! ❌")
 
-# --- 5. PLAN OLUŞTUR ---
+    if st.session_state.is_admin_authenticated:
+        if st.button("Oturumu Kapat", color="red"):
+            st.session_state.is_admin_authenticated = False
+            st.rerun()
+
+is_admin = st.session_state.is_admin_authenticated
+
+# --- 5. PLAN OLUŞTUR (Admin Korumalı) ---
 if menu == "📝 Plan Oluştur":
     if not is_admin:
-        st.warning("⚠️ **Yetki Gerekli:** Plan oluşturmak için admin şifresini girin.")
+        st.warning("⚠️ **Erişim Engellendi:** Bu bölüm sadece yönetici kullanımına açıktır. Lütfen soldaki panelden giriş yapın.")
     else:
         st.subheader("📝 Yeni Çalışma Planı Ekle")
         with st.container():
@@ -115,20 +135,20 @@ if menu == "📝 Plan Oluştur":
                     }
                     st.session_state.data.append(yeni_girdi)
                     save_data(st.session_state.data)
-                    st.success("📌 Plan eklendi!")
+                    st.success("📌 Plan başarıyla kaydedildi!")
                     st.rerun()
 
 # --- 6. GÜNLÜK PLANIM ---
 elif menu == "📅 Günlük Planım":
     col_t, col_tog = st.columns([4, 1])
-    with col_t: st.subheader("📅 Görevlerin")
+    with col_t: st.subheader("📅 Bugünkü Görevlerin")
     with col_tog: show_history = st.toggle("📜 Geçmiş")
 
     aktif = [t for t in st.session_state.data if not t['tamamlandi']]
     tamamlananlar = [t for t in st.session_state.data if t['tamamlandi']]
     
     if not aktif:
-        st.info("Aktif görev yok.")
+        st.info("Şu an yapılacak aktif bir görev görünmüyor.")
     else:
         plan_dict = defaultdict(list)
         for t in aktif: plan_dict[t['tarih']].append(t)
@@ -151,7 +171,7 @@ elif menu == "📅 Günlük Planım":
                                             st.rerun()
                                     else: st.success(f"Video {idx+1} Bitti")
                     with c_r:
-                        st.markdown("**Soru**")
+                        st.markdown("**Soru Çözümü**")
                         q = st.number_input("Adet", value=item['soru_cozulen'], key=f"q_{item['id']}")
                         if q != item['soru_cozulen']:
                             item['soru_cozulen'] = q
@@ -164,7 +184,8 @@ elif menu == "📅 Günlük Planım":
 
     if show_history:
         st.markdown("---")
-        if not tamamlananlar: st.caption("Arşiv boş.")
+        st.markdown("### 📜 Tamamlanan Görev Arşivi")
+        if not tamamlananlar: st.caption("Henüz arşivlenmiş bir görev yok.")
         else:
             hist_dict = defaultdict(list)
             for t in tamamlananlar: hist_dict[t['tarih']].append(t)
@@ -175,15 +196,16 @@ elif menu == "📅 Günlük Planım":
                     with h_info:
                         st.markdown(f"""<div class="history-card-container"><span>✓ {item['ders']} - <b>{item['konu']}</b></span><span>{item['soru_cozulen']} Soru</span></div>""", unsafe_allow_html=True)
                     with h_btn:
-                        if is_admin and st.button("⏪ Geri Al", key=f"un_{item['id']}"):
-                            item['tamamlandi'] = False
-                            for v in item.get('videolar', []): v['done'] = False
-                            save_data(st.session_state.data)
-                            st.rerun()
+                        if is_admin: # Sadece giriş yapmış admin geri alabilir
+                            if st.button("⏪ Geri Al", key=f"un_{item['id']}"):
+                                item['tamamlandi'] = False
+                                for v in item.get('videolar', []): v['done'] = False
+                                save_data(st.session_state.data)
+                                st.rerun()
 
 # --- 7. BAŞARILARIM ---
 elif menu == "🏆 Başarılarım":
-    st.subheader("🏆 Başarı Tablon")
+    st.subheader("🏆 Gelişim Raporu")
     for d, ikon in DERS_AYARLARI.items():
         tum = [t for t in st.session_state.data if t['ders'] == d]
         biten = [t for t in tum if t['tamamlandi']]
