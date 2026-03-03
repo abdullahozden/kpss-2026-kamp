@@ -29,7 +29,7 @@ def format_yt_link(url):
     return url if url.startswith("http") else f"https://{url}" if url else ""
 
 # --- 2. TASARIM AYARLARI ---
-st.set_page_config(page_title="2026 KPSS Kampım", layout="wide", page_icon="🎓")
+st.set_page_config(page_title="2026 KPSS ÇALIŞMA PLANI", layout="wide", page_icon="🎓")
 
 if 'user' not in st.session_state: st.session_state.user = None
 if 'selected_icon' not in st.session_state: st.session_state.selected_icon = "📌"
@@ -82,7 +82,7 @@ for col in ['tamamlandi', 'id', 'soru_cozulen', 'soru_hedef']:
 
 # --- 4. GİRİŞ KONTROLÜ ---
 if st.session_state.user is None:
-    st.markdown('<div class="custom-header"><h1>🚀 2026 KPSS Kampı Giriş</h1></div>', unsafe_allow_html=True)
+    st.markdown('<div class="custom-header"><h1>🚀 2026 KPSS Çalışma Planı Giriş</h1></div>', unsafe_allow_html=True)
     t1, t2 = st.tabs(["🔑 Giriş Yap", "📝 Kayıt Ol"])
     with t1:
         with st.form("login_form"):
@@ -114,7 +114,7 @@ if st.sidebar.button("🚪 Çıkış Yap"):
     st.session_state.user = None; st.rerun()
 
 menu = st.sidebar.radio("Gezinti", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım"])
-st.markdown('<div class="custom-header"><h1>🚀 <span style="color: #58a6ff;">2026 KPSS</span> KAMPIM</h1></div>', unsafe_allow_html=True)
+st.markdown('<div class="custom-header"><h1>🚀 <span style="color: #58a6ff;">2026 KPSS</span> ÇALIŞMA PLANI</h1></div>', unsafe_allow_html=True)
 
 # --- 6. PLAN OLUŞTUR ---
 if menu == "📝 Plan Oluştur":
@@ -124,7 +124,7 @@ if menu == "📝 Plan Oluştur":
         with c_add1: n_d = st.text_input("Ders Adı", placeholder="Örn: Vatandaşlık", label_visibility="collapsed")
         with c_add2:
             with st.popover(st.session_state.selected_icon, use_container_width=True):
-                emos = ["📚", "📐", "🏛️", "🌍", "📰", "⚖️", "🧪", "🎨", "💻", "⏰", "💡", "📝", "✅", "🔥"]
+                emos = ["📚", "📐", "🏛️", "🌍", "📰", "⚖️", "🧪", "🎨", "💻", "⏰", "💡", "📝", "✅", "🔥", "📌", "🧪"]
                 cols = st.columns(4)
                 for i, emo in enumerate(emos):
                     if cols[i % 4].button(emo, key=f"emo_{i}"):
@@ -169,7 +169,7 @@ elif menu == "📅 Günlük Planım":
                 # Butonları sağa almak için satırı kolonlara bölüyoruz
                 c_arc_text, c_arc_rev, c_arc_del = st.columns([4, 0.8, 0.8])
                 with c_arc_text:
-                    st.markdown(f'<div class="history-item"><b>{row["ders"]}</b>: {row["konu"]} <small>({row["tarih"]})</small></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="history-item"><b>{row["ders"]}</b>: {row["konu"]}</div>', unsafe_allow_html=True)
                 with c_arc_rev:
                     if st.button("⏪", key=f"rev_{row['id']}", help="Geri Al", use_container_width=True):
                         v_list = json.loads(row['videolar']) if isinstance(row['videolar'], str) else []
@@ -249,6 +249,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
