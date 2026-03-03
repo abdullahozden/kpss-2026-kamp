@@ -11,7 +11,7 @@ DB_FILE = "kpss_2026_plani.json"
 try:
     ADMIN_PASSWORD = st.secrets["admin_password"]
 except:
-    ADMIN_PASSWORD = "admin" # Lokal test için varsayılan
+    ADMIN_PASSWORD = "admin" # Lokal test veya Secrets ayarlanmadıysa varsayılan
 
 def load_data():
     if os.path.exists(DB_FILE):
@@ -68,7 +68,7 @@ if 'is_admin_authenticated' not in st.session_state:
 st.markdown("""
     <div class="custom-header">
         <h1 style="margin:0; font-size: 2.2rem;">🚀 <span style="color: #3b82f6;">2026 KPSS</span> KAMPIM</h1>
-        <p style="margin:0; color: #94a3b8; font-size: 1rem;">Başarıya giden yol disiplinden geçer.</p>
+        <p style="margin:0; color: #94a3b8; font-size: 1rem;">Admin Paneli ve Güvenli Veri Yönetimi</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -78,10 +78,9 @@ menu = st.sidebar.radio("Sayfa Seçimi", ["📅 Günlük Planım", "📝 Plan Ol
 
 st.sidebar.markdown("---")
 
-# SAKLI ADMİN PANELİ
+# SAKLI ADMİN PANELİ (Enter Desteği İçin Form Yapısında)
 with st.sidebar.expander("🔐 Yönetici Girişi"):
     if not st.session_state.is_admin_authenticated:
-        # Enter ile çalışması için bir form içine alıyoruz
         with st.form("admin_login_form", clear_on_submit=False):
             admin_pass_input = st.text_input("Şifre", type="password", key="admin_key")
             submit_login = st.form_submit_button("Sisteme Giriş Yap", use_container_width=True, type="primary")
@@ -99,10 +98,12 @@ with st.sidebar.expander("🔐 Yönetici Girişi"):
             st.session_state.is_admin_authenticated = False
             st.rerun()
 
+is_admin = st.session_state.is_admin_authenticated
+
 # --- 5. PLAN OLUŞTUR (Admin Korumalı) ---
 if menu == "📝 Plan Oluştur":
     if not is_admin:
-        st.warning("⚠️ **Erişim Engellendi:** Bu bölüm sadece yönetici kullanımına açıktır. Lütfen soldaki panelden giriş yapın.")
+        st.warning("⚠️ **Erişim Engellendi:** Yeni plan eklemek için yönetici girişi yapmalısınız.")
     else:
         st.subheader("📝 Yeni Çalışma Planı Ekle")
         with st.container():
@@ -128,7 +129,8 @@ if menu == "📝 Plan Oluştur":
                 if konu_adi:
                     video_listesi = [{"url": format_yt_link(u), "done": False} for u in video_inputlari if u.strip()]
                     yeni_girdi = {
-                        "id": len(st.session_state.data) + 1, "ders": ders_secimi, "konu": konu_adi,
+                        "id": int(datetime.now().timestamp() * 1000), # Benzersiz ID üretimi
+                        "ders": ders_secimi, "konu": konu_adi,
                         "tarih": str(tarih), "videolar": video_listesi, "soru_hedef": int(soru_hedef),
                         "soru_cozulen": 0, "tamamlandi": False
                     }
@@ -147,7 +149,7 @@ elif menu == "📅 Günlük Planım":
     tamamlananlar = [t for t in st.session_state.data if t['tamamlandi']]
     
     if not aktif:
-        st.info("Şu an yapılacak aktif bir görev görünmüyor.")
+        st.info("Yapılacak aktif bir görev yok. Yeni planlar ekleyebilirsin!")
     else:
         plan_dict = defaultdict(list)
         for t in aktif: plan_dict[t['tarih']].append(t)
@@ -171,7 +173,7 @@ elif menu == "📅 Günlük Planım":
                                     else: st.success(f"Video {idx+1} Bitti")
                     with c_r:
                         st.markdown("**Soru Çözümü**")
-                        yeni_q = st.number_input("Çözülen", value=item['soru_cozulen'], key=f"q_{item['id']}")
+                        yeni_q = st.number_input("Adet", value=item['soru_cozulen'], key=f"q_{item['id']}")
                         if yeni_q != item['soru_cozulen']:
                             item['soru_cozulen'] = yeni_q
                             save_data(st.session_state.data)
@@ -179,18 +181,26 @@ elif menu == "📅 Günlük Planım":
                         
                         prog = min(item['soru_cozulen'] / item['soru_hedef'], 1.0) if item['soru_hedef'] > 0 else 0
                         st.progress(prog)
-                        st.caption(f"Hedef: {item['soru_hedef']}")
                         
-                        if st.button("🌟 BİTİR", key=f"f_{item['id']}", use_container_width=True):
+                        # --- AKSİYON BUTONLARI ---
+                        if st.button("🌟 BİTİR", key=f"f_{item['id']}", use_container_width=True, type="primary"):
                             item['tamamlandi'] = True
                             save_data(st.session_state.data)
                             st.balloons()
                             st.rerun()
+                        
+                        # KRİTİK EKLENTİ: Sadece Admin Silebilir
+                        if is_admin:
+                            st.write("") # Boşluk
+                            if st.button("🗑️ PLANI SİL", key=f"del_{item['id']}", use_container_width=True):
+                                st.session_state.data = [x for x in st.session_state.data if x['id'] != item['id']]
+                                save_data(st.session_state.data)
+                                st.rerun()
 
     if show_history:
         st.markdown("---")
         st.markdown("### 📜 Tamamlanan Görev Arşivi")
-        if not tamamlananlar: st.caption("Henüz arşivlenmiş bir görev yok.")
+        if not tamamlananlar: st.caption("Henüz tamamlanmış görev yok.")
         else:
             hist_dict = defaultdict(list)
             for t in tamamlananlar: hist_dict[t['tarih']].append(t)
@@ -212,7 +222,7 @@ elif menu == "📅 Günlük Planım":
 elif menu == "🏆 Başarılarım":
     st.subheader("🏆 Gelişim Raporu")
     if not st.session_state.data:
-        st.warning("Henüz analiz edilecek veri yok.")
+        st.warning("Veri bulunamadı.")
     else:
         for d, ikon in DERS_AYARLARI.items():
             tum = [t for t in st.session_state.data if t['ders'] == d]
@@ -220,11 +230,10 @@ elif menu == "🏆 Başarılarım":
             if tum:
                 yuzde = int((len(biten) / len(tum)) * 100)
                 st.markdown(f"### {ikon} {d}")
-                col_y, col_p = st.columns([1, 4])
-                with col_y:
-                    st.metric("Tamamlanma", f"%{yuzde}")
-                with col_p:
-                    st.write(f"{len(biten)} / {len(tum)} Konu Bitti")
+                c1, c2 = st.columns([1, 4])
+                with c1:
+                    st.metric("Bitti", f"%{yuzde}")
+                with c2:
+                    st.write(f"İlerleme: {len(biten)} / {len(tum)} Konu")
                     st.progress(len(biten) / len(tum))
                 st.divider()
-
