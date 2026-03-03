@@ -28,7 +28,7 @@ def format_yt_link(url):
     url = url.strip()
     return url if url.startswith("http") else f"https://{url}" if url else ""
 
-# --- 2. TASARIM AYARLARI ---
+# --- 2. TASARIM AYARLARI (MODERNİZE EDİLDİ) ---
 st.set_page_config(page_title="2026 KPSS Kampım", layout="wide", page_icon="🎓")
 
 if 'user' not in st.session_state: st.session_state.user = None
@@ -38,82 +38,105 @@ if 'dersler' not in st.session_state:
 
 st.markdown("""
     <style>
-    .stApp { background-color: #0E1117; color: #FFFFFF; }
+    /* Ana Arka Plan */
+    .stApp { background-color: #0d1117; color: #c9d1d9; }
+    
+    /* Modern Header */
     .custom-header {
-        background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);
-        padding: 1.5rem; border-radius: 15px; border-left: 8px solid #3b82f6; margin-bottom: 2rem;
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        padding: 2rem; border-radius: 20px; border-bottom: 4px solid #3b82f6;
+        margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        text-align: center;
     }
-    .video-item { margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #30363d; }
-    .success-card {
-        background-color: #1c2128; border: 1px solid #238636; padding: 12px;
-        border-radius: 10px; margin-bottom: 10px; border-left: 5px solid #238636;
+    
+    /* Plan Kartları (Expander Düzenlemesi) */
+    .stExpander {
+        background-color: #161b22 !important;
+        border: 1px solid #30363d !important;
+        border-radius: 12px !important;
+        margin-bottom: 1rem !important;
+        transition: all 0.3s ease;
     }
+    .stExpander:hover { border-color: #58a6ff !important; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+
+    /* Video Kutuları */
+    .video-item {
+        background: #0d1117;
+        padding: 8px; border-radius: 10px;
+        border: 1px solid #30363d; margin-bottom: 10px;
+    }
+
+    /* Arşiv Kutuları */
     .history-item {
-        background: #161b22; padding: 12px; border-radius: 8px; 
-        margin-bottom: 8px; border: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center;
+        background: rgba(56, 139, 253, 0.1);
+        padding: 15px; border-radius: 12px; 
+        margin-bottom: 10px; border: 1px solid rgba(56, 139, 253, 0.2);
+        display: flex; justify-content: space-between; align-items: center;
     }
-    /* Soru giriş alanı için artı-eksi butonlarını gizleyen ve temiz görünüm sağlayan stil */
+
+    /* Input & Button Temizliği */
     div[data-testid="stNumberInput"] button { display: none !important; }
-    div[data-testid="stNumberInput"] div[data-baseweb="input"] { border: 1px solid #3b82f6 !important; }
+    .stButton button { border-radius: 8px !important; }
+    
+    /* İlerleme Çubuğu Rengi */
+    .stProgress > div > div > div > div { background-color: #238636 !important; }
     </style>
     """, unsafe_allow_html=True)
 
 # --- 3. GİRİŞ VE VERİ ÇEKME ---
 all_db = load_all_data()
 
-if 'tamamlandi' in all_db.columns:
-    all_db['tamamlandi'] = all_db['tamamlandi'].astype(str).str.lower().map({'true': True, 'false': False, '1': True, '0': False, '1.0': True, '0.0': False}).fillna(False)
-if 'id' in all_db.columns:
-    all_db['id'] = pd.to_numeric(all_db['id'], errors='coerce').fillna(0).astype(int)
-if 'soru_cozulen' in all_db.columns:
-    all_db['soru_cozulen'] = pd.to_numeric(all_db['soru_cozulen'], errors='coerce').fillna(0).astype(int)
-if 'soru_hedef' in all_db.columns:
-    all_db['soru_hedef'] = pd.to_numeric(all_db['soru_hedef'], errors='coerce').fillna(1).astype(int)
+# Tip dönüşümleri
+for col in ['tamamlandi', 'id', 'soru_cozulen', 'soru_hedef']:
+    if col in all_db.columns:
+        if col == 'tamamlandi':
+            all_db[col] = all_db[col].astype(str).str.lower().map({'true': True, 'false': False, '1': True, '0': False, '1.0': True, '0.0': False}).fillna(False)
+        else:
+            all_db[col] = pd.to_numeric(all_db[col], errors='coerce').fillna(0 if col != 'soru_hedef' else 1).astype(int)
 
 if st.session_state.user is None:
-    st.markdown('<div class="custom-header" style="text-align:center;"><h1>🚀 2026 KPSS Kampı Giriş</h1></div>', unsafe_allow_html=True)
+    st.markdown('<div class="custom-header"><h1>🚀 2026 KPSS Kampı Giriş</h1></div>', unsafe_allow_html=True)
     t1, t2 = st.tabs(["🔑 Giriş Yap", "📝 Kayıt Ol"])
     with t1:
         with st.form("login_form"):
             u = st.text_input("Kullanıcı Adı")
             p = st.text_input("Şifre", type="password")
-            if st.form_submit_button("Giriş Yap", use_container_width=True):
+            if st.form_submit_button("Sisteme Bağlan", use_container_width=True):
                 user_check = all_db[(all_db['username'] == u) & (all_db['password'] == hash_password(p))]
                 if not user_check.empty:
                     st.session_state.user = u
                     st.rerun()
-                else: st.error("Hatalı giriş!")
+                else: st.error("Kullanıcı adı veya şifre hatalı.")
     with t2:
         with st.form("reg_form"):
             nu = st.text_input("Yeni Kullanıcı Adı")
             np = st.text_input("Yeni Şifre", type="password")
-            if st.form_submit_button("Kayıt Ol", use_container_width=True):
-                if nu in all_db['username'].values: st.error("Bu kullanıcı mevcut.")
+            if st.form_submit_button("Hesap Oluştur", use_container_width=True):
+                if nu in all_db['username'].values: st.error("Bu kullanıcı adı alınmış.")
                 else:
                     new_u_row = pd.DataFrame([{"username": nu, "password": hash_password(np), "tamamlandi": True, "id": 0, "konu": "Hesap Aktif", "soru_cozulen": 0, "soru_hedef": 1}])
                     save_to_gsheets(pd.concat([all_db, new_u_row], ignore_index=True))
-                    st.success("Kayıt başarılı!")
+                    st.success("Kayıt başarılı! Giriş yapabilirsiniz.")
     st.stop()
 
 # --- 4. ANA PROGRAM ---
 username = st.session_state.user
 user_df = all_db[all_db['username'] == username].copy()
 
-st.sidebar.markdown(f"👤 Hoş geldin, **{username}**")
-if st.sidebar.button("Güvenli Çıkış"):
+st.sidebar.markdown(f"👤 **{username}**")
+if st.sidebar.button("🚪 Çıkış Yap"):
     st.session_state.user = None
     st.rerun()
 
-menu = st.sidebar.radio("Menü", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım"])
-st.markdown('<div class="custom-header"><h1>🚀 <span style="color: #3b82f6;">2026 KPSS</span> KAMPIM</h1></div>', unsafe_allow_html=True)
+menu = st.sidebar.radio("Gezinti", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım"])
+st.markdown('<div class="custom-header"><h1>🚀 <span style="color: #58a6ff;">2026 KPSS</span> KAMPIM</h1></div>', unsafe_allow_html=True)
 
 # --- 5. PLAN OLUŞTUR ---
 if menu == "📝 Plan Oluştur":
-    st.subheader("📝 Yeni Plan")
-    with st.expander("➕ Yeni Ders Ekle", expanded=True):
+    st.subheader("📝 Yeni Çalışma Planı")
+    with st.expander("➕ Yeni Ders Ekle", expanded=False):
         c_add1, c_add2, c_add3 = st.columns([5, 1, 1.5])
-        with c_add1:
-            n_d = st.text_input("Ders Adı", placeholder="Örn: Vatandaşlık", label_visibility="collapsed")
+        with c_add1: n_d = st.text_input("Ders Adı", placeholder="Örn: Vatandaşlık", label_visibility="collapsed")
         with c_add2:
             with st.popover(st.session_state.selected_icon, use_container_width=True):
                 emos = ["📚", "📐", "🏛️", "🌍", "📰", "⚖️", "🧪", "🎨", "💻", "⏰", "💡", "📝", "✅", "🔥"]
@@ -123,67 +146,65 @@ if menu == "📝 Plan Oluştur":
                         st.session_state.selected_icon = emo
                         st.rerun()
         with c_add3:
-            if st.button("Dersi Ekle", use_container_width=True, type="primary"):
+            if st.button("Ekle", use_container_width=True, type="primary"):
                 if n_d: st.session_state.dersler[n_d] = st.session_state.selected_icon; st.rerun()
 
     st.divider()
-    c1, c2 = st.columns(2)
-    with c1:
-        d_s = st.selectbox("Ders Seçin", list(st.session_state.dersler.keys()))
-        k_a = st.text_input("Konu Adı")
-    with c2:
-        t_r = st.date_input("Tarih Seçin", format="DD/MM/YYYY")
-        s_h = st.number_input("Soru Hedefi", min_value=1, value=50)
+    with st.container():
+        c1, c2 = st.columns(2)
+        with c1:
+            d_s = st.selectbox("Ders", list(st.session_state.dersler.keys()))
+            k_a = st.text_input("Konu")
+        with c2:
+            t_r = st.date_input("Tarih", format="DD/MM/YYYY")
+            s_h = st.number_input("Hedef Soru", min_value=1, value=50)
 
-    v_s = st.select_slider("Video Sayısı", options=range(1, 11), value=1)
-    with st.form("plan_form"):
-        v_u = [st.text_input(f"Video {i+1} URL", key=f"u_{i}") for i in range(v_s)]
-        if st.form_submit_button("Planı Kaydet", use_container_width=True):
-            if k_a:
-                v_d = json.dumps([{"url": format_yt_link(u), "done": False} for u in v_u if u.strip()])
-                n_p = pd.DataFrame([{
-                    "username": username, "password": user_df['password'].values[0],
-                    "ders": d_s, "konu": k_a, "tarih": str(t_r), "videolar": v_d,
-                    "soru_hedef": int(s_h), "soru_cozulen": 0, "tamamlandi": False, "id": int(datetime.now().timestamp())
-                }])
-                save_to_gsheets(pd.concat([all_db, n_p], ignore_index=True))
-                st.success("Kaydedildi!"); st.rerun()
+        v_s = st.select_slider("Video Sayısı", options=range(1, 11), value=1)
+        with st.form("plan_form_new"):
+            v_u = [st.text_input(f"Video {i+1} Linki", key=f"unew_{i}") for i in range(v_s)]
+            if st.form_submit_button("Planı Kaydet", use_container_width=True):
+                if k_a:
+                    v_d = json.dumps([{"url": format_yt_link(u), "done": False} for u in v_u if u.strip()])
+                    n_p = pd.DataFrame([{
+                        "username": username, "password": user_df['password'].values[0],
+                        "ders": d_s, "konu": k_a, "tarih": str(t_r), "videolar": v_d,
+                        "soru_hedef": int(s_h), "soru_cozulen": 0, "tamamlandi": False, "id": int(datetime.now().timestamp())
+                    }])
+                    save_to_gsheets(pd.concat([all_db, n_p], ignore_index=True))
+                    st.success("Plan başarıyla eklendi!"); st.rerun()
 
 # --- 6. GÜNLÜK PLANIM ---
 elif menu == "📅 Günlük Planım":
     col_t, col_tog = st.columns([4, 1])
-    with col_t: st.subheader("📅 Görev Takibi")
-    with col_tog: show_history = st.toggle("📜 Arşiv")
+    with col_t: st.subheader("🎯 Bugünkü Görevlerin")
+    with col_tog: show_history = st.toggle("Arşivi Göster")
 
-    # ARŞİV KISMI (EN ÜSTE ALINDI)
+    # ARŞİV (EN ÜSTTE)
     if show_history:
         archive_df = user_df[(user_df['tamamlandi'] == True) & (user_df['konu'] != "Hesap Aktif")]
-        if archive_df.empty: 
-            st.info("Arşiv boş.")
-        else:
-            st.write("### 📜 Arşivlenmiş Planlar")
+        if not archive_df.empty:
+            st.markdown("### 📜 Tamamlananlar")
             for idx, row in archive_df.sort_values(by="tarih", ascending=False).iterrows():
-                with st.container():
-                    st.markdown(f'<div class="history-item"><span>✅ {row["tarih"]} - <b>{row["ders"]}</b>: {row["konu"]}</span></div>', unsafe_allow_html=True)
-                    c_h1, c_h2, _ = st.columns([1, 1, 3])
-                    if c_h1.button("⏪ Geri Al", key=f"rev_{row['id']}"):
-                        all_db.loc[all_db['id'] == row['id'], 'tamamlandi'] = False
-                        save_to_gsheets(all_db); st.rerun()
-                    if c_h2.button("🗑️ Sil", key=f"del_arc_{row['id']}"):
-                        save_to_gsheets(all_db[all_db['id'] != row['id']]); st.rerun()
+                st.markdown(f'<div class="history-item"><span><b>{row["ders"]}</b>: {row["konu"]} <small>({row["tarih"]})</small></span></div>', unsafe_allow_html=True)
+                c_h1, c_h2, _ = st.columns([1, 1, 3])
+                if c_h1.button("⏪ Geri Al", key=f"rev_{row['id']}"):
+                    all_db.loc[all_db['id'] == row['id'], 'tamamlandi'] = False
+                    save_to_gsheets(all_db); st.rerun()
+                if c_h2.button("🗑️ Sil", key=f"del_arc_{row['id']}"):
+                    save_to_gsheets(all_db[all_db['id'] != row['id']]); st.rerun()
             st.divider()
 
-    # AKTİF PLANLAR KISMI
+    # AKTİF PLANLAR
     active_df = user_df[(user_df['tamamlandi'] == False) & (user_df['konu'] != "Hesap Aktif")]
-    if active_df.empty: 
-        st.info("Aktif görev yok.")
+    if active_df.empty:
+        st.info("Şu an aktif bir görev bulunmuyor. Yeni bir plan oluşturabilirsin!")
     else:
         for idx, row in active_df.iterrows():
             ikon = st.session_state.dersler.get(row['ders'], "📌")
             with st.expander(f"{ikon} {row['ders']} - {row['konu']}", expanded=True):
                 v_l = json.loads(row['videolar']) if isinstance(row['videolar'], str) else []
                 
-                cl, cr = st.columns([4, 1.2])
+                cl, cr = st.columns([4, 1.5])
                 with cl:
                     if v_l:
                         num_v = len(v_l)
@@ -195,30 +216,28 @@ elif menu == "📅 Günlük Planım":
                                     st.markdown('<div class="video-item">', unsafe_allow_html=True)
                                     st.video(v['url'])
                                     st.markdown('</div>', unsafe_allow_html=True)
-                                    if st.button(f"✅ V{v_i+1}", key=f"v_{row['id']}_{v_i}", use_container_width=True):
+                                    if st.button(f"İzlendi ✅", key=f"v_{row['id']}_{v_i}", use_container_width=True):
                                         v['done'] = True
                                         all_db.loc[all_db['id'] == row['id'], 'videolar'] = json.dumps(v_l)
                                         save_to_gsheets(all_db); st.rerun()
-                                else: st.caption(f"📺 V{v_i+1} Tamam")
+                                else: st.success(f"Video {v_i+1} bitti")
                 with cr:
-                    # SORU GİRİŞİ VE İSTATİSTİKLER (ARTILI EKSİLİ KISIM KALDIRILDI)
+                    # İstatistik ve Soru Giriş Alanı
                     h_q = int(row['soru_hedef'])
                     c_q = int(row['soru_cozulen'])
                     yuzde = int((c_q / h_q) * 100) if h_q > 0 else 0
                     
-                    st.write(f"🎯 **Hedef:** {h_q}")
-                    n_q = st.number_input("Çözülen", value=c_q, key=f"q_{row['id']}", step=1)
-                    
+                    st.markdown(f"**Hedef Soru:** `{h_q}`")
+                    n_q = st.number_input("Çözülen Soru", value=c_q, key=f"q_{row['id']}")
                     if n_q != c_q:
                         all_db.loc[all_db['id'] == row['id'], 'soru_cozulen'] = int(n_q)
                         save_to_gsheets(all_db); st.rerun()
                     
-                    st.write(f"📊 **İlerleme:** %{yuzde}")
+                    st.markdown(f"**İlerleme:** `%{yuzde}`")
                     st.progress(min(yuzde/100, 1.0))
                     
-                    st.markdown("---")
-                    # BİTİR VE AKTİF PLANDAN SİL BUTONLARI
-                    if st.button("🌟 BİTİR", key=f"f_{row['id']}", use_container_width=True, type="primary"):
+                    st.divider()
+                    if st.button("🌟 GÖREVİ TAMAMLA", key=f"f_{row['id']}", use_container_width=True, type="primary"):
                         all_db.loc[all_db['id'] == row['id'], 'tamamlandi'] = True
                         save_to_gsheets(all_db); st.balloons(); st.rerun()
                     
@@ -228,7 +247,7 @@ elif menu == "📅 Günlük Planım":
 # --- 7. BAŞARILARIM ---
 elif menu == "🏆 Başarılarım":
     bitenler = user_df[user_df['tamamlandi'] == True]
-    st.info(f"🔥 Toplam: {int(bitenler['soru_cozulen'].sum())} Soru")
+    st.info(f"🔥 Toplam Başarın: {int(bitenler['soru_cozulen'].sum())} Soru Çözüldü")
     for d, ikon in st.session_state.dersler.items():
         d_df = user_df[user_df['ders'] == d]
         if not d_df.empty:
@@ -236,6 +255,6 @@ elif menu == "🏆 Başarılarım":
             y = int((len(b_df)/len(d_df))*100)
             st.markdown(f"### {ikon} {d} (%{y})")
             st.progress(y/100)
-            with st.expander("Detaylar"):
+            with st.expander("Biten Konular"):
                 for _, b in b_df.iterrows():
                     st.markdown(f"<div class='success-card'><b>{b['konu']}</b>: {int(b['soru_cozulen'])} soru.</div>", unsafe_allow_html=True)
