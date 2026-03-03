@@ -152,8 +152,8 @@ elif menu == "📅 Günlük Planım":
     with col_t: st.subheader("📅 Görev Takibi")
     with col_tog: show_history = st.toggle("📜 Arşiv")
 
-        display_df = user_df[user_df['tamamlandi'] == show_history]
-        display_df = display_df[display_df['konu'] != "Hesap Aktif"]
+    display_df = user_df[user_df['tamamlandi'] == show_history]
+    display_df = display_df[display_df['konu'] != "Hesap Aktif"]
     
     if show_history:
         for idx, row in display_df.sort_values(by="tarih", ascending=False).iterrows():
@@ -217,5 +217,6 @@ elif menu == "🏆 Başarılarım":
             with st.expander("Detaylar"):
                 for _, b in b_df.iterrows():
                     st.markdown(f"<div class='success-card'><b>{b['konu']}</b>: {int(b['soru_cozulen'])} soru çözüldü.</div>", unsafe_allow_html=True)
+
 
 
