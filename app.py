@@ -1,4 +1,7 @@
-import customtkinter as ctk
+import streamlit as st
+import json
+import os
+from collections import defaultdict
 
 # --- Önceki Header Sınıfı (Aynen Kalabilir) ---
 class AppHeader(ctk.CTkFrame):
@@ -55,5 +58,6 @@ program_verisi = [
 for ders, konu, soru in program_verisi:
     card = CourseCard(scrollable_frame, ders_adi=ders, konu=konu, hedef_soru=soru)
     card.pack(fill="x", pady=10)
+
 
 root.mainloop()
