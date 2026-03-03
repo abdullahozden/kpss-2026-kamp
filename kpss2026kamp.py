@@ -47,6 +47,14 @@ st.markdown("""
     .stExpander { background-color: #161b22 !important; border: 1px solid #30363d !important; border-radius: 12px !important; margin-bottom: 1rem !important; }
     .video-item { background: #0d1117; padding: 8px; border-radius: 10px; border: 1px solid #30363d; margin-bottom: 10px; }
     .history-item { background: rgba(56, 139, 253, 0.1); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid rgba(56, 139, 253, 0.2); }
+    .stat-card {
+        background: #1c2128; padding: 15px; border-radius: 12px; border: 1px solid #30363d;
+        text-align: center; margin-bottom: 10px;
+    }
+    .success-card {
+        background: #0d1117; padding: 12px; border-radius: 8px; border-left: 4px solid #238636;
+        margin-bottom: 8px; border-top: 1px solid #30363d; border-right: 1px solid #30363d; border-bottom: 1px solid #30363d;
+    }
     div[data-testid="stNumberInput"] button { display: none !important; }
     </style>
     """, unsafe_allow_html=True)
@@ -153,7 +161,6 @@ elif menu == "📅 Günlük Planım":
                 st.markdown(f'<div class="history-item"><span><b>{row["ders"]}</b>: {row["konu"]} <small>({row["tarih"]})</small></span></div>', unsafe_allow_html=True)
                 c_h1, c_h2, _ = st.columns([1, 1, 3])
                 if c_h1.button("⏪ Geri Al", key=f"rev_{row['id']}"):
-                    # Geri alırken videoları da sıfırla
                     v_list = json.loads(row['videolar']) if isinstance(row['videolar'], str) else []
                     for v in v_list: v['done'] = False
                     all_db.loc[all_db['id'] == row['id'], 'videolar'] = json.dumps(v_list)
@@ -164,8 +171,7 @@ elif menu == "📅 Günlük Planım":
             st.divider()
 
     active_df = user_df[(user_df['tamamlandi'] == False) & (user_df['konu'] != "Hesap Aktif")]
-    if active_df.empty:
-        st.info("Aktif görev yok.")
+    if active_df.empty: st.info("Aktif görev yok.")
     else:
         for idx, row in active_df.iterrows():
             ikon = st.session_state.dersler.get(row['ders'], "📌")
@@ -196,7 +202,6 @@ elif menu == "📅 Günlük Planım":
                         save_to_gsheets(all_db); st.rerun()
                     st.markdown(f"**İlerleme:** `%{yuzde}`"); st.progress(min(yuzde/100, 1.0)); st.divider()
                     if st.button("🌟 GÖREVİ TAMAMLA", key=f"f_{row['id']}", use_container_width=True, type="primary"):
-                        # Arşive gönderirken videoları sıfırla ki geri gelince taze olsun
                         for v in v_l: v['done'] = False
                         all_db.loc[all_db['id'] == row['id'], 'videolar'] = json.dumps(v_l)
                         all_db.loc[all_db['id'] == row['id'], 'tamamlandi'] = True
@@ -204,17 +209,50 @@ elif menu == "📅 Günlük Planım":
                     if st.button("🗑️ Planı Sil", key=f"del_act_{row['id']}", use_container_width=True):
                         save_to_gsheets(all_db[all_db['id'] != row['id']]); st.rerun()
 
-# --- 7. BAŞARILARIM ---
+# --- 7. BAŞARILARIM (YENİLENDİ) ---
 elif menu == "🏆 Başarılarım":
-    bitenler = user_df[user_df['tamamlandi'] == True]
-    st.info(f"🔥 Toplam Başarın: {int(bitenler['soru_cozulen'].sum())} Soru")
+    bitenler = user_df[(user_df['tamamlandi'] == True) & (user_df['konu'] != "Hesap Aktif")]
+    
+    # Genel İstatistik Kartları
+    total_soru = int(bitenler['soru_cozulen'].sum())
+    total_konu = len(bitenler)
+    
+    st.markdown("### 📊 Genel Başarı Tablon")
+    c_m1, c_m2 = st.columns(2)
+    with c_m1: st.markdown(f'<div class="stat-card"><h2>🔥 {total_soru}</h2>Soru Çözüldü</div>', unsafe_allow_html=True)
+    with c_m2: st.markdown(f'<div class="stat-card"><h2>✅ {total_konu}</h2>Konu Tamamlandı</div>', unsafe_allow_html=True)
+    st.divider()
+
     for d, ikon in st.session_state.dersler.items():
-        d_df = user_df[user_df['ders'] == d]
-        if not d_df.empty:
-            b_df = d_df[d_df['tamamlandi'] == True]
-            y = int((len(b_df)/len(d_df))*100)
+        ders_df = user_df[user_df['ders'] == d]
+        if not ders_df.empty:
+            b_df = ders_df[ders_df['tamamlandi'] == True]
+            
+            # Ders içi video sayısını hesapla
+            toplam_video = 0
+            for _, r in b_df.iterrows():
+                v_data = json.loads(r['videolar']) if isinstance(r['videolar'], str) else []
+                toplam_video += len(v_data)
+            
+            y = int((len(b_df)/len(ders_df))*100) if len(ders_df) > 0 else 0
+            
             st.markdown(f"### {ikon} {d} (%{y})")
             st.progress(y/100)
-            with st.expander("Biten Konular"):
+            
+            col_d1, col_d2, col_d3 = st.columns(3)
+            col_d1.metric("Biten Konu", len(b_df))
+            col_d2.metric("Toplam Soru", int(b_df['soru_cozulen'].sum()))
+            col_d3.metric("İzlenen Video", toplam_video)
+            
+            with st.expander(f"{d} - Tamamlanan Konu Detayları"):
+                if b_df.empty:
+                    st.write("Henüz tamamlanmış konu yok.")
                 for _, b in b_df.iterrows():
-                    st.markdown(f"<div class='success-card'><b>{b['konu']}</b>: {int(b['soru_cozulen'])} soru.</div>", unsafe_allow_html=True)
+                    v_sayisi = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
+                    st.markdown(f"""
+                    <div class="success-card">
+                        <b>{b['konu']}</b><br>
+                        <small>📝 {int(b['soru_cozulen'])} Soru | 📺 {v_sayisi} Video | 📅 {b['tarih']}</small>
+                    </div>
+                    """, unsafe_allow_html=True)
+            st.markdown("<br>", unsafe_allow_html=True)
