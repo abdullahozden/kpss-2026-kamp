@@ -67,6 +67,14 @@ st.markdown("""
     .stat-card { background: #1c2128; padding: 15px; border-radius: 12px; border: 1px solid #30363d; text-align: center; margin-bottom: 10px; }
     .success-card { background: #0d1117; padding: 12px; border-radius: 8px; border-left: 4px solid #238636; margin-bottom: 8px; border-top: 1px solid #30363d; border-right: 1px solid #30363d; border-bottom: 1px solid #30363d; }
     div[data-testid="stNumberInput"] button { display: none !important; }
+    
+    /* Video Sıra Sayısı Stili */
+    .video-label {
+        color: #58a6ff;
+        font-weight: bold;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -159,14 +167,13 @@ if menu == "📝 Plan Oluştur":
 elif menu == "📅 Günlük Planım":
     col_t, col_tog = st.columns([4, 1.2])
     with col_t: st.subheader("🎯 Bugünkü Görevlerin")
-    with col_tog: show_history = st.toggle("✅ Tamamlananlar") # İsim değişti
+    with col_tog: show_history = st.toggle("✅ Tamamlananlar") 
 
     if show_history:
         archive_df = user_df[(user_df['tamamlandi'] == True) & (user_df['konu'] != "Hesap Aktif")]
         if not archive_df.empty:
             st.markdown("### 📜 Tamamlanan Planlar")
             for idx, row in archive_df.sort_values(by="tarih", ascending=False).iterrows():
-                # Butonları sağa almak için satırı kolonlara bölüyoruz
                 c_arc_text, c_arc_rev, c_arc_del = st.columns([4, 0.8, 0.8])
                 with c_arc_text:
                     st.markdown(f'<div class="history-item"><b>{row["ders"]}</b>:   {row["konu"]}    <small>({row["tarih"]})</small></div>', unsafe_allow_html=True)
@@ -197,13 +204,15 @@ elif menu == "📅 Günlük Planım":
                         for v_i, v in enumerate(v_l):
                             with v_cols[v_i % v_cols_num]:
                                 if not v['done']:
+                                    # SIRA SAYISI BURADA EKLENDİ
+                                    st.markdown(f'<div class="video-label">{v_i+1}. Video</div>', unsafe_allow_html=True)
                                     st.markdown('<div class="video-item">', unsafe_allow_html=True)
                                     st.video(v['url']); st.markdown('</div>', unsafe_allow_html=True)
                                     if st.button(f"İzlendi ✅", key=f"v_{row['id']}_{v_i}", use_container_width=True):
                                         v['done'] = True
                                         all_db.loc[all_db['id'] == row['id'], 'videolar'] = json.dumps(v_l)
                                         save_to_gsheets(all_db); st.rerun()
-                                else: st.success(f"Video {v_i+1} bitti")
+                                else: st.success(f"{v_i+1}. Video Bitti")
                 with cr:
                     h_q = int(row['soru_hedef']); c_q = int(row['soru_cozulen'])
                     yuzde = int((c_q / h_q) * 100) if h_q > 0 else 0
@@ -249,9 +258,3 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
-
-
-
-
-
-
