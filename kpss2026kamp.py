@@ -54,15 +54,13 @@ st.markdown("""
         background-color: #161B22; opacity: 0.6; padding: 8px 15px;
         border-radius: 10px; border: 1px dashed #30363D; margin-bottom: 8px;
     }
-    /* Admin Expander'ı daha zarif yapalım */
-    .st-emotion-cache-p4m0vl { background-color: transparent !important; }
     </style>
     """, unsafe_allow_html=True)
 
 if 'data' not in st.session_state:
     st.session_state.data = load_data()
 
-# Admin oturum kontrolü (Session State kullanarak daha stabil hale getiriyoruz)
+# Admin oturum kontrolü
 if 'is_admin_authenticated' not in st.session_state:
     st.session_state.is_admin_authenticated = False
 
@@ -76,25 +74,26 @@ st.markdown("""
 
 # --- 4. SİDEBAR (MENÜ VE GİZLİ ADMİN) ---
 st.sidebar.title("📌 ANA MENÜ")
-menu = st.sidebar.radio("Sayfa Seçimi", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım"], label_visibility="collapsed")
+menu = st.sidebar.radio("Sayfa Seçimi", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım"])
 
 st.sidebar.markdown("---")
 
-# SAKLI ADMİN PANELİ (Sidebar'ın en altında küçük bir yer kaplar)
+# SAKLI ADMİN PANELİ
 with st.sidebar.expander("🔐 Yönetici Girişi"):
-    admin_pass_input = st.text_input("Şifre", type="password", key="admin_key")
-    login_btn = st.button("Sisteme Giriş Yap", use_container_width=True)
-    
-    if login_btn:
-        if admin_pass_input == ADMIN_PASSWORD:
-            st.session_state.is_admin_authenticated = True
-            st.success("Yetki Verildi! ✅")
-            st.rerun()
-        else:
-            st.error("Hatalı Şifre! ❌")
-
-    if st.session_state.is_admin_authenticated:
-        if st.button("Oturumu Kapat", color="red"):
+    if not st.session_state.is_admin_authenticated:
+        admin_pass_input = st.text_input("Şifre", type="password", key="admin_key")
+        login_btn = st.button("Sisteme Giriş Yap", use_container_width=True, type="primary")
+        
+        if login_btn:
+            if admin_pass_input == ADMIN_PASSWORD:
+                st.session_state.is_admin_authenticated = True
+                st.success("Yetki Verildi! ✅")
+                st.rerun()
+            else:
+                st.error("Hatalı Şifre! ❌")
+    else:
+        st.write("✅ Oturum Açık (Admin)")
+        if st.button("Oturumu Kapat", use_container_width=True):
             st.session_state.is_admin_authenticated = False
             st.rerun()
 
@@ -172,44 +171,4 @@ elif menu == "📅 Günlük Planım":
                                     else: st.success(f"Video {idx+1} Bitti")
                     with c_r:
                         st.markdown("**Soru Çözümü**")
-                        q = st.number_input("Adet", value=item['soru_cozulen'], key=f"q_{item['id']}")
-                        if q != item['soru_cozulen']:
-                            item['soru_cozulen'] = q
-                            save_data(st.session_state.data)
-                            st.rerun()
-                        if st.button("🌟 BİTİR", key=f"f_{item['id']}", use_container_width=True):
-                            item['tamamlandi'] = True
-                            save_data(st.session_state.data)
-                            st.rerun()
-
-    if show_history:
-        st.markdown("---")
-        st.markdown("### 📜 Tamamlanan Görev Arşivi")
-        if not tamamlananlar: st.caption("Henüz arşivlenmiş bir görev yok.")
-        else:
-            hist_dict = defaultdict(list)
-            for t in tamamlananlar: hist_dict[t['tarih']].append(t)
-            for gun in sorted(hist_dict.keys(), reverse=True):
-                st.markdown(f"<small style='color:#64748b;'>🗓️ {gun}</small>", unsafe_allow_html=True)
-                for item in hist_dict[gun]:
-                    h_info, h_btn = st.columns([5, 1.2])
-                    with h_info:
-                        st.markdown(f"""<div class="history-card-container"><span>✓ {item['ders']} - <b>{item['konu']}</b></span><span>{item['soru_cozulen']} Soru</span></div>""", unsafe_allow_html=True)
-                    with h_btn:
-                        if is_admin: # Sadece giriş yapmış admin geri alabilir
-                            if st.button("⏪ Geri Al", key=f"un_{item['id']}"):
-                                item['tamamlandi'] = False
-                                for v in item.get('videolar', []): v['done'] = False
-                                save_data(st.session_state.data)
-                                st.rerun()
-
-# --- 7. BAŞARILARIM ---
-elif menu == "🏆 Başarılarım":
-    st.subheader("🏆 Gelişim Raporu")
-    for d, ikon in DERS_AYARLARI.items():
-        tum = [t for t in st.session_state.data if t['ders'] == d]
-        biten = [t for t in tum if t['tamamlandi']]
-        if tum:
-            yuzde = int((len(biten) / len(tum)) * 100)
-            st.write(f"**{ikon} {d}** (%{yuzde})")
-            st.progress(len(biten) / len(tum))
+                        q = st.number_input("Adet", value=item['soru_cozulen'], key=f"q_{item['
