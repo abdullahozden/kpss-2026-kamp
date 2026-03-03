@@ -59,7 +59,7 @@ st.markdown("""
     /* Tamamlananlar (Arşiv) Satırı */
     .history-item {
         background: rgba(56, 139, 253, 0.1);
-        padding: 12px 20px; border-radius: 12px; 
+        padding: 15px 30px; border-radius: 12px; 
         border: 1px solid rgba(56, 139, 253, 0.2);
         display: flex; align-items: center; justify-content: center;
     }
@@ -249,4 +249,5 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
