@@ -61,7 +61,7 @@ st.markdown("""
         background: rgba(56, 139, 253, 0.1);
         padding: 12px 20px; border-radius: 12px; 
         border: 1px solid rgba(56, 139, 253, 0.2);
-        display: flex; align-items: center; justify-content: space-between;
+        display: flex; align-items: center; justify-content: center;
     }
 
     .stat-card { background: #1c2128; padding: 15px; border-radius: 12px; border: 1px solid #30363d; text-align: center; margin-bottom: 10px; }
@@ -249,3 +249,4 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
