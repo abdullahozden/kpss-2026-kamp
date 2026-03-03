@@ -169,7 +169,7 @@ elif menu == "📅 Günlük Planım":
                 # Butonları sağa almak için satırı kolonlara bölüyoruz
                 c_arc_text, c_arc_rev, c_arc_del = st.columns([4, 0.8, 0.8])
                 with c_arc_text:
-                    st.markdown(f'<div class="history-item"><b>{row["ders"]}</b>: {row["konu"]}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="history-item"><b>{row["ders"]}</b>:   {row["konu"]}</div>   <small>({row["tarih"]})</small>', unsafe_allow_html=True)
                 with c_arc_rev:
                     if st.button("⏪", key=f"rev_{row['id']}", help="Geri Al", use_container_width=True):
                         v_list = json.loads(row['videolar']) if isinstance(row['videolar'], str) else []
@@ -249,6 +249,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
