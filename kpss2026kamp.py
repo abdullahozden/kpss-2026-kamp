@@ -81,23 +81,23 @@ st.sidebar.markdown("---")
 # SAKLI ADMİN PANELİ
 with st.sidebar.expander("🔐 Yönetici Girişi"):
     if not st.session_state.is_admin_authenticated:
-        admin_pass_input = st.text_input("Şifre", type="password", key="admin_key")
-        login_btn = st.button("Sisteme Giriş Yap", use_container_width=True, type="primary")
-        
-        if login_btn:
-            if admin_pass_input == ADMIN_PASSWORD:
-                st.session_state.is_admin_authenticated = True
-                st.success("Yetki Verildi! ✅")
-                st.rerun()
-            else:
-                st.error("Hatalı Şifre! ❌")
+        # Enter ile çalışması için bir form içine alıyoruz
+        with st.form("admin_login_form", clear_on_submit=False):
+            admin_pass_input = st.text_input("Şifre", type="password", key="admin_key")
+            submit_login = st.form_submit_button("Sisteme Giriş Yap", use_container_width=True, type="primary")
+            
+            if submit_login:
+                if admin_pass_input == ADMIN_PASSWORD:
+                    st.session_state.is_admin_authenticated = True
+                    st.success("Yetki Verildi! ✅")
+                    st.rerun()
+                else:
+                    st.error("Hatalı Şifre! ❌")
     else:
         st.write("✅ Oturum Açık (Admin)")
         if st.button("Oturumu Kapat", use_container_width=True):
             st.session_state.is_admin_authenticated = False
             st.rerun()
-
-is_admin = st.session_state.is_admin_authenticated
 
 # --- 5. PLAN OLUŞTUR (Admin Korumalı) ---
 if menu == "📝 Plan Oluştur":
@@ -227,3 +227,4 @@ elif menu == "🏆 Başarılarım":
                     st.write(f"{len(biten)} / {len(tum)} Konu Bitti")
                     st.progress(len(biten) / len(tum))
                 st.divider()
+
