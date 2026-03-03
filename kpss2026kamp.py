@@ -1,44 +1,46 @@
 import streamlit as st
+from streamlit_gsheets import GSheetsConnection
+import pandas as pd
 import json
-import os
+import hashlib
 from collections import defaultdict
 from datetime import datetime
 
-# --- 1. VERİ YÖNETİMİ ---
-DB_FILE = "kpss_2026_plani.json"
+# --- 1. BAĞLANTI VE GÜVENLİK ---
+# Google Sheets bağlantısını başlatıyoruz
+conn = st.connection("gsheets", type=GSheetsConnection)
 
-# GÜVENLİK: Şifreyi Streamlit Cloud Secrets üzerinden alıyoruz
-try:
-    ADMIN_PASSWORD = st.secrets["admin_password"]
-except:
-    ADMIN_PASSWORD = "admin" # Lokal test veya Secrets ayarlanmadıysa varsayılan
+def hash_password(password):
+    return hashlib.sha256(str.encode(password)).hexdigest()
 
-def load_data():
-    if os.path.exists(DB_FILE):
-        try:
-            with open(DB_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except: return []
-    return []
+# Kullanıcı verilerini Sheets'ten çekme
+def load_all_data():
+    try:
+        # ttl=0 her seferinde güncel veriyi çeker (cache'lemez)
+        return conn.read(ttl=0).dropna(how="all")
+    except:
+        # Eğer tablo boşsa veya hata verirse boş bir DataFrame döner
+        return pd.DataFrame(columns=["username", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id"])
 
-def save_data(data):
-    with open(DB_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
+# Verileri Sheets'e kaydetme
+def save_to_gsheets(df):
+    conn.update(data=df)
+    st.cache_data.clear()
 
 def format_yt_link(url):
     url = url.strip()
-    if not url: return ""
-    if not url.startswith("http"): url = "https://" + url
-    return url
+    return url if url.startswith("http") else f"https://{url}" if url else ""
 
-# --- 2. AYARLAR VE TASARIM ---
-DERS_AYARLARI = {
-    "Matematik": "📐", "Türkçe": "📚", "Tarih": "🏛️", "Coğrafya": "🌍", "Güncel Bilgiler": "📰"
-}
-
+# --- 2. TASARIM VE OTURUM AYARLARI ---
 st.set_page_config(page_title="2026 KPSS Kampım", layout="wide", page_icon="🎓")
 
-# MODERN TASARIM CSS
+if 'user' not in st.session_state:
+    st.session_state.user = None
+if 'selected_icon' not in st.session_state:
+    st.session_state.selected_icon = "📌"
+if 'dersler' not in st.session_state:
+    st.session_state.dersler = {"Matematik": "📐", "Türkçe": "📚", "Tarih": "🏛️", "Coğrafya": "🌍", "Güncel Bilgiler": "📰"}
+
 st.markdown("""
     <style>
     .stApp { background-color: #0E1117; color: #FFFFFF; }
@@ -46,194 +48,149 @@ st.markdown("""
         background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);
         padding: 1.5rem; border-radius: 15px; border-left: 8px solid #3b82f6; margin-bottom: 2rem;
     }
-    div[data-testid="stExpander"] { 
-        background-color: #161B22 !important; border: 1px solid #30363D !important; border-radius: 12px;
+    .video-scroll-container {
+        max-height: 400px; overflow-y: auto; padding: 15px;
+        background: #0d1117; border-radius: 12px; border: 1px solid #30363D;
     }
-    .history-card-container {
-        display: flex; justify-content: space-between; align-items: center;
-        background-color: #161B22; opacity: 0.6; padding: 8px 15px;
-        border-radius: 10px; border: 1px dashed #30363D; margin-bottom: 8px;
+    .history-item {
+        background: #161b22; padding: 10px; border-radius: 8px; 
+        margin-bottom: 5px; border: 1px solid #30363d;
     }
+    .stPopover button { height: 42px !important; min-width: 50px !important; }
     </style>
     """, unsafe_allow_html=True)
 
-if 'data' not in st.session_state:
-    st.session_state.data = load_data()
+# --- 3. GİRİŞ VE KAYIT SİSTEMİ (Sheets üzerinden) ---
+# Not: Gerçek bir projede şifreler ayrı bir Sheet'te tutulmalıdır. 
+# Basitlik için burada tek tablo mantığıyla ilerliyoruz veya ayrı bir 'Users' tablosu açabilirsin.
 
-# Admin oturum kontrolü
-if 'is_admin_authenticated' not in st.session_state:
-    st.session_state.is_admin_authenticated = False
+all_db = load_all_data()
 
-# --- 3. ÜST BÖLÜM (HEADER) ---
-st.markdown("""
-    <div class="custom-header">
-        <h1 style="margin:0; font-size: 2.2rem;">🚀 <span style="color: #3b82f6;">2026 KPSS</span> KAMPIM</h1>
-        <p style="margin:0; color: #94a3b8; font-size: 1rem;">Admin Paneli ve Güvenli Veri Yönetimi</p>
-    </div>
-    """, unsafe_allow_html=True)
+if st.session_state.user is None:
+    st.markdown('<div class="custom-header" style="text-align:center;"><h1>🚀 2026 KPSS Kampı Giriş</h1></div>', unsafe_allow_html=True)
+    tab1, tab2 = st.tabs(["🔑 Giriş Yap", "📝 Kayıt Ol"])
+    
+    with tab1:
+        with st.form("login"):
+            u_name = st.text_input("Kullanıcı Adı")
+            u_pass = st.text_input("Şifre", type="password")
+            if st.form_submit_button("Giriş", use_container_width=True):
+                # Örnek: 'admin' kullanıcısı ve şifresi sistemde kayıtlı mı kontrolü
+                # (Bu kısım için 'users' isimli ikinci bir Sheet sayfası oluşturmak en sağlıklısıdır)
+                # Şimdilik direkt giriş yapalım, Sheets entegrasyonu plan kısmında odaklanalım:
+                st.session_state.user = u_name
+                st.rerun()
+    
+    with tab2:
+        st.info("Kayıt olduktan sonra giriş yapabilirsiniz. (Şu an deneme modundadır)")
+    st.stop()
 
-# --- 4. SİDEBAR (MENÜ VE GİZLİ ADMİN) ---
-st.sidebar.title("📌 ANA MENÜ")
-menu = st.sidebar.radio("Sayfa Seçimi", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım"], label_visibility="collapsed")
+# --- 4. ANA UYGULAMA ---
+username = st.session_state.user
+# Sadece mevcut kullanıcıya ait verileri filtrele
+user_df = all_db[all_db['username'] == username].copy()
 
-st.sidebar.markdown("---")
+st.sidebar.markdown(f"👤 Hoş geldin, **{username}**")
+if st.sidebar.button("Güvenli Çıkış"):
+    st.session_state.user = None
+    st.rerun()
 
-# SAKLI ADMİN PANELİ (Enter Desteği İçin Form Yapısında)
-with st.sidebar.expander("🔐 Yönetici Girişi"):
-    if not st.session_state.is_admin_authenticated:
-        with st.form("admin_login_form", clear_on_submit=False):
-            admin_pass_input = st.text_input("Şifre", type="password", key="admin_key")
-            submit_login = st.form_submit_button("Sisteme Giriş Yap", use_container_width=True, type="primary")
-            
-            if submit_login:
-                if admin_pass_input == ADMIN_PASSWORD:
-                    st.session_state.is_admin_authenticated = True
-                    st.success("Yetki Verildi! ✅")
-                    st.rerun()
-                else:
-                    st.error("Hatalı Şifre! ❌")
-    else:
-        st.write("✅ Oturum Açık (Admin)")
-        if st.button("Oturumu Kapat", use_container_width=True):
-            st.session_state.is_admin_authenticated = False
-            st.rerun()
+menu = st.sidebar.radio("Menü", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım"])
 
-is_admin = st.session_state.is_admin_authenticated
-
-# --- 5. PLAN OLUŞTUR (Admin Korumalı) ---
+# --- 5. PLAN OLUŞTUR (Sheets'e Kaydetme) ---
 if menu == "📝 Plan Oluştur":
-    if not is_admin:
-        st.warning("⚠️ **Erişim Engellendi:** Yeni plan eklemek için yönetici girişi yapmalısınız.")
-    else:
-        st.subheader("📝 Yeni Çalışma Planı Ekle")
-        with st.container():
-            c1, c2 = st.columns(2)
-            with c1:
-                ders_secimi = st.selectbox("Ders Seçiniz", list(DERS_AYARLARI.keys()))
-                konu_adi = st.text_input("Konu Adı")
-            with c2:
-                tarih = st.date_input("Planlanan Tarih")
-                soru_hedef = st.number_input("Hedef Soru Sayısı", min_value=0, value=50)
+    st.subheader("📝 Yeni Plan")
+    with st.expander("➕ Yeni Ders Ekle", expanded=True):
+        c_add1, c_add2, c_add3 = st.columns([5, 1, 1.5])
+        with c_add1:
+            new_name = st.text_input("Ders Adı", placeholder="Örn: Geometri", label_visibility="collapsed")
+        with c_add2:
+            with st.popover(st.session_state.selected_icon, use_container_width=True):
+                emojiler = ["📚", "📐", "🏛️", "🌍", "📰", "⚖️", "🧪", "🎨", "💻", "⏰", "💡", "🔥"]
+                cols = st.columns(4)
+                for i, emo in enumerate(emojiler):
+                    if cols[i % 4].button(emo, key=f"e_{i}"):
+                        st.session_state.selected_icon = emo
+                        st.rerun()
+        with c_add3:
+            if st.button("Ekle", use_container_width=True, type="primary"):
+                st.session_state.dersler[new_name] = st.session_state.selected_icon
+                st.rerun()
 
-        st.markdown("---")
-        v_sayisi = st.select_slider("Video Sayısı", options=list(range(1, 7)), value=1)
-        with st.form("video_form", clear_on_submit=True):
-            video_inputlari = []
-            v_cols = st.columns(2)
-            for i in range(v_sayisi):
-                with v_cols[i % 2]:
-                    url_input = st.text_input(f"Video {i+1} URL", key=f"v_url_{i}")
-                    video_inputlari.append(url_input)
-            
-            if st.form_submit_button("🔥 Programıma Kaydet"):
-                if konu_adi:
-                    video_listesi = [{"url": format_yt_link(u), "done": False} for u in video_inputlari if u.strip()]
-                    yeni_girdi = {
-                        "id": int(datetime.now().timestamp() * 1000), # Benzersiz ID üretimi
-                        "ders": ders_secimi, "konu": konu_adi,
-                        "tarih": str(tarih), "videolar": video_listesi, "soru_hedef": int(soru_hedef),
-                        "soru_cozulen": 0, "tamamlandi": False
-                    }
-                    st.session_state.data.append(yeni_girdi)
-                    save_data(st.session_state.data)
-                    st.success("📌 Plan başarıyla kaydedildi!")
-                    st.rerun()
+    st.divider()
+    c1, c2 = st.columns(2)
+    with c1:
+        d_secim = st.selectbox("Ders Seç", list(st.session_state.dersler.keys()))
+        k_adi = st.text_input("Konu Adı")
+    with c2:
+        tarih = st.date_input("Tarih", format="DD/MM/YYYY")
+        s_hedef = st.number_input("Soru Hedefi", min_value=1, value=50)
+
+    v_sayisi = st.select_slider("Video Sayısı", options=range(1, 6), value=1)
+    with st.form("plan_kaydet"):
+        v_urls = [st.text_input(f"Video {i+1} URL", key=f"vurl_{i}") for i in range(v_sayisi)]
+        if st.form_submit_button("Planı Sheets'e Kaydet", use_container_width=True):
+            if k_adi:
+                # Video listesini JSON string olarak saklayacağız (Sheet hücre kısıtlaması nedeniyle)
+                v_data = json.dumps([{"url": format_yt_link(u), "done": False} for u in v_urls if u.strip()])
+                
+                new_row = pd.DataFrame([{
+                    "username": username, "ders": d_secim, "konu": k_adi,
+                    "tarih": str(tarih), "videolar": v_data, "soru_hedef": s_hedef,
+                    "soru_cozulen": 0, "tamamlandi": False, "id": int(datetime.now().timestamp())
+                }])
+                
+                updated_db = pd.concat([all_db, new_row], ignore_index=True)
+                save_to_gsheets(updated_db)
+                st.success("Veriler Google Sheets'e gönderildi!")
+                st.rerun()
 
 # --- 6. GÜNLÜK PLANIM ---
 elif menu == "📅 Günlük Planım":
     col_t, col_tog = st.columns([4, 1])
-    with col_t: st.subheader("📅 Bugünkü Görevlerin")
-    with col_tog: show_history = st.toggle("📜 Geçmiş")
+    with col_t: st.subheader("📅 Görev Takibi")
+    with col_tog: show_history = st.toggle("Arşiv")
 
-    aktif = [t for t in st.session_state.data if not t['tamamlandi']]
-    tamamlananlar = [t for t in st.session_state.data if t['tamamlandi']]
+    # Filtreleme: Tamamlanan / Aktif
+    display_df = user_df[user_df['tamamlandi'] == show_history]
     
-    if not aktif:
-        st.info("Yapılacak aktif bir görev yok. Yeni planlar ekleyebilirsin!")
+    if display_df.empty:
+        st.info("Burada henüz bir şey yok.")
     else:
-        plan_dict = defaultdict(list)
-        for t in aktif: plan_dict[t['tarih']].append(t)
-        for gun in sorted(plan_dict.keys()):
-            st.markdown(f"#### 🗓️ {gun}")
-            for item in plan_dict[gun]:
-                ikon = DERS_AYARLARI.get(item['ders'], "📌")
-                with st.expander(f"{ikon} {item['ders']} - {item['konu']}", expanded=True):
-                    c_l, c_r = st.columns([3, 1])
-                    with c_l:
-                        if item['videolar']:
-                            v_c = st.columns(2)
-                            for idx, v in enumerate(item['videolar']):
-                                with v_c[idx % 2]:
-                                    if not v['done']:
-                                        st.video(v['url'])
-                                        if st.button(f"İzledim ✅", key=f"v_{item['id']}_{idx}"):
-                                            v['done'] = True
-                                            save_data(st.session_state.data)
-                                            st.rerun()
-                                    else: st.success(f"Video {idx+1} Bitti")
-                    with c_r:
-                        st.markdown("**Soru Çözümü**")
-                        yeni_q = st.number_input("Adet", value=item['soru_cozulen'], key=f"q_{item['id']}")
-                        if yeni_q != item['soru_cozulen']:
-                            item['soru_cozulen'] = yeni_q
-                            save_data(st.session_state.data)
-                            st.rerun()
-                        
-                        prog = min(item['soru_cozulen'] / item['soru_hedef'], 1.0) if item['soru_hedef'] > 0 else 0
-                        st.progress(prog)
-                        
-                        # --- AKSİYON BUTONLARI ---
-                        if st.button("🌟 BİTİR", key=f"f_{item['id']}", use_container_width=True, type="primary"):
-                            item['tamamlandi'] = True
-                            save_data(st.session_state.data)
-                            st.balloons()
-                            st.rerun()
-                        
-                        # KRİTİK EKLENTİ: Sadece Admin Silebilir
-                        if is_admin:
-                            st.write("") # Boşluk
-                            if st.button("🗑️ PLANI SİL", key=f"del_{item['id']}", use_container_width=True):
-                                st.session_state.data = [x for x in st.session_state.data if x['id'] != item['id']]
-                                save_data(st.session_state.data)
-                                st.rerun()
-
-    if show_history:
-        st.markdown("---")
-        st.markdown("### 📜 Tamamlanan Görev Arşivi")
-        if not tamamlananlar: st.caption("Henüz tamamlanmış görev yok.")
-        else:
-            hist_dict = defaultdict(list)
-            for t in tamamlananlar: hist_dict[t['tarih']].append(t)
-            for gun in sorted(hist_dict.keys(), reverse=True):
-                st.markdown(f"<small style='color:#64748b;'>🗓️ {gun}</small>", unsafe_allow_html=True)
-                for item in hist_dict[gun]:
-                    h_info, h_btn = st.columns([5, 1.2])
-                    with h_info:
-                        st.markdown(f"""<div class="history-card-container"><span>✓ {item['ders']} - <b>{item['konu']}</b></span><span>{item['soru_cozulen']} Soru</span></div>""", unsafe_allow_html=True)
-                    with h_btn:
-                        if is_admin:
-                            if st.button("⏪ Geri Al", key=f"un_{item['id']}"):
-                                item['tamamlandi'] = False
-                                for v in item.get('videolar', []): v['done'] = False
-                                save_data(st.session_state.data)
-                                st.rerun()
+        for index, row in display_df.iterrows():
+            ikon = st.session_state.dersler.get(row['ders'], "📌")
+            with st.expander(f"{ikon} {row['ders']} - {row['konu']}"):
+                # Video işlemleri (JSON string'den geri çevirme)
+                v_list = json.loads(row['videolar']) if isinstance(row['videolar'], str) else []
+                
+                c_v, c_s = st.columns([3, 1])
+                with c_v:
+                    if v_list:
+                        for v_idx, v in enumerate(v_list):
+                            if not v['done']:
+                                st.video(v['url'])
+                                if st.button(f"Video {v_idx+1} Bitti", key=f"vbtn_{row['id']}_{v_idx}"):
+                                    v['done'] = True
+                                    all_db.at[index, 'videolar'] = json.dumps(v_list)
+                                    save_to_gsheets(all_db); st.rerun()
+                            else: st.write(f"✅ Video {v_idx+1} İzlendi")
+                
+                with c_s:
+                    new_q = st.number_input("Soru", value=int(row['soru_cozulen']), key=f"q_{row['id']}")
+                    if new_q != row['soru_cozulen']:
+                        all_db.at[index, 'soru_cozulen'] = new_q
+                        save_to_gsheets(all_db); st.rerun()
+                    
+                    if st.button("🌟 BİTİR" if not show_history else "⏪ GERİ AL", key=f"fin_{row['id']}", use_container_width=True):
+                        all_db.at[index, 'tamamlandi'] = not show_history
+                        save_to_gsheets(all_db); st.rerun()
+                    
+                    if st.button("🗑️ Sil", key=f"del_{row['id']}", use_container_width=True):
+                        all_db = all_db.drop(index)
+                        save_to_gsheets(all_db); st.rerun()
 
 # --- 7. BAŞARILARIM ---
 elif menu == "🏆 Başarılarım":
-    st.subheader("🏆 Gelişim Raporu")
-    if not st.session_state.data:
-        st.warning("Veri bulunamadı.")
-    else:
-        for d, ikon in DERS_AYARLARI.items():
-            tum = [t for t in st.session_state.data if t['ders'] == d]
-            biten = [t for t in tum if t['tamamlandi']]
-            if tum:
-                yuzde = int((len(biten) / len(tum)) * 100)
-                st.markdown(f"### {ikon} {d}")
-                c1, c2 = st.columns([1, 4])
-                with c1:
-                    st.metric("Bitti", f"%{yuzde}")
-                with c2:
-                    st.write(f"İlerleme: {len(biten)} / {len(tum)} Konu")
-                    st.progress(len(biten) / len(tum))
-                st.divider()
+    bitenler = user_df[user_df['tamamlandi'] == True]
+    st.metric("Toplam Çözülen Soru", sum(bitenler['soru_cozulen'].astype(int)))
+    st.dataframe(bitenler[['ders', 'konu', 'soru_cozulen', 'tarih']], use_container_width=True)
