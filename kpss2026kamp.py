@@ -90,7 +90,7 @@ user_df = all_db[all_db['username'] == st.session_state.user].copy()
 st.sidebar.subheader(f"👤 {st.session_state.user}")
 if st.sidebar.button("🚪 Çıkış"): st.session_state.user = None; st.rerun()
 
-menu = st.sidebar.radio("Menü", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım"])
+menu = st.sidebar.radio("Menü", ["📅 Ders Çalışma Planım", "📝 Plan Oluştur", "🏆 Başarılarım"])
 st.markdown(f'<div class="custom-header"><h1>🚀 <span style="color: #58a6ff;">2026 KPSS</span> PLANI</h1></div>', unsafe_allow_html=True)
 
 # --- PLAN OLUŞTUR ---
@@ -174,4 +174,5 @@ elif menu == "🏆 Başarılarım":
             with st.expander("Detaylar"):
                 for _, b in b_df.iterrows():
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b> - {int(b["soru_cozulen"])} Soru</div>', unsafe_allow_html=True)
+
 
