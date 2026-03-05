@@ -160,17 +160,19 @@ st.sidebar.markdown("""
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 35vh; /* Neredeyse tüm ekran boyu */
+            min-height: 25vh; /* Neredeyse tüm ekran boyu */
         }
         /* Metinleri ve başlıkları ortala */
         [data-testid="stSidebarUserContent"] .stMarkdown, 
         [data-testid="stSidebarUserContent"] .stCaption {
-            text-align: center;
+            text-align: center
+            align: center;
             width: 100%;
         }
         /* Menü seçeneklerini (Radio buttons) ortala */
         [data-testid="stSidebarNavItems"], [data-testid="stWidgetLabel"] {
             display: flex;
+            align: center;
             justify-content: center;
             width: 100%;
         }
@@ -521,6 +523,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
