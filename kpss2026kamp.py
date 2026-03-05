@@ -433,8 +433,9 @@ elif menu == "📊 Deneme Takibi":
                     if st.button("🗑️", key=f"del_deneme_{d_row['id']}", use_container_width=True):
                         # Seçili ID hariç diğerlerini sakla ve güncelle
                         save_to_gsheets(all_db[all_db['id'] != d_row['id']])
-                        st.toast("Deneme silindi.")
+                        st.toast(f"🗑️ "Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
