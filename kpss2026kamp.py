@@ -155,7 +155,7 @@ st.sidebar.markdown("""
         /* 1. Sidebar içeriğini yukarı sabitle ve boşlukları sıfırla */
         [data-testid="stSidebarUserContent"] {
             margin-top: -20px !important;
-            margin-bottom: -20px;
+            margin-bottom: -20px !important;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -546,6 +546,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
