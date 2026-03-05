@@ -303,14 +303,22 @@ elif menu == "📅 Günlük Planım":
                                         save_to_gsheets(all_db); st.rerun()
                                 else: st.success(f"{v_i+1}. Video Bitti")
                 with cr:
-                    h_q = int(row['soru_hedef']); c_q = int(row['soru_cozulen'])
-                    yuzde = int((c_q / h_q) * 100) if h_q > 0 else 0
-                    st.markdown(f"**Hedef:** `{h_q}`")
-                    n_q = st.number_input("Çözülen", value=c_q, key=f"q_{row['id']}")
+                    # 1. Veri Hazırlığı
+                    h_q = int(row['soru_hedef'])
+                    c_q = int(row['soru_cozulen'])
+                    yuzde_float = min(c_q / h_q, 1.0) if h_q > 0 else 0.0
+                    st.write(f"📊 **Soru İlerlemesi: %{int(yuzde_float * 100)}**")
+                    st.progress(yuzde_float)
+                    m_col1, m_col2 = st.columns(2)
+                    m_col1.metric("Hedef", f"{h_q}")
+                    fark = c_q - h_q
+                    m_col2.metric("Çözülen", f"{c_q}", delta=fark if fark != 0 else None)
+                    n_q = st.number_input("Sayıyı Güncelle", value=c_q, key=f"q_{row['id']}", label_visibility="collapsed")
                     if n_q != c_q:
                         all_db.loc[all_db['id'] == row['id'], 'soru_cozulen'] = int(n_q)
-                        save_to_gsheets(all_db); st.rerun()
-                    st.markdown(f"**İlerleme:** `%{yuzde}`"); st.progress(min(yuzde/100, 1.0)); st.divider()
+                        save_to_gsheets(all_db)
+                        st.rerun()
+                    st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
                     if st.button("🌟 GÖREVİ TAMAMLA", key=f"f_{row['id']}", use_container_width=True, type="primary"):
                         for v in v_l: v['done'] = False
                         all_db.loc[all_db['id'] == row['id'], 'videolar'] = json.dumps(v_l)
@@ -354,6 +362,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
