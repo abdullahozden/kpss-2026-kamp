@@ -431,8 +431,8 @@ elif menu == "📊 Deneme Takibi":
                 with col_puan:
                     st.markdown(f"""
                         <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-                            <h2 style="margin: 0; color: {color}; font-size: 2rem;">{puan:.2f}</h2>
-                            <p style="margin: 0; opacity: 0.8; font-size: 0.9rem;">Hedefe Uzaklık: {fark:.2f}</p>
+                            <h2 style="margin: 0; color: {color}; font-size: 2.2rem;">{puan:.2f}</h2>
+                            <p style="margin: 0; opacity: 0.8; font-size: 1rem;">Hedefe Uzaklık: {fark:.2f}</p>
                             <div style="margin-top: 15px;"></div>
                             <p style="font-style: italic; font-size: 1.2rem; color: {color}; font-weight: 500;">{msg}</p>
                         </div>
@@ -444,3 +444,4 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
