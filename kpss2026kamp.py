@@ -107,7 +107,7 @@ if st.session_state.user is None:
             if st.form_submit_button("Hesap Oluştur", use_container_width=True):
                 if nu in all_db['username'].values: st.error("Bu kullanıcı mevcut.")
                 else:
-                    new_u_row = pd.DataFrame([{"username": nu, "password": hash_password(np), "tamamlandi": False, "id": int(time.time()), "konu": "Hesap Aktif", "soru_cozulen": 0, "soru_hedef": 1, "puan_hedef": 0.0, "ders": "Genel"}])
+                    new_u_row = pd.DataFrame([{"username": nu, "display_name": nu; "password": hash_password(np), "tamamlandi": False, "id": int(time.time()), "konu": "Hesap Aktif", "soru_cozulen": 0, "soru_hedef": 1, "puan_hedef": 0.0, "ders": "Genel"}])
                     save_to_gsheets(pd.concat([all_db, new_u_row], ignore_index=True))
                     st.success("Kayıt başarılı!")
     st.stop()
@@ -120,24 +120,43 @@ if not user_df.empty and 'puan_hedef' in user_df.columns:
     mevcut_hedef = float(val) if pd.notna(val) else 0.0
 else:
     mevcut_hedef = 0.0
-
-st.sidebar.markdown(f"👤 **{username}**")
+    
+d_name = user_df['display_name'].iloc[0] if 'display_name' in user_df.columns and not pd.isna(user_df['display_name'].iloc[0]) else username
+st.sidebar.markdown(f"👤 **{d_name}** <small>(@{username})</small>", unsafe_allow_html=True)
 if st.sidebar.button("🚪 Çıkış Yap", use_container_width=True):
     st.session_state.user = None
     st.rerun()
 st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
 with st.sidebar.expander("⚙️ Hesap Ayarları"):
     st.subheader("Profil Düzenle")
-    # 1. Kullanıcı Adı Değiştirme
-    yeni_u = st.text_input("Yeni Kullanıcı Adı", value=username)
-    if st.button("Kullanıcı Adını Güncelle"):
-        if yeni_u and yeni_u != username:
+    with st.sidebar.expander("⚙️ Hesap Ayarları"):
+    st.subheader("Profil Düzenle")
+    # --- A. GÖRÜNEN AD DEĞİŞTİRME ---
+    current_dn = user_df['display_name'].iloc[0] if 'display_name' in user_df.columns else username
+    yeni_display = st.text_input("Ekranda Görünecek Adın", value=current_dn)
+    if st.button("İsmi Güncelle"):
+        all_db.loc[all_db['username'] == username, 'display_name'] = yeni_display
+        save_to_gsheets(all_db)
+        st.success("Görünen isminiz güncellendi!")
+        time.sleep(1)
+        st.rerun()
+    st.divider()
+    # --- B. GİRİŞ ADI (USERNAME) DEĞİŞTİRME + ÇAKIŞMA KONTROLÜ ---
+    yeni_u = st.text_input("Giriş Kullanıcı Adını Değiştir", value=username)
+    if st.button("Kullanıcı Adını Onayla"):
+        if yeni_u == username:
+            st.info("Zaten bu kullanıcı adındasınız.")
+        elif yeni_u in all_db['username'].values:
+            # DİKKAT: Burada çakışma kontrolü yapıyoruz!
+            st.error("⚠️ Bu kullanıcı adı başkası tarafından alınmış! Başka bir ad seçin.")
+        elif yeni_u:
+            # Veritabanındaki tüm satırları güncelle
             all_db.loc[all_db['username'] == username, 'username'] = yeni_u
             save_to_gsheets(all_db)
-            st.session_state.user = yeni_u
-            st.success("Kullanıcı adı değişti!")
+            st.session_state.user = yeni_u # Session'ı güncelle ki sistemden atmasın
+            st.success("Kullanıcı adınız başarıyla değiştirildi!")
+            time.sleep(1)
             st.rerun()
-    st.markdown("<hr style='margin:2px 0px;'>", unsafe_allow_html=True)
     # 2. Hedef Puan Belirleme
     mevcut_hedef = user_df['puan_hedef'].iloc[0] if 'puan_hedef' in user_df.columns else 0
     yeni_hedef = st.number_input("Hedef KPSS Puanı", min_value=0.0, max_value=100.0, value=float(mevcut_hedef), step=0.5)
@@ -444,6 +463,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
