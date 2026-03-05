@@ -50,7 +50,7 @@ def load_lottieurl(url: str):
         return None
 
 # Load Lottie animations
-lottie_celebration = load_lottieurl("https://lottie.host/4db68bdb-e273-49e0-9439-421292e78cc9/E4yNFtGYzr.json")
+lottie_celebration = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_u4yrau.json")
 
 st.set_page_config(page_title="2026 KPSS ÇALIŞMA PLANI", layout="wide", page_icon="🎓")
 # --- 0. SESSION STATE BAŞLATMA ---
@@ -436,6 +436,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
