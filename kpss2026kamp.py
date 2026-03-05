@@ -154,36 +154,35 @@ st.sidebar.markdown("""
     <style>
         /* 1. Sidebar içeriğini yukarı sabitle ve boşlukları sıfırla */
         [data-testid="stSidebarUserContent"] {
-            padding-top: 1rem !important;
+            padding-top: -1rem !important;
             display: flex;
-            flex-direction: column;
-            justify-content: flex-start !important; /* Ortalamayı bırak, yukarı yasla */
-            height: 100vh;
+            justify-content: flex-center !important; /* Ortalamayı bırak, yukarı yasla */
+            height: 35vh;
         }
         /* 2. Widgetlar (butonlar, radiolar) arasındaki boşluğu aşırı daralt */
         [data-testid="stVerticalBlock"] > div {
-            gap: 0.2rem !important;
+            gap: 0.4rem !important;
             margin-bottom: -0.5rem !important;
         }
         /* 3. Expander (Ayarlar) içindeki boşlukları küçült */
         [data-testid="stExpander"] [data-testid="stVerticalBlock"] {
-            gap: 0.1rem !important;
+            gap: 1rem !important;
         }
         /* 4. Yazı boyutlarını ve buton yüksekliklerini biraz küçült */
         .stButton button {
-            padding-top: 0.2rem !important;
-            padding-bottom: 0.2rem !important;
-            min-height: 1.8rem !important;
-            font-size: 0.85rem !important;
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+            min-height: 2rem !important;
+            font-size: 1rem !important;
         }
         /* 5. Radio buton (Menü) yazılarını küçült */
         [data-testid="stWidgetLabel"] p {
-            font-size: 0.9rem !important;
+            font-size: 1rem !important;
         }
         /* 6. Input kutularını daralt */
         .stTextInput input, .stNumberInput input {
-            padding: 0.3rem !important;
-            font-size: 0.85rem !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
         }
         /* 7. Scroll barı gizle (Zorunlu kalmadıkça çıkmaz) */
         [data-testid="stSidebar"] {
@@ -536,6 +535,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
