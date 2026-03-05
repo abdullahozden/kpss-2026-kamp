@@ -175,6 +175,7 @@ st.sidebar.markdown("""
         }
         /* 3. Expander (Ayarlar) içindeki boşlukları küçült */
         [data-testid="stExpander"] [data-testid="stVerticalBlock"] {
+            margin-top: 2px;
             gap: 1rem !important;
         }
         /* 4. Yazı boyutlarını ve buton yüksekliklerini biraz küçült */
@@ -546,6 +547,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
