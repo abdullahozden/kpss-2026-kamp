@@ -145,10 +145,33 @@ if not user_df.empty:
 else:
     # Eğer user_df tamamen boşsa (giriş hatası veya veri çekme gecikmesi)
     d_name = username
+    
+# Sidebar elemanlarını dikeyde ortalamak için CSS
+st.sidebar.markdown("""
+    <style>
+        /* Sidebar'ın içindeki ana alanı seçiyoruz */
+        [data-testid="stSidebarNavItems"] {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 70vh; /* Ekran yüksekliğinin %70'ini kapla */
+        }
+        
+        /* Kullanıcı adı ve ikon kısmını da merkeze odakla */
+        section[data-testid="stSidebar"] .stMarkdown {
+            text-align: center;
+        }
+        
+        /* Butonları genişlet ve hizala */
+        section[data-testid="stSidebar"] .stButton button {
+            width: 100%;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # Artık d_name değişkeni her durumda dolu, hata vermez:
 st.sidebar.markdown(f"👤 **{d_name}** <medium>(@{username})</medium>", unsafe_allow_html=True)
 menu = st.sidebar.radio("Gezinti", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
-
 with st.sidebar.expander("⚙️ Hesap Ayarları"):
     st.subheader("Profil Düzenle")
     # Mevcut display_name'i çek (yoksa kullanıcı adını kullan)
@@ -470,6 +493,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
