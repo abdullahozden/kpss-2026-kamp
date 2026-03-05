@@ -150,7 +150,7 @@ else:
 st.sidebar.markdown(f"### 👤 {d_name}")
 st.sidebar.caption(f"@{username}")
 st.sidebar.markdown("""
-    <hr style="margin-top: 5px; margin-bottom: 5px; border: 0; border-top: 1px solid #444; opacity: 0.3;">
+    <hr style="margin-top: 5px; margin-bottom: 5px; border: 0; border-top: 1px solid #444; opacity: 0.5;">
 """, unsafe_allow_html=True)
 st.sidebar.markdown("""
     <style>
@@ -524,6 +524,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
