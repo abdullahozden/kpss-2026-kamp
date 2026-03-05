@@ -190,7 +190,6 @@ if menu == "📝 Plan Oluştur":
                 # Geri bildirimler
                 st.toast(f"✅ {k_a} başarıyla planlandı!", icon="📅")
                 st.success("Plan eklendi! Liste güncelleniyor...")
-                time.sleep(1)
                 st.rerun()
             else:
                 st.error("Lütfen bir konu ismi girin!")
@@ -303,6 +302,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
