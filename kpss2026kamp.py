@@ -154,27 +154,34 @@ st.sidebar.markdown("""
 """, unsafe_allow_html=True)
 st.sidebar.markdown("""
     <style>
-        /* Expander (Hesap Ayarları) içindeki her şeyi ortala */
-        [data-testid="stExpander"] .stButton button {
-            width: 100% !important;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
+        /* Sidebar'ın ana konteynerini flex yap ve ortala */
+        [data-testid="stSidebarUserContent"] {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 35vh; /* Neredeyse tüm ekran boyu */
         }
-        
-        /* Expander içindeki metin giriş alanlarını ve etiketleri ortala */
-        [data-testid="stExpander"] .stMarkdown, 
-        [data-testid="stExpander"] label {
-            text-align: center !important;
-            display: block;
+        /* Metinleri ve başlıkları ortala */
+        [data-testid="stSidebarUserContent"] .stMarkdown, 
+        [data-testid="stSidebarUserContent"] .stCaption {
+            text-align: center;
             width: 100%;
         }
-
-        /* Sayı giriş alanını (Numeric Input) ortala */
-        [data-testid="stExpander"] .stNumberInput {
+        /* Menü seçeneklerini (Radio buttons) ortala */
+        [data-testid="stSidebarNavItems"], [data-testid="stWidgetLabel"] {
+            display: flex;
+            justify-content: center;
             width: 100%;
+        }
+        /* Sidebar içindeki tüm butonları genişlet ve hizala */
+        section[data-testid="stSidebar"] .stButton button {
+            width: 100%;
+            justify-content: center;
+            align-items: center;
         }
     </style>
+""", unsafe_allow_html=True)
 """, unsafe_allow_html=True)
 menu = st.sidebar.radio(["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
 with st.sidebar.expander("⚙️ Hesap Ayarları"):
@@ -520,6 +527,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
