@@ -51,33 +51,50 @@ def load_lottieurl(url: str):
         return None
 
 def konfeti_patlat():
-    # CSS: Iframe sınırlarını ve taşma engelini kaldırır
-    st.markdown("""
-        <style>
-        iframe[title="streamlit.components.v1.html"] {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 9999;
-            pointer-events: none; /* Altındaki butonlara basılabilmesini sağlar */
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
     confetti_js = """
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>
-        confetti({
-            particleCount: 200,
-            spread: 100,
-            origin: { y: 0.6 },
-            zIndex: 9999
-        });
+        // 1. Kutuyu (iframe) bul ve tüm ekranı kaplat
+        var container = window.frameElement;
+        container.style.position = "fixed";
+        container.style.top = "0";
+        container.style.left = "0";
+        container.style.width = "100vw";
+        container.style.height = "100vh";
+        container.style.zIndex = "999999";
+        container.style.pointerEvents = "none"; // Altındaki butonlara basılabilsin
+
+        // 2. Konfeti Şovu Başlasın
+        var end = Date.now() + (4 * 1000); // 4 saniye sürsür
+
+        (function frame() {
+          confetti({
+            particleCount: 10,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0, y: 0.7 },
+            zIndex: 999999
+          });
+          confetti({
+            particleCount: 10,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1, y: 0.7 },
+            zIndex: 999999
+          });
+
+          if (Date.now() < end) {
+            requestAnimationFrame(frame);
+          } else {
+            // 3. Şov bittiğinde kutuyu tekrar küçült ve görünmez yap
+            container.style.width = "0";
+            container.style.height = "0";
+          }
+        }());
     </script>
     """
-    components.html(confetti_js, height=0, width=0)
+    # Buradaki height ve width değerleri başlangıçta 1 olsun, JS onu büyütecek
+    components.html(confetti_js, height=1, width=1)
     
 # Load Lottie animations
 lottie_celebration = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_u4yrau.json")
@@ -457,8 +474,6 @@ elif menu == "📊 Deneme Takibi":
                 col_bilgi, col_puan, col_islem = st.columns([3, 2, 1])
                 if fark >= 0:
                     st.success("🎉 HEDEFE ULAŞTIN TEBRİKLER! 🎉")
-                    if lottie_celebration:
-                        st_lottie(lottie_celebration, height=150, key=f"lottie_{d_row['id']}")
                 with col_bilgi:
                     st.markdown(f"**{d_row['konu']}**")
                     st.caption(f"📅 {d_row['tarih']}")
@@ -474,6 +489,7 @@ elif menu == "📊 Deneme Takibi":
                         time.sleep(1)
                         st.rerun()
                 st.markdown(f"<p style='font-style:italic; font-size:0.85rem; color:{color};'>{msg}</p>", unsafe_allow_html=True)
+
 
 
 
