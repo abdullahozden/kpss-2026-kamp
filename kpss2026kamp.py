@@ -149,29 +149,29 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
     st.subheader("Görünüm")
     tema = st.radio("Tema Seçimi", ["Karanlık", "Aydınlık"], index=0 if st.session_state.get('theme') == 'dark' else 1)
     if tema == "Aydınlık":
-    st.markdown("""
-        <style>
-        /* Tüm arka planı ve metin renklerini zorla değiştir */
-        .stApp, [data-testid="stAppViewContainer"] {
-            background-color: #FFFFFF !important;
-            color: #000000 !important;
-        }
-        /* Sidebar (Yan Menü) için aydınlık tema */
-        [data-testid="stSidebar"] {
-            background-color: #F0F2F6 !important;
-        }
-        /* Yazıların görünmesi için */
-        h1, h2, h3, p, span, label {
-            color: #1F2937 !important;
-        }
-        /* Header kartını aydınlık yap */
-        .custom-header {
-            background: #F3F4F6 !important;
-            border-bottom: 4px solid #3B82F6 !important;
-            color: #1F2937 !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
+        st.markdown("""
+            <style>
+            /* Tüm arka planı ve metin renklerini zorla değiştir */
+            .stApp, [data-testid="stAppViewContainer"] {
+                background-color: #FFFFFF !important;
+                color: #000000 !important;
+            }
+            /* Sidebar (Yan Menü) için aydınlık tema */
+            [data-testid="stSidebar"] {
+                background-color: #F0F2F6 !important;
+            }
+            /* Yazıların görünmesi için */
+            h1, h2, h3, p, span, label {
+                color: #1F2937 !important;
+            }
+            /* Header kartını aydınlık yap */
+            .custom-header {
+                background: #F3F4F6 !important;
+                border-bottom: 4px solid #3B82F6 !important;
+                color: #1F2937 !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
     else:
         st.session_state.theme = 'dark'
     st.markdown("<hr style='margin:2px 0px;'>", unsafe_allow_html=True)
@@ -375,6 +375,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
