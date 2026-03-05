@@ -154,33 +154,29 @@ st.sidebar.markdown("""
 """, unsafe_allow_html=True)
 st.sidebar.markdown("""
     <style>
-        /* Sidebar'ın ana konteynerini flex yap ve ortala */
-        [data-testid="stSidebarUserContent"] {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 40vh; /* Neredeyse tüm ekran boyu */
+        /* Expander (Hesap Ayarları) içindeki her şeyi ortala */
+        [data-testid="stExpander"] .stButton button {
+            width: 100% !important;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
-        /* Metinleri ve başlıkları ortala */
-        [data-testid="stSidebarUserContent"] .stMarkdown, 
-        [data-testid="stSidebarUserContent"] .stCaption {
-            text-align: center;
+        
+        /* Expander içindeki metin giriş alanlarını ve etiketleri ortala */
+        [data-testid="stExpander"] .stMarkdown, 
+        [data-testid="stExpander"] label {
+            text-align: center !important;
+            display: block;
             width: 100%;
         }
-        /* Menü seçeneklerini (Radio buttons) ortala */
-        [data-testid="stSidebarNavItems"], [data-testid="stWidgetLabel"] {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-        }
-        /* Sidebar içindeki tüm butonları genişlet ve hizala */
-        section[data-testid="stSidebar"] .stButton button {
+
+        /* Sayı giriş alanını (Numeric Input) ortala */
+        [data-testid="stExpander"] .stNumberInput {
             width: 100%;
         }
     </style>
 """, unsafe_allow_html=True)
-menu = st.sidebar.radio("Gezinti", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
+menu = st.sidebar.radio(["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
 with st.sidebar.expander("⚙️ Hesap Ayarları"):
     st.subheader("Profil Düzenle")
     # Mevcut display_name'i çek (yoksa kullanıcı adını kullan)
@@ -524,6 +520,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
