@@ -182,7 +182,6 @@ st.sidebar.markdown("""
         }
     </style>
 """, unsafe_allow_html=True)
-""", unsafe_allow_html=True)
 menu = st.sidebar.radio(["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
 with st.sidebar.expander("⚙️ Hesap Ayarları"):
     st.subheader("Profil Düzenle")
@@ -527,6 +526,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
