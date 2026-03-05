@@ -359,6 +359,12 @@ elif menu == "📊 Deneme Takibi":
         d_ad = st.text_input("Deneme Adı/Yayın", placeholder="Örn: Pegem TG-1")
         if st.button("🚀 Denemeyi Arşive Kaydet", use_container_width=True):
             if d_ad:
+                gk_net = gk_d - (gk_y * 0.25)
+                gy_net = gy_d - (gy_y * 0.25)
+                hesaplanan_puan = 40 + ((gk_net + gy_net) * 0.5)
+                if hesaplanan_puan >= hedef_puan:
+                    st.balloons()
+                    st.toast("🎯 HEDEF AŞILDI! Mükemmel sonuç!", icon="🎉")
                 yeni_deneme = pd.DataFrame([{
                 "username": username, 
                 "password": user_df['password'].values[0],
@@ -401,7 +407,6 @@ elif menu == "📊 Deneme Takibi":
             fark = puan - h_puan
                 # Motivasyon Mesajı Belirleme
             if fark >= 0:
-                st.balloons()
                 msg = "🔥 Mükemmel! Hedefin üzerindesin, bu iş bitti!"
                 color = "#238636"
             elif fark >= -10:
@@ -430,6 +435,7 @@ elif menu == "📊 Deneme Takibi":
                             st.toast("🗑️  Deneme silindi.")
                             time.sleep(1)
                             st.rerun()
+
 
 
 
