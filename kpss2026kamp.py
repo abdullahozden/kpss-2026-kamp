@@ -184,47 +184,22 @@ st.sidebar.markdown("""
 """, unsafe_allow_html=True)
 menu = st.sidebar.radio("", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
 with st.sidebar.expander("⚙️ Hesap Ayarları"):
-    st.subheader("Profil Düzenle")
-    # Mevcut display_name'i çek (yoksa kullanıcı adını kullan)
-    current_display_name = user_df['display_name'].iloc[0] if 'display_name' in user_df.columns else username
-    # 1. Görünen Adı Değiştir (Sadece ekranda değişir, girişi etkilemez)
-    yeni_display = st.text_input("Ekranda Görünecek Adın", value=current_display_name)
-    if st.button("Görünen Adı Güncelle"):
+    # 1. Görünen Ad Kısmı
+    yeni_display = st.text_input("Ekranda Görünecek Adın", value=current_dn, key="set_dn")
+    if st.button("Görünen Adı Güncelle", key="btn_dn"):
         all_db.loc[all_db['username'] == username, 'display_name'] = yeni_display
         save_to_gsheets(all_db)
         st.success("İsim güncellendi!")
         st.rerun()
-        st.sidebar.markdown("""
-    <style>
-        /* Expander (Hesap Ayarları) içindeki her şeyi ortala */
-        [data-testid="stExpander"] .stButton button {
-            width: 100% !important;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        /* Expander içindeki metin giriş alanlarını ve etiketleri ortala */
-        [data-testid="stExpander"] .stMarkdown, 
-        [data-testid="stExpander"] label {
-            text-align: center !important;
-            display: block;
-            width: 100%;
-        }
-
-        /* Sayı giriş alanını (Numeric Input) ortala */
-        [data-testid="stExpander"] .stNumberInput {
-            width: 100%;
-        }
-    </style>
-""", unsafe_allow_html=True)
+    st.markdown("---") # Araya ince bir çizgi  
+    
     # 2. Hedef Puan Belirleme
     mevcut_hedef = user_df['puan_hedef'].iloc[0] if 'puan_hedef' in user_df.columns else 0
     yeni_hedef = st.number_input("Hedef KPSS Puanı", min_value=0.0, max_value=100.0, value=float(mevcut_hedef), step=0.5)
     if st.button("Hedefi Kaydet"):
         all_db.loc[all_db['username'] == username, 'puan_hedef'] = yeni_hedef
         save_to_gsheets(all_db)
-        st.toast("Hedef puan güncellendi! 🎯")
+        st.success("Hedef puan güncellendi! 🎯")
     if st.button("❌ Hesabımı Sil", type="secondary", use_container_width=True):
         st.session_state.confirm_delete = True
     if st.session_state.get('confirm_delete', False):
@@ -550,6 +525,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
