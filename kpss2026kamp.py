@@ -134,7 +134,18 @@ if not user_df.empty and 'puan_hedef' in user_df.columns:
 else:
     mevcut_hedef = 0.0
     
-d_name = user_df['display_name'].iloc[0] if 'display_name' in user_df.columns and not pd.isna(user_df['display_name'].iloc[0]) else username
+# --- GÜVENLİ İSİM ÇEKME BLOĞU ---
+if not user_df.empty:
+    # Kullanıcı bulunduysa, display_name sütunu var mı ve içi dolu mu bak
+    if 'display_name' in user_df.columns and pd.notna(user_df['display_name'].iloc[0]):
+        d_name = user_df['display_name'].iloc[0]
+    else:
+        # Sütun yoksa veya içi boşsa giriş adını (username) kullan
+        d_name = username
+else:
+    # Eğer user_df tamamen boşsa (giriş hatası veya veri çekme gecikmesi)
+    d_name = username
+# Artık d_name değişkeni her durumda dolu, hata vermez:
 st.sidebar.markdown(f"👤 **{d_name}** <small>(@{username})</small>", unsafe_allow_html=True)
 if st.sidebar.button("🚪 Çıkış Yap", use_container_width=True):
     st.session_state.user = None
@@ -474,6 +485,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
