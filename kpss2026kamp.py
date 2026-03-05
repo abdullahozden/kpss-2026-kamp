@@ -170,7 +170,7 @@ st.sidebar.markdown("""
         }
         /* 2. Widgetlar (butonlar, radiolar) arasındaki boşluğu aşırı daralt */
         [data-testid="stVerticalBlock"] > div {
-            margin-top: 10px;
+            margin-top: 1px;
             gap: 0.2rem !important;
             margin-bottom: -0.2rem !important;
         }
@@ -547,6 +547,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
