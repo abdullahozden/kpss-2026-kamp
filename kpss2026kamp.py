@@ -54,30 +54,16 @@ def konfeti_patlat():
     confetti_js = """
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>
-        // Direkt bulunduğu alanda patla ama alanı geniş tut
-        var end = Date.now() + (3 * 1000);
-
-        (function frame() {
-          confetti({
-            particleCount: 7,
-            angle: 60,
-            spread: 55,
-            origin: { x: 0, y: 0.5 }
-          });
-          confetti({
-            particleCount: 7,
-            angle: 120,
-            spread: 55,
-            origin: { x: 1, y: 0.5 }
-          });
-
-          if (Date.now() < end) {
-            requestAnimationFrame(frame);
-          }
-        }());
+        // Sayfa her yüklendiğinde bir kez patlat
+        confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            zIndex: 9999
+        });
     </script>
     """
-    components.html(confetti_js, height=1000, width=2000)
+    components.html(confetti_js, height=0)
 
 # Load Lottie animations
 lottie_celebration = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_u4yrau.json")
@@ -363,14 +349,16 @@ elif menu == "🏆 Başarılarım":
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
 elif menu == "📊 Deneme Takibi":
-    # 1. HİÇBİR KUTUNUN İÇİNDE DEĞİL, EN ÜSTTE ÇAĞIR
-    basarili_deneme = all_db[(all_db['username'] == username) & 
-                             (all_db['ders'] == "DENEME") & 
-                             (all_db['deneme_puan'] >= all_db['puan_hedef'])]
+    # --- KONFETİ KONTROLÜ (DÖNGÜNÜN DIŞINDA, EN ÜSTTE) ---
+    # Eğer herhangi bir başarılı deneme varsa konfeti patlasın
+    basarili_mi = any((all_db['username'] == username) & 
+                      (all_db['ders'] == "DENEME") & 
+                      (all_db['deneme_puan'] >= all_db['puan_hedef']))
     
-    if not basarili_deneme.empty:
-        # Bu satır sayfanın en üstünde, her şeyden bağımsız olmalı
+    if basarili_mi:
         konfeti_patlat()
+    # ----------------------------------------------------
+    
     st.subheader("📊 Deneme Netleri ve Puan Hesaplama")
     
     # Hedef Puanı Veriden Çek (Varsayılan 85.0)
@@ -439,8 +427,9 @@ elif menu == "📊 Deneme Takibi":
             fark = puan - h_puan
                 # Motivasyon Mesajı Belirleme
             if fark >= 0:
-                konfeti_patlat()
                 st.success("🎉 HEDEFE ULAŞTIN TEBRİKLER! 🎉")
+                if lottie_celebration:
+                    st_lottie(lottie_celebration, height=150, key=f"lottie_{d_row['id']}")
                 msg = "🔥 Mükemmel! Hedefin üzerindesin, bu iş bitti!"
                 color = "#238636"
             elif fark >= -10:
@@ -457,8 +446,6 @@ elif menu == "📊 Deneme Takibi":
                 col_bilgi, col_puan, col_islem = st.columns([3, 2, 1])
                 st.markdown(f"<p style='margin-top:10px; font-style:italic; font-size:0.85rem; color:{color};'>{msg}</p>", unsafe_allow_html=True)
                 if fark >= 0:
-                    if lottie_celebration:
-                        st_lottie(lottie_celebration, height=150, key=f"lottie_{d_row['id']}")
                     else:
                         st.write("🎉")
                 with col_bilgi:
@@ -475,6 +462,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
