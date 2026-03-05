@@ -195,7 +195,7 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
         st.success("İsim güncellendi!")
         st.rerun()
         
-    st.divider()
+    st.markdown("<hr style='margin:-1px;'>", unsafe_allow_html=True)
     
     # 2. Hedef Puan Belirleme
     mevcut_hedef = user_df['puan_hedef'].iloc[0] if 'puan_hedef' in user_df.columns else 0
@@ -529,6 +529,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
