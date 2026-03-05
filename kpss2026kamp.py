@@ -435,7 +435,8 @@ elif menu == "📊 Deneme Takibi":
                             st.toast("🗑️  Deneme silindi.")
                             time.sleep(1)
                             st.rerun()
-                    st.markdown(f"<p style='margin-top:10px; margin-right:60%; font-style:italic; font-size:1rem; color:{color};'>{msg}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='margin-top:10px; margin-right:90%; font-style:italic; font-size:1rem; color:{color};'>{msg}</p>", unsafe_allow_html=True)
+
 
 
 
