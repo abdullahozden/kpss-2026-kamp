@@ -51,20 +51,34 @@ def load_lottieurl(url: str):
         return None
 
 def konfeti_patlat():
+    # CSS: Iframe sınırlarını ve taşma engelini kaldırır
+    st.markdown("""
+        <style>
+        iframe[title="streamlit.components.v1.html"] {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            pointer-events: none; /* Altındaki butonlara basılabilmesini sağlar */
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     confetti_js = """
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>
-        // Sayfa her yüklendiğinde bir kez patlat
         confetti({
-            particleCount: 150,
-            spread: 70,
+            particleCount: 200,
+            spread: 100,
             origin: { y: 0.6 },
             zIndex: 9999
         });
     </script>
     """
-    components.html(confetti_js, height=0)
-
+    components.html(confetti_js, height=0, width=0)
+    
 # Load Lottie animations
 lottie_celebration = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_u4yrau.json")
 
@@ -460,5 +474,6 @@ elif menu == "📊 Deneme Takibi":
                         time.sleep(1)
                         st.rerun()
                 st.markdown(f"<p style='font-style:italic; font-size:0.85rem; color:{color};'>{msg}</p>", unsafe_allow_html=True)
+
 
 
