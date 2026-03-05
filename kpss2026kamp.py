@@ -149,28 +149,40 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
     st.subheader("Görünüm")
     tema = st.radio("Tema Seçimi", ["Karanlık", "Aydınlık"], index=0 if st.session_state.get('theme') == 'dark' else 1)
     if tema == "Aydınlık":
-        if tema == "Aydınlık":
-            st.markdown("""
-                <style>
-                .stApp { background-color: #F8F9FA !important; color: #1F2937 !important; }
-                
-                /* Siyah kalan başlık kutusunu beyaza zorla */
-                .custom-header {
-                    background: white !important;
-                    background-color: white !important;
-                    color: #1F2937 !important;
-                    border: 1px solid #E5E7EB !important;
-                    box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
-                }
-                .custom-header h1, .custom-header span { color: #1F2937 !important; }
-    
-                /* Metrik rakamlarını görünür yap */
-                [data-testid="stMetricValue"] { color: #1F2937 !important; }
-                [data-testid="stMetricLabel"] { color: #4B5563 !important; }
-    
-                [data-testid="stSidebar"] { background-color: #F3F4F6 !important; }
-                </style>
-            """, unsafe_allow_html=True)
+        st.markdown("""
+            <style>
+            /* 1. Tüm sayfa ve ana gövdeyi beyaza zorla */
+            .stApp, [data-testid="stAppViewContainer"] { 
+                background-color: #FFFFFF !important; 
+            }
+            
+            /* 2. O inatçı siyah büyük kutuyu (Expander) ve içini beyaza çevir */
+            .stExpander, div[data-testid="stExpander"], div[class*="StyledBox"] {
+                background-color: #F8F9FA !important;
+                border: 1px solid #E5E7EB !important;
+                color: #1F2937 !important;
+            }
+
+            /* 3. Tüm metinleri, metrikleri ve etiketleri simsiyah yap */
+            [data-testid="stMetricValue"], [data-testid="stMetricLabel"], 
+            [data-testid="stMetricDelta"] div, p, label, span, h1, h2, h3, .stMarkdown {
+                color: #1F2937 !important;
+                -webkit-text-fill-color: #1F2937 !important;
+            }
+
+            /* 4. Başlık kutusunu (Header) ve Sidebar'ı aydınlat */
+            .custom-header {
+                background: #FFFFFF !important;
+                border: 1px solid #D1D5DB !important;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+            }
+            [data-testid="stSidebar"] { background-color: #F3F4F6 !important; }
+
+            /* 5. Video altındaki butonları ve inputları belirginleştir */
+            .stButton button { border: 1px solid #D1D5DB !important; }
+            input { background-color: #FFFFFF !important; color: #1F2937 !important; }
+            </style>
+        """, unsafe_allow_html=True)
     else:
         st.session_state.theme = 'dark'
     st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
@@ -362,6 +374,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
