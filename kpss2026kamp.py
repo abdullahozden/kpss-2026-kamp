@@ -10,26 +10,27 @@ import requests
 
 
 # --- 1. VERİ BAĞLANTISI & OPTİMİZASYON ---
-st.write("Uygulama yükleniyor...")
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 # Veri çekme işlemini cache ile hızlandırıyoruz (Sunucu yükünü azaltır)
 @st.cache_data(ttl=600)
 def load_all_data():
     try:
-        return conn.read()
+        df = conn.read()
         if df is None or df.empty:
-            return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id", "gk_d", "gk_y", "gy_d", "gy_y", "puan"])
+            return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id", "deneme_gk_d", "deneme_gk_y", "deneme_gy_d", "deneme_gy_y", "puan", "deneme_puan", "puan_hedef"])
         return df.dropna(how="all")
     except:
-        return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id"])
+        return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id", "puan_hedef"])
 
 def save_to_gsheets(df):
     conn.update(data=df)
     st.cache_data.clear() # Değişiklik olduğunda cache'i temizle
 
 def hash_password(password):
-    return hashlib.sha256(str.encode(password)).hexdigest()
+    pepper = st.secrets.get("security", {}).get("pepper", "")
+    salted_password = f"{password}{pepper}"
+    return hashlib.sha256(str.encode(salted_password)).hexdigest()
 
 def format_yt_link(url):
     url = url.strip()
@@ -49,13 +50,12 @@ def load_lottieurl(url: str):
 # Load Lottie animations
 lottie_celebration = load_lottieurl("https://lottie.host/4db68bdb-e273-49e0-9439-421292e78cc9/E4yNFtGYzr.json")
 
-# --- 2. TASARIM AYARLARI (ESKİ TASARIM BİREBİR KORUNDU) ---
 st.set_page_config(page_title="2026 KPSS ÇALIŞMA PLANI", layout="wide", page_icon="🎓")
-
-if 'user' not in st.session_state: st.session_state.user = None
-if 'selected_icon' not in st.session_state: st.session_state.selected_icon = "📌"
-if 'dersler' not in st.session_state:
-    st.session_state.dersler = {"Matematik": "📐", "Türkçe": "📚", "Tarih": "🏛️", "Coğrafya": "🌍", "Güncel Bilgiler": "📰"}
+# --- 0. SESSION STATE BAŞLATMA ---
+if 'user' not in st.session_state:
+    st.session_state.user = None
+if 'confirm_delete' not in st.session_state:
+    st.session_state.confirm_delete = False
 
 # --- 3. VERİ ÇEKME VE TİP DÖNÜŞÜMÜ ---
 all_db = load_all_data()
@@ -67,35 +67,57 @@ for col in ['tamamlandi', 'id', 'soru_cozulen', 'soru_hedef']:
         else:
             all_db[col] = pd.to_numeric(all_db[col], errors='coerce').fillna(0 if col != 'soru_hedef' else 1).astype(int)
 
+if 'selected_icon' not in st.session_state: st.session_state.selected_icon = "📌"
+if 'dersler' not in st.session_state:
+    st.session_state.dersler = {"Matematik": "📐", "Türkçe": "📚", "Tarih": "🏛️", "Coğrafya": "🌍", "Güncel Bilgiler": "📰"}
+
 # --- 4. GİRİŞ KONTROLÜ ---
 if st.session_state.user is None:
     st.markdown('<div class="custom-header"><h1>🚀 2026 KPSS Çalışma Planı Giriş</h1></div>', unsafe_allow_html=True)
     t1, t2 = st.tabs(["🔑 Giriş Yap", "📝 Kayıt Ol"])
+    
     with t1:
-        with st.form("login_form"):
-            u = st.text_input("Kullanıcı Adı")
-            p = st.text_input("Şifre", type="password")
+        with st.form("login_form_unique"):
+            u = st.text_input("Kullanıcı Adı", key="login_u").strip()
+            p = st.text_input("Şifre", type="password", key="login_p").strip()
+            
             if st.form_submit_button("Sisteme Bağlan", use_container_width=True):
-                user_check = all_db[(all_db['username'].astype(str) == str(u)) & 
-                    (all_db['password'].astype(str) == hash_password(str(p)))]
+                if u and p: # Boş giriş kontrolü
+                    user_check = all_db[(all_db['username'].fillna("").astype(str) == str(u)) & 
+                                        (all_db['password'].fillna("").astype(str) == hash_password(str(p)))]
+                    
                 if not user_check.empty:
-                    st.session_state.user = u; st.rerun()
-                else: st.error("Hatalı giriş!")
+                    st.session_state.user = str(u)
+                    if 'puan_hedef' in user_check.columns:
+                        mevcut_hedef = user_check['puan_hedef'].iloc[0]
+                        if pd.isna(mevcut_hedef):
+                            mevcut_hedef = 0.0
+
+                    st.success(f"Hoş geldin {u}!")
+                    time.sleep(1)
+                    st.rerun()
+                else:
+                    st.error("Kullanıcı adı veya şifre hatalı!")
     with t2:
-        with st.form("reg_form"):
-            nu = st.text_input("Yeni Kullanıcı Adı")
-            np = st.text_input("Yeni Şifre", type="password")
+        with st.form("reg_form_unique"): # İsmi değiştirdik
+            nu = st.text_input("Yeni Kullanıcı Adı", key="reg_user_input").strip()
+            np = st.text_input("Yeni Şifre", type="password", key="reg_pass_input").strip()
             if st.form_submit_button("Hesap Oluştur", use_container_width=True):
                 if nu in all_db['username'].values: st.error("Bu kullanıcı mevcut.")
                 else:
-                    new_u_row = pd.DataFrame([{"username": nu, "password": hash_password(np), "tamamlandi": True, "id": 0, "konu": "Hesap Aktif", "soru_cozulen": 0, "soru_hedef": 1, "puan_hedef": 0.0}])
+                    new_u_row = pd.DataFrame([{"username": nu, "password": hash_password(np), "tamamlandi": False, "id": int(time.time()), "konu": "Hesap Aktif", "soru_cozulen": 0, "soru_hedef": 1, "puan_hedef": 0.0, "ders": "Genel"}])
                     save_to_gsheets(pd.concat([all_db, new_u_row], ignore_index=True))
                     st.success("Kayıt başarılı!")
     st.stop()
 
 # --- 5. ANA EKRAN ---
 username = st.session_state.user
-user_df = all_db[all_db['username'] == username].copy()
+user_df = all_db[all_db['username'].astype(str) == str(username)].copy()
+if not user_df.empty and 'puan_hedef' in user_df.columns:
+    val = user_df['puan_hedef'].iloc[0]
+    mevcut_hedef = float(val) if pd.notna(val) else 0.0
+else:
+    mevcut_hedef = 0.0
 
 st.sidebar.markdown(f"👤 **{username}**")
 if st.sidebar.button("🚪 Çıkış Yap", use_container_width=True):
@@ -128,7 +150,7 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
         st.warning("Verileriniz kalıcı olarak silinecektir!")
         col_del1, col_del2 = st.columns(2)
         if col_del1.button("EVET", type="primary", use_container_width=True):
-            delete_user_account(all_db, username) # Bu fonksiyonun yukarıda tanımlı olduğundan emin ol
+            delete_user_account(all_db, username)
             st.toast("Hesabınız silindi.", icon="🗑️")
             st.session_state.user = None
             st.session_state.confirm_delete = False
@@ -185,7 +207,7 @@ if menu == "📝 Plan Oluştur":
                 save_to_gsheets(pd.concat([all_db, n_p], ignore_index=True))
                 
                 # Geri bildirimler
-                st.toast(f"✅ {k_a} başarıyla planlandı!", icon="📅")
+                st.success(f"✅ {k_a} başarıyla planlandı!", icon="📅")
                 st.success("Plan eklendi! Liste güncelleniyor...")
                 time.sleep(1)
                 st.rerun()
@@ -374,12 +396,11 @@ elif menu == "📊 Deneme Takibi":
         st.info("Henüz kaydedilmiş bir deneme yok.")
     else:
         for _, d_row in deneme_gecmisi.iterrows():
-            puan = d_row.get('deneme_puan', 0)
-            h_puan = d_row.get('puan_hedef', 85)
+            puan = float(d_row.get('deneme_puan', 0))
+            h_puan = float(d_row.get('puan_hedef', 85))
             fark = puan - h_puan
                 # Motivasyon Mesajı Belirleme
             if fark >= 0:
-                st_lottie(lottie_celebration, height=300, key="celebrate")
                 st.success("HEDEF AŞILDI!")
                 msg = "🔥 Mükemmel! Hedefin üzerindesin, bu iş bitti!"
                 color = "#238636"
@@ -395,6 +416,9 @@ elif menu == "📊 Deneme Takibi":
                 
             with st.container(border=True):
                 col_bilgi, col_puan, col_islem = st.columns([3, 2, 1])
+                st.markdown(f"<p style='margin-top:10px; font-style:italic; font-size:0.85rem; color:{color};'>{msg}</p>", unsafe_allow_html=True)
+                if fark >= 0:
+                    st_lottie(lottie_celebration, height=150, key=f"lottie_{d_row['id']}")
                 with col_bilgi:
                     st.markdown(f"**{d_row['konu']}**")
                     st.caption(f"📅 {d_row['tarih']}")
@@ -409,4 +433,3 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
-                        st.markdown(f"<p style='margin-top:10px; font-style:italic; font-size:0.85rem;'>{msg}</p>", unsafe_allow_html=True)
