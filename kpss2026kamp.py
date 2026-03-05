@@ -166,8 +166,6 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
     st.divider()
     if st.button("❌ Hesabımı Sil", type="secondary", use_container_width=True):
         st.session_state.confirm_delete = True
-    if st.button("❌ Hesabımı Sil", type="secondary", use_container_width=True):
-        st.session_state.confirm_delete = True
     if st.session_state.get('confirm_delete', False):
         st.warning("Verileriniz kalıcı olarak silinecektir!")
         col_del1, col_del2 = st.columns(2)
@@ -347,6 +345,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
