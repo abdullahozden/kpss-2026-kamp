@@ -50,57 +50,23 @@ if 'tema_secimi' not in st.session_state:
 # Sidebar'daki seçim kutusundan önce temayı belirle (Hata almamak için)
 tema = st.session_state.tema_secimi
 
-if tema == "Aydınlık":
-    st.markdown("""
-        <style>
-        /* Ana Gövde */
-        .stApp { background-color: #FFFFFF !important; color: #1F2937 !important; }
-        
-        /* Sidebar */
-        [data-testid="stSidebar"] { background-color: #F3F4F6 !important; }
-        [data-testid="stSidebarNav"] span { color: #1F2937 !important; font-weight: 600; }
-
-        /* Kartlar ve Kutular (Expander) */
-        .stExpander, div[data-testid="stExpander"] { 
-            background-color: #F9FAFB !important; 
-            border: 1px solid #E5E7EB !important; 
-            color: #1F2937 !important;
-        }
-
-        /* Başlık Kutusu */
-        .custom-header {
-            background: #FFFFFF !important;
-            padding: 2rem; border-radius: 20px; border-bottom: 4px solid #3b82f6;
-            margin-bottom: 2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center;
-            color: #1F2937 !important;
-        }
-
-        /* Yazı Renklerini Zorla Siyah Yap */
-        [data-testid="stMetricValue"], [data-testid="stMetricLabel"], p, span, label, h1, h2, h3 {
-            color: #1F2937 !important;
-            -webkit-text-fill-color: #1F2937 !important;
-        }
-
-        /* Video Kutuları */
-        .video-container { background: #F3F4F6 !important; border: 1px solid #D1D5DB !important; }
-        .video-label-bar { background-color: #E5E7EB !important; color: #1F2937 !important; }
-        </style>
-    """, unsafe_allow_html=True)
-else:
-    # --- KARANLIK MOD CSS (Eski Ayarların) ---
-    st.markdown("""
-        <style>
-        .stApp { background-color: #0d1117; color: #c9d1d9; }
-        .custom-header {
-            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-            padding: 2rem; border-radius: 20px; border-bottom: 4px solid #3b82f6;
-            margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-align: center;
-        }
-        .stExpander { background-color: #161b22 !important; border: 1px solid #30363d !important; }
-        .video-container { background: #0d1117; border: 1px solid #30363d; }
-        .video-label-bar { background-color: #1c2128; color: #58a6ff; }
-        .stat-card { background: #1c2128; padding: 15px; border-radius: 12px; border: 1px solid #30363d; }
-        </style>
+st.markdown("""
+    <style>
+    .stApp { background-color: #0E1117; color: #FFFFFF; }
+    .custom-header {
+        background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);
+        padding: 1.5rem; border-radius: 15px; border-left: 8px solid #3b82f6; margin-bottom: 2rem;
+    }
+    .video-scroll-container {
+        max-height: 450px; overflow-y: auto; padding: 15px;
+        background: #0d1117; border-radius: 12px; border: 1px solid #30363D;
+    }
+    .history-item {
+        background: #161b22; padding: 10px; border-radius: 8px; 
+        margin-bottom: 5px; border: 1px solid #30363d;
+    }
+    .stPopover button { height: 42px !important; min-width: 50px !important; }
+    </style>
     """, unsafe_allow_html=True)
 
 # --- 3. VERİ ÇEKME VE TİP DÖNÜŞÜMÜ ---
@@ -148,18 +114,6 @@ if st.sidebar.button("🚪 Çıkış Yap", use_container_width=True):
     st.rerun()
 st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
 with st.sidebar.expander("⚙️ Hesap Ayarları"):
-    st.subheader("Görünüm")
-    # Mevcut temayı session_state'den alıyoruz
-    secilen_tema = st.radio(
-        "Tema Seçimi", 
-        ["Karanlık", "Aydınlık"], 
-        index=0 if st.session_state.get('tema_secimi', 'Karanlık') == 'Karanlık' else 1
-    )
-    
-    # Eğer kullanıcı radyodan farklı bir şey seçerse, durumu güncelle ve sayfayı yenile
-    if secilen_tema != st.session_state.get('tema_secimi'):
-        st.session_state.tema_secimi = secilen_tema
-        st.rerun()
     st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
     if st.button("❌ Hesabımı Sil", type="secondary", use_container_width=True):
         st.session_state.confirm_delete = True
@@ -349,6 +303,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
