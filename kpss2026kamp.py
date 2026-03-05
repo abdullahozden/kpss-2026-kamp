@@ -200,7 +200,7 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
             """, unsafe_allow_html=True)
     else:
         st.session_state.theme = 'dark'
-    st.markdown("<hr style='margin:2px 0px;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin:5px 0px; opacity:0.2;'>", unsafe_allow_html=True)
     st.subheader("Kişiselleştirme")
     show_quote = st.toggle("Motivasyon Sözü Göster", value=st.session_state.get('show_quote', True))
     st.session_state.show_quote = show_quote
@@ -401,6 +401,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
