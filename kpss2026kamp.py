@@ -154,12 +154,18 @@ st.sidebar.markdown("""
     <style>
         /* 1. Sidebar içeriğini yukarı sabitle ve boşlukları sıfırla */
         [data-testid="stSidebarUserContent"] {
-            padding-top: -2rem !important;
+            padding-top: -5rem !important;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 40vh;
+        }
+        /* Metinleri ve başlıkları ortala */
+        [data-testid="stSidebarUserContent"] .stMarkdown, 
+        [data-testid="stSidebarUserContent"] .stCaption {
+            text-align: center;
+            width: 100%;
         }
         /* 2. Widgetlar (butonlar, radiolar) arasındaki boşluğu aşırı daralt */
         [data-testid="stVerticalBlock"] > div {
@@ -172,7 +178,7 @@ st.sidebar.markdown("""
         }
         /* 4. Yazı boyutlarını ve buton yüksekliklerini biraz küçült */
         .stButton button {
-            text-align= center;
+            justify-content= center;
             padding-top: 0.5rem !important;
             padding-bottom: 0.5rem !important;
             min-height: 2rem !important;
@@ -539,6 +545,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
