@@ -431,7 +431,7 @@ elif menu == "📊 Deneme Takibi":
                 with col_puan:
                     st.markdown(f"""
                         <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-                            <h2 style="margin-bottom: 5px; color: {color}; font-size: 2.2rem;">{puan:.2f}</h2>
+                            <h2 style="margin-top: -5px; color: {color}; font-size: 2.2rem;">{puan:.2f}</h2>
                             <p style="margin: 0px; opacity: 0.6; font-size: 1rem;">Hedefe Uzaklık: {fark:.2f}</p>
                             <div style="margin-top: 10px;"></div>
                             <p style="font-style: italic; font-size: 1.1rem; color: {color}; font-weight: 500;">{msg}</p>
