@@ -151,59 +151,24 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
     if tema == "Aydınlık":
         st.markdown("""
             <style>
-            /* 1. Sayfa Temeli - Göz yormayan açık gri */
-            .stApp {
-                background-color: #F7F9FC !important;
-                color: #2D3436 !important;
-            }
-
-            /* 2. Sidebar - Net bir ayırım için biraz daha koyu */
-            [data-testid="stSidebar"] {
-                background-color: #EDF1F7 !important;
-                border-right: 1px solid #D1D9E6 !important;
-            }
-
-            /* 3. Kartlar ve Kutular (Gördüğün o siyah alanları temizler) */
-            .custom-header, div[style*="background-color"], .stExpander, div[data-testid="stExpander"] {
-                background-color: #FFFFFF !important;
-                background: #FFFFFF !important;
-                color: #2D3436 !important;
-                border-radius: 12px !important;
-                border: 1px solid #E2E8F0 !important;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
-            }
-
-            /* 4. Inputlar (Hedef/Çözülen alanları) - En çok göz yoran yerler */
-            input, .stTextInput div, [data-baseweb="input"] {
-                background-color: #F1F4F8 !important;
-                color: #2D3436 !important;
-                border-radius: 8px !important;
-                border: none !important;
+            /* Sayfa arka planını beyaza yakın yumuşak bir gri yap */
+            .stApp { background-color: #F8F9FA !important; }
+            
+            /* Siyah kalan header kutusunu düzeltecek sihirli dokunuş */
+            .custom-header {
+                background: white !important;
+                color: #1F2937 !important;
+                border: 1px solid #E5E7EB !important;
+                box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1) !important;
             }
             
-            /* 5. Yazı Renklerini Zorla Düzenle */
-            h1, h2, h3, p, span, label, .stMarkdown {
-                color: #2D3436 !important;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+            /* Metrik yazılarını siyah yap (Okunabilirlik için en önemlisi) */
+            [data-testid="stMetricValue"], [data-testid="stMetricLabel"] {
+                color: #1F2937 !important;
             }
-
-            /* 6. Video ve İlerleme Çubuğu Alanları */
-            div[style*="background-color: #1c2128"] {
-                background-color: #F8FAFC !important;
-                border: 1px solid #E2E8F0 !important;
-            }
-
-            /* 7. Butonlar - Modern Görünüm */
-            button[kind="secondary"] {
-                background-color: #FFFFFF !important;
-                border: 1px solid #D1D9E6 !important;
-                color: #4A5568 !important;
-                transition: all 0.3s !important;
-            }
-            button[kind="secondary"]:hover {
-                border-color: #3B82F6 !important;
-                color: #3B82F6 !important;
-            }
+            
+            /* Sidebar'ı biraz daha belirgin yap */
+            [data-testid="stSidebar"] { background-color: #F3F4F6 !important; }
             </style>
             """, unsafe_allow_html=True)
     else:
@@ -390,6 +355,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
