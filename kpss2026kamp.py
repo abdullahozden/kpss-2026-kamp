@@ -445,9 +445,6 @@ elif menu == "📊 Deneme Takibi":
             with st.container(border=True):
                 col_bilgi, col_puan, col_islem = st.columns([3, 2, 1])
                 st.markdown(f"<p style='margin-top:10px; font-style:italic; font-size:0.85rem; color:{color};'>{msg}</p>", unsafe_allow_html=True)
-                if fark >= 0:
-                    else:
-                        st.write("🎉")
                 with col_bilgi:
                     st.markdown(f"**{d_row['konu']}**")
                     st.caption(f"📅 {d_row['tarih']}")
@@ -462,16 +459,3 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
-
-
-
-
-
-
-
-
-
-
-
-
-
