@@ -148,7 +148,7 @@ else:
     
 # Artık d_name değişkeni her durumda dolu, hata vermez:
 st.sidebar.markdown(f"### 👤 {d_name}")
-st.sidebar.caption(f"@{username}") # Kullanıcı adını küçük harflerle altına ekler
+st.sidebar.caption(f"@{username}")
 st.sidebar.write("---")
 st.sidebar.markdown("""
     <style>
@@ -158,7 +158,7 @@ st.sidebar.markdown("""
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 90vh; /* Neredeyse tüm ekran boyu */
+            min-height: 200vh; /* Neredeyse tüm ekran boyu */
         }
         /* Metinleri ve başlıkları ortala */
         [data-testid="stSidebarUserContent"] .stMarkdown, 
@@ -522,6 +522,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
