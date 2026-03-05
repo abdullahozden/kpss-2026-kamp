@@ -434,11 +434,12 @@ elif menu == "📊 Deneme Takibi":
                 with col_islem:
                     if st.button("🗑️", key=f"del_deneme_{d_row['id']}", use_container_width=True):
                         st.markdown("<div style='margin-top: 40px;'></div>", unsafe_allow_html=True)
-                            save_to_gsheets(all_db[all_db['id'] != d_row['id']])
-                            st.toast("🗑️  Deneme silindi.")
-                            time.sleep(1)
-                            st.rerun()
+                        save_to_gsheets(all_db[all_db['id'] != d_row['id']])
+                        st.toast("🗑️  Deneme silindi.")
+                        time.sleep(1)
+                        st.rerun()
                     st.markdown(f"<p style='margin-top:10px; font-style:italic; font-size:1.2rem; color:{color};'>{msg}</p>", unsafe_allow_html=True)
+
 
 
 
