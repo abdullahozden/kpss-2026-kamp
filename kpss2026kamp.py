@@ -207,6 +207,28 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
 if st.sidebar.button("🚪 Çıkış Yap", use_container_width=True):
     st.session_state.user = None
     st.rerun()
+    # Sidebar elemanlarını dikeyde ortalamak için CSS
+    st.sidebar.markdown("""
+        <style>
+            /* Sidebar'ın içindeki ana alanı seçiyoruz */
+            [data-testid="stSidebarNavItems"] {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                height: 70vh; /* Ekran yüksekliğinin %70'ini kapla */
+            }
+            
+            /* Kullanıcı adı ve ikon kısmını da merkeze odakla */
+            section[data-testid="stSidebar"] .stMarkdown {
+                text-align: center;
+            }
+            
+            /* Butonları genişlet ve hizala */
+            section[data-testid="stSidebar"] .stButton button {
+                width: 100%;
+            }
+        </style>
+    """, unsafe_allow_html=True)
 st.markdown("""
     <div class="custom-header"; style="text-align: center; margin-bottom: 20px;">
         <h1 style="color: white; margin-bottom: 0;">🚀 2026 KPSS Çalışma Planım</h1>
@@ -492,6 +514,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
