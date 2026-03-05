@@ -14,10 +14,10 @@ st.write("Uygulama yükleniyor...")
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 # Veri çekme işlemini cache ile hızlandırıyoruz (Sunucu yükünü azaltır)
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=600)
 def load_all_data():
     try:
-        df = conn.read(ttl=0)
+        return conn.read()
         if df is None or df.empty:
             return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id", "gk_d", "gk_y", "gy_d", "gy_y", "puan"])
         return df.dropna(how="all")
@@ -57,32 +57,6 @@ if 'selected_icon' not in st.session_state: st.session_state.selected_icon = "�
 if 'dersler' not in st.session_state:
     st.session_state.dersler = {"Matematik": "📐", "Türkçe": "📚", "Tarih": "🏛️", "Coğrafya": "🌍", "Güncel Bilgiler": "📰"}
 
-    # --- TEMA KONTROLÜ VE DİNAMİC CSS ---
-if 'tema_secimi' not in st.session_state:
-    st.session_state.tema_secimi = "Karanlık"
-
-# Sidebar'daki seçim kutusundan önce temayı belirle (Hata almamak için)
-tema = st.session_state.tema_secimi
-
-st.markdown("""
-    <style>
-    .stApp { background-color: #0E1117; color: #FFFFFF; }
-    .custom-header {
-        background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);
-        padding: 1.5rem; border-radius: 15px; border-left: 8px solid #3b82f6; margin-bottom: 2rem;
-    }
-    .video-scroll-container {
-        max-height: 450px; overflow-y: auto; padding: 15px;
-        background: #0d1117; border-radius: 12px; border: 1px solid #30363D;
-    }
-    .history-item {
-        background: #161b22; padding: 10px; border-radius: 8px; 
-        margin-bottom: 5px; border: 1px solid #30363d;
-    }
-    .stPopover button { height: 42px !important; min-width: 50px !important; }
-    </style>
-    """, unsafe_allow_html=True)
-
 # --- 3. VERİ ÇEKME VE TİP DÖNÜŞÜMÜ ---
 all_db = load_all_data()
 
@@ -102,7 +76,8 @@ if st.session_state.user is None:
             u = st.text_input("Kullanıcı Adı")
             p = st.text_input("Şifre", type="password")
             if st.form_submit_button("Sisteme Bağlan", use_container_width=True):
-                user_check = all_db[(all_db['username'] == u) & (all_db['password'] == hash_password(p))]
+                user_check = all_db[(all_db['username'].astype(str) == str(u)) & 
+                    (all_db['password'].astype(str) == hash_password(str(p)))]
                 if not user_check.empty:
                     st.session_state.user = u; st.rerun()
                 else: st.error("Hatalı giriş!")
@@ -224,7 +199,7 @@ elif menu == "📅 Günlük Planım":
     with col_tog: show_history = st.toggle("✅ Tamamlananlar") 
 
     if show_history:
-        archive_df = user_df[(user_df['tamamlandi'] == True) & (user_df['konu'] != "Hesap Aktif")]
+        archive_df = user_df[(user_df['tamamlandi'] == True) & (user_df['ders'] != "DENEME") & (user_df['konu'] != "Hesap Aktif")]
         if not archive_df.empty:
             st.markdown("### 📜 Tamamlanan Planlar")
             for idx, row in archive_df.sort_values(by="tarih", ascending=False).iterrows():
@@ -249,7 +224,7 @@ elif menu == "📅 Günlük Planım":
                         st.rerun()
             st.markdown("<hr style='margin:2px 0px;'>", unsafe_allow_html=True)
 
-    active_df = user_df[(user_df['tamamlandi'] == False) & (user_df['konu'] != "Hesap Aktif")]
+    active_df = user_df[(user_df['tamamlandi'] == False) & (user_df['ders'] != "DENEME") & (user_df['konu'] != "Hesap Aktif")]
     if active_df.empty: st.info("Aktif görev yok.")
     else:
         for idx, row in active_df.iterrows():
@@ -362,18 +337,32 @@ elif menu == "📊 Deneme Takibi":
         d_ad = st.text_input("Deneme Adı/Yayın", placeholder="Örn: Pegem TG-1")
         if st.button("🚀 Denemeyi Arşive Kaydet", use_container_width=True):
             if d_ad:
-                # Videolar sütununa netleri JSON olarak gömüyoruz ki sonra okuyabilelim
-                net_data = json.dumps({"gk_d": gk_d, "gk_y": gk_y, "gy_d": gy_d, "gy_y": gy_y, "puan": hesaplanan_puan})
                 yeni_deneme = pd.DataFrame([{
-                    "username": username, "password": user_df['password'].values[0],
-                    "ders": "DENEME", "konu": d_ad, "tarih": str(datetime.now().date()),
-                    "videolar": net_data, "tamamlandi": True, "id": int(datetime.now().timestamp()),
-                    "soru_cozulen": int(gk_net + gy_net), "soru_hedef": 120, "puan_hedef": hedef_puan
-                }])
+                "username": username, 
+                "password": user_df['password'].values[0],
+                "ders": "DENEME", 
+                "konu": d_ad, 
+                "tarih": str(datetime.now().date()),
+                "deneme_gk_d": gk_d, 
+                "deneme_gk_y": gk_y, 
+                "deneme_gy_d": gy_d, 
+                "deneme_gy_y": gy_y,
+                "deneme_puan": float(hesaplanan_puan), # Puanı sayı olarak kaydet
+                "puan_hedef": float(hedef_puan),
+                "tamamlandi": True, 
+                "id": int(datetime.now().timestamp()),
+                "videolar": "[]", # Burayı boş liste bırakıyoruz
+                "soru_cozulen": int(gk_net + gy_net),
+                "soru_hedef": 120
+        }])
+        
+                # Mevcut veritabanına ekle ve gönder
                 save_to_gsheets(pd.concat([all_db, yeni_deneme], ignore_index=True))
-                st.toast("Deneme kaydedildi!", icon="💾")
+                st.toast(f"✅ {d_ad} başarıyla kaydedildi!", icon="🚀")
                 time.sleep(1)
                 st.rerun()
+            else:
+                st.error("Lütfen deneme adını giriniz!")
 
     st.divider()
 
@@ -385,40 +374,39 @@ elif menu == "📊 Deneme Takibi":
         st.info("Henüz kaydedilmiş bir deneme yok.")
     else:
         for _, d_row in deneme_gecmisi.iterrows():
-            try:
-                n = json.loads(d_row['deneme'])
-                puan = n.get('puan', 0)
-                fark = puan - hedef_puan
-                
+            puan = d_row.get('deneme_puan', 0)
+            h_puan = d_row.get('puan_hedef', 85)
+            fark = puan - h_puan
                 # Motivasyon Mesajı Belirleme
-                if fark >= 0:
-                    st_lottie(lottie_celebration, height=300, key="celebrate")
-                    st.success("HEDEF AŞILDI!")
-                    msg = "🔥 Mükemmel! Hedefin üzerindesin, bu iş bitti!"
-                    color = "#238636"
-                elif fark >= -10:
-                    msg = "💪 Çok yakınsın! Küçük bir gayretle hedef elinde."
-                    color = "#9df000"
-                elif fark >= -20:
-                    msg = "✍️ İşleri sıkı tut! Hedefine yaklaşıyorsun."
-                    color = "#ffa500"
-                else:
-                    msg = "🚀 Yolun başındasın, pes etme; her deneme bir basamak!"
-                    color = "#f85149"
-
-                with st.container(border=True):
-                    col_bilgi, col_puan, col_islem = st.columns([3, 2, 1])
-                    with col_bilgi:
-                        st.markdown(f"**{d_row['konu']}**")
-                        st.caption(f"📅 {d_row['tarih']} | GK: {n['gk_d']}D {n['gk_y']}Y | GY: {n['gy_d']}D {n['gy_y']}Y")
-                    with col_puan:
-                        st.markdown(f"<h3 style='margin:0; color:{color};'>{puan:.2f}</h3>", unsafe_allow_html=True)
-                        st.caption(f"Hedefe Uzaklık: {fark:.2f}")
-                    with col_islem:
-                        if st.button("🗑️", key=f"del_d_{d_row['id']}"):
-                            save_to_gsheets(all_db[all_db['id'] != d_row['id']])
-                            st.rerun()
-                    
-                    st.markdown(f"<small><i>{msg}</i></small>", unsafe_allow_html=True)
-            except:
-                continue
+            if fark >= 0:
+                st_lottie(lottie_celebration, height=300, key="celebrate")
+                st.success("HEDEF AŞILDI!")
+                msg = "🔥 Mükemmel! Hedefin üzerindesin, bu iş bitti!"
+                color = "#238636"
+            elif fark >= -10:
+                msg = "💪 Çok yakınsın! Küçük bir gayretle hedef elinde."
+                color = "#9df000"
+            elif fark >= -20:
+                msg = "✍️ İşleri sıkı tut! Hedefine yaklaşıyorsun."
+                color = "#ffa500"
+            else:
+                msg = "🚀 Yolun başındasın, pes etme; her deneme bir basamak!"
+                color = "#f85149"
+                
+            with st.container(border=True):
+                col_bilgi, col_puan, col_islem = st.columns([3, 2, 1])
+                with col_bilgi:
+                    st.markdown(f"**{d_row['konu']}**")
+                    st.caption(f"📅 {d_row['tarih']}")
+                    st.write(f"GK: {d_row['deneme_gk_d']}D {d_row['deneme_gk_y']}Y | GY: {d_row['deneme_gy_d']}D {d_row['deneme_gy_y']}Y")
+                with col_puan:
+                    st.markdown(f"<h3 style='margin:0; color:{color};'>{puan:.2f}</h3>", unsafe_allow_html=True)
+                    st.caption(f"Hedefe Uzaklık: {fark:.2f}")
+                with col_islem:
+                    if st.button("🗑️", key=f"del_deneme_{d_row['id']}", use_container_width=True):
+                        # Seçili ID hariç diğerlerini sakla ve güncelle
+                        save_to_gsheets(all_db[all_db['id'] != d_row['id']])
+                        st.toast("Deneme silindi.")
+                        time.sleep(1)
+                        st.rerun()
+                        st.markdown(f"<p style='margin-top:10px; font-style:italic; font-size:0.85rem;'>{msg}</p>", unsafe_allow_html=True)
