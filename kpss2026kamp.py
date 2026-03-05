@@ -12,8 +12,7 @@ import requests
 # --- 1. VERİ BAĞLANTISI & OPTİMİZASYON ---
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# Veri çekme işlemini cache ile hızlandırıyoruz (Sunucu yükünü azaltır)
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=0)
 def load_all_data():
     try:
         df = conn.read()
@@ -99,7 +98,7 @@ if st.session_state.user is None:
                 else:
                     st.error("Kullanıcı adı veya şifre hatalı!")
     with t2:
-        with st.form("reg_form_unique"): # İsmi değiştirdik
+        with st.form("reg_form_unique"):
             nu = st.text_input("Yeni Kullanıcı Adı", key="reg_user_input").strip()
             np = st.text_input("Yeni Şifre", type="password", key="reg_pass_input").strip()
             if st.form_submit_button("Hesap Oluştur", use_container_width=True):
@@ -193,9 +192,7 @@ if menu == "📝 Plan Oluştur":
     # clear_on_submit sayesinde butona basınca kutular boşalır
     with st.form("plan_form_ana", clear_on_submit=True):
         v_u = [st.text_input(f"Video {i+1} Linki", key=f"ufin_{i}") for i in range(v_s)]
-        
         submit_btn = st.form_submit_button("🚀 Planı Kaydet ve Listeye Ekle", use_container_width=True)
-        
         if submit_btn:
             if k_a:
                 v_d = json.dumps([{"url": format_yt_link(u), "done": False} for u in v_u if u.strip()])
@@ -207,7 +204,7 @@ if menu == "📝 Plan Oluştur":
                 save_to_gsheets(pd.concat([all_db, n_p], ignore_index=True))
                 
                 # Geri bildirimler
-                st.success(f"✅ {k_a} başarıyla planlandı!", icon="📅")
+                st.toast(f"✅ {k_a} başarıyla planlandı!", icon="📅")
                 st.success("Plan eklendi! Liste güncelleniyor...")
                 time.sleep(1)
                 st.rerun()
@@ -433,3 +430,4 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
