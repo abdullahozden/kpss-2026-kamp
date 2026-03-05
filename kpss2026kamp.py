@@ -428,8 +428,6 @@ elif menu == "📊 Deneme Takibi":
                 # Motivasyon Mesajı Belirleme
             if fark >= 0:
                 st.success("🎉 HEDEFE ULAŞTIN TEBRİKLER! 🎉")
-                if lottie_celebration:
-                    st_lottie(lottie_celebration, height=150, key=f"lottie_{d_row['id']}")
                 msg = "🔥 Mükemmel! Hedefin üzerindesin, bu iş bitti!"
                 color = "#238636"
             elif fark >= -10:
@@ -443,8 +441,10 @@ elif menu == "📊 Deneme Takibi":
                 color = "#f85149"
                 
             with st.container(border=True):
-                col_bilgi, col_puan, col_islem = st.columns([3, 2, 1])
-                st.markdown(f"<p style='margin-top:10px; font-style:italic; font-size:0.85rem; color:{color};'>{msg}</p>", unsafe_allow_html=True)
+                    if fark >= 0:
+                        st.success("🎉 HEDEFE ULAŞTIN TEBRİKLER! 🎉")
+                        if lottie_celebration:
+                            st_lottie(lottie_celebration, height=150, key=f"lottie_{d_row['id']}")
                 with col_bilgi:
                     st.markdown(f"**{d_row['konu']}**")
                     st.caption(f"📅 {d_row['tarih']}")
@@ -459,3 +459,4 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
