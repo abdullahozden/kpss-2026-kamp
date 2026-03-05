@@ -149,7 +149,7 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
             st.session_state.confirm_delete = False
             st.rerun()
 menu = st.sidebar.radio("Gezinti", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
-st.markdown('<div class="custom-header"><h1>🚀 <span style="color: #58a6ff;">2026 KPSS</span> ÇALIŞMA PLANI</h1></div>', unsafe_allow_html=True)
+st.markdown('<div class="custom-header"><h1>🚀 <span style="color: #58a6ff; align-text: center;">2026 KPSS</span> ÇALIŞMA PLANI</h1></div>', unsafe_allow_html=True)
 
 # --- 6. PLAN OLUŞTUR ---
 if menu == "📝 Plan Oluştur":
@@ -356,6 +356,7 @@ elif menu == "📊 Deneme Takibi":
             # ama mevcut yapına uygun olarak 'ders' adını DENEME yaparak kaydediyoruz.
             save_to_gsheets(pd.concat([all_db, deneme_row], ignore_index=True))
             st.success("Deneme başarıyla kaydedildi!")
+
 
 
 
