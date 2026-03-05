@@ -153,31 +153,30 @@ if st.sidebar.button("🚪 Çıkış Yap", use_container_width=True):
 st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
 with st.sidebar.expander("⚙️ Hesap Ayarları"):
     st.subheader("Profil Düzenle")
-    # Mevcut display_name'i çekmeden önce verinin varlığını kontrol et
-    if not user_df.empty and 'display_name' in user_df.columns:
-        current_dn = user_df['display_name'].iloc[0] if pd.notna(user_df['display_name'].iloc[0]) else username
-    else:
-        current_dn = username
-        yeni_display = st.text_input("Ekranda Görünecek Adın", value=current_dn)
+    # Mevcut display_name'i çek (yoksa kullanıcı adını kullan)
+    current_display_name = user_df['display_name'].iloc[0] if 'display_name' in user_df.columns else username
+    # 1. Görünen Adı Değiştir (Sadece ekranda değişir, girişi etkilemez)
+    yeni_display = st.text_input("Ekranda Görünecek Adın", value=current_display_name)
+    if st.button("Görünen Adı Güncelle"):
+        all_db.loc[all_db['username'] == username, 'display_name'] = yeni_display
         save_to_gsheets(all_db)
-        st.success("Görünen isminiz güncellendi!")
-        time.sleep(1)
-        st.divider()
-    # --- B. GİRİŞ ADI (USERNAME) DEĞİŞTİRME + ÇAKIŞMA KONTROLÜ ---
+        st.success("İsim güncellendi!")
+        st.rerun()
+    st.markdown("---")
+    # 2. Kullanıcı Adını Değiştir (Giriş adını değiştirir - KRİTİK!)
     yeni_u = st.text_input("Giriş Kullanıcı Adını Değiştir", value=username)
-    if st.button("Kullanıcı Adını Onayla"):
+    if st.button("Kullanıcı Adını Güncelle"):
         if yeni_u == username:
-            st.info("Zaten bu kullanıcı adındasınız.")
+            st.info("Zaten bu kullanıcı adını kullanıyorsunuz.")
         elif yeni_u in all_db['username'].values:
-            # DİKKAT: Burada çakışma kontrolü yapıyoruz!
-            st.error("⚠️ Bu kullanıcı adı başkası tarafından alınmış! Başka bir ad seçin.")
+            # İŞTE BURASI: Başka biri bu adı almış mı kontrolü
+            st.error("⚠️ Bu kullanıcı adı başka bir kullanıcı tarafından alınmış! Lütfen farklı bir ad deneyin.")
         elif yeni_u:
-            # Veritabanındaki tüm satırları güncelle
+            # Eğer müsaitse tüm tablodaki eski adları yenisiyle değiştir
             all_db.loc[all_db['username'] == username, 'username'] = yeni_u
             save_to_gsheets(all_db)
-            st.session_state.user = yeni_u # Session'ı güncelle ki sistemden atmasın
-            st.success("Kullanıcı adınız başarıyla değiştirildi!")
-            time.sleep(1)
+            st.session_state.user = yeni_u
+            st.success("Kullanıcı adı başarıyla değiştirildi! Yeni adınızla giriş yapabilirsiniz.")
             st.rerun()
     # 2. Hedef Puan Belirleme
     mevcut_hedef = user_df['puan_hedef'].iloc[0] if 'puan_hedef' in user_df.columns else 0
@@ -485,6 +484,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
