@@ -414,8 +414,8 @@ elif menu == "📊 Deneme Takibi":
                 msg = "🚀 Yolun başındasın, pes etme; her deneme bir basamak!"
                 color = "#f85149"
                 
-                with st.container(border=True):
-                    col_bilgi, col_puan, col_islem = st.columns([3, 2, 1])
+            with st.container(border=True):
+                col_bilgi, col_puan, col_islem = st.columns([3, 2, 1])
                 with col_bilgi:
                     st.markdown(f"**{d_row['konu']}**")
                     st.caption(f"📅 {d_row['tarih']}")
@@ -430,6 +430,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
