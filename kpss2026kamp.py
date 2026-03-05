@@ -7,7 +7,6 @@ from datetime import datetime
 import time
 from streamlit_lottie import st_lottie
 import requests
-import streamlit.components.v1 as components
 
 
 # --- 1. VERİ BAĞLANTISI & OPTİMİZASYON ---
@@ -49,53 +48,7 @@ def load_lottieurl(url: str):
         return r.json()
     except:
         return None
-
-def konfeti_patlat():
-    confetti_js = """
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <script>
-        // 1. Kutuyu (iframe) bul ve tüm ekranı kaplat
-        var container = window.frameElement;
-        container.style.position = "fixed";
-        container.style.top = "0";
-        container.style.left = "0";
-        container.style.width = "100vw";
-        container.style.height = "100vh";
-        container.style.zIndex = "999999";
-        container.style.pointerEvents = "none"; // Altındaki butonlara basılabilsin
-
-        // 2. Konfeti Şovu Başlasın
-        var end = Date.now() + (4 * 1000); // 4 saniye sürsür
-
-        (function frame() {
-          confetti({
-            particleCount: 10,
-            angle: 60,
-            spread: 55,
-            origin: { x: 0, y: 0.7 },
-            zIndex: 999999
-          });
-          confetti({
-            particleCount: 10,
-            angle: 120,
-            spread: 55,
-            origin: { x: 1, y: 0.7 },
-            zIndex: 999999
-          });
-
-          if (Date.now() < end) {
-            requestAnimationFrame(frame);
-          } else {
-            // 3. Şov bittiğinde kutuyu tekrar küçült ve görünmez yap
-            container.style.width = "0";
-            container.style.height = "0";
-          }
-        }());
-    </script>
-    """
-    # Buradaki height ve width değerleri başlangıçta 1 olsun, JS onu büyütecek
-    components.html(confetti_js, height=1, width=1)
-    
+        
 # Load Lottie animations
 lottie_celebration = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_u4yrau.json")
 
@@ -387,14 +340,14 @@ elif menu == "📊 Deneme Takibi":
                       (all_db['deneme_puan'] >= all_db['puan_hedef']))
     
     if basarili_mi:
-        konfeti_patlat()
+        st.balloons()
     # ----------------------------------------------------
     
     st.subheader("📊 Deneme Netleri ve Puan Hesaplama")
     
-    # Hedef Puanı Veriden Çek (Varsayılan 85.0)
+    # Hedef Puanı Veriden Çek (Varsayılan 75.0)
     user_settings = all_db[all_db['username'] == username]
-    hedef_puan = float(user_settings['puan_hedef'].iloc[0]) if 'puan_hedef' in user_settings.columns and not pd.isna(user_settings['puan_hedef'].iloc[0]) else 85.0
+    hedef_puan = float(user_settings['puan_hedef'].iloc[0]) if 'puan_hedef' in user_settings.columns and not pd.isna(user_settings['puan_hedef'].iloc[0]) else 75.0
 
     # 1. YENİ DENEME HESAPLAMA FORMU
     with st.expander("➕ Yeni Deneme Hesapla ve Kaydet", expanded=True):
@@ -470,12 +423,8 @@ elif menu == "📊 Deneme Takibi":
                 msg = "🚀 Yolun başındasın, pes etme; her deneme bir basamak!"
                 color = "#f85149"
                 
-            with st.container(border=True):
+                with st.container(border=True):
                 col_bilgi, col_puan, col_islem = st.columns([3, 2, 1])
-                if fark >= 0:
-                    st.success("🎉 HEDEFE ULAŞTIN TEBRİKLER! 🎉")
-                    if lottie_celebration:
-                        st_lottie(lottie_celebration, height=150, key=f"lottie_{d_row['id']}")
                 with col_bilgi:
                     st.markdown(f"**{d_row['konu']}**")
                     st.caption(f"📅 {d_row['tarih']}")
@@ -490,9 +439,4 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
-                st.markdown(f"<p style='font-style:italic; font-size:0.85rem; color:{color};'>{msg}</p>", unsafe_allow_html=True)
-
-
-
-
 
