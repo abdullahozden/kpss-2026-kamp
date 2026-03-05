@@ -30,6 +30,10 @@ def hash_password(password):
 def format_yt_link(url):
     url = url.strip()
     return url if url.startswith("http") else f"https://{url}" if url else ""
+def delete_user_account(df, username):
+    new_df = df[df['username'] != username]
+    save_to_gsheets(new_df)
+    st.cache_data.clear()
 
 # --- 2. TASARIM AYARLARI (ESKİ TASARIM BİREBİR KORUNDU) ---
 st.set_page_config(page_title="2026 KPSS ÇALIŞMA PLANI", layout="wide", page_icon="🎓")
@@ -138,7 +142,24 @@ user_df = all_db[all_db['username'] == username].copy()
 
 st.sidebar.markdown(f"👤 **{username}**")
 if st.sidebar.button("🚪 Çıkış Yap"):
-    st.session_state.user = None; st.rerun()
+    with st.sidebar.expander("⚙️ Hesap Ayarları"):
+    if st.button("❌ Hesabımı Sil", type="secondary", use_container_width=True):
+        st.session_state.confirm_delete = True
+
+    if st.session_state.get('confirm_delete', False):
+        st.warning("Tüm verileriniz kalıcı olarak silinecektir. Emin misiniz?")
+        col_del1, col_del2 = st.columns(2)
+        if col_del1.button("EVET, SİL", type="primary", use_container_width=True):
+            delete_user_account(all_db, username)
+            st.toast("Hesabınız ve tüm verileriniz silindi.", icon="🗑️")
+            st.session_state.user = None
+            st.session_state.confirm_delete = False
+            time.sleep(2)
+            st.rerun()
+        if col_del2.button("İPTAL", use_container_width=True):
+            st.session_state.confirm_delete = False
+            st.rerun()
+        st.session_state.user = None; st.rerun()
 
 menu = st.sidebar.radio("Gezinti", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım"])
 st.markdown('<div class="custom-header"><h1>🚀 <span style="color: #58a6ff;">2026 KPSS</span> ÇALIŞMA PLANI</h1></div>', unsafe_allow_html=True)
@@ -216,7 +237,7 @@ elif menu == "📅 Günlük Planım":
                         all_db.loc[all_db['id'] == row['id'], 'videolar'] = json.dumps(v_list)
                         all_db.loc[all_db['id'] == row['id'], 'tamamlandi'] = False
                         save_to_gsheets(all_db);
-                        st.toast(f"{row['konu']} tekrar çalışma planına eklendi.", icon="🗑️") # Pop-up bildirim
+                        st.toast(f"{row['konu']} tekrar çalışma planına eklendi.", icon="⏪") # Pop-up bildirim
                         time.sleep(1)
                         st.rerun()
                 with c_arc_del:
@@ -306,6 +327,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
