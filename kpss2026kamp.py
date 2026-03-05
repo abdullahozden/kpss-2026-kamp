@@ -12,15 +12,23 @@ import requests
 # --- 1. VERİ BAĞLANTISI & OPTİMİZASYON ---
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=0)
 def load_all_data():
     try:
         df = conn.read()
         if df is None or df.empty:
-            return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id", "deneme_gk_d", "deneme_gk_y", "deneme_gy_d", "deneme_gy_y", "puan", "deneme_puan", "puan_hedef"])
-        return df.dropna(how="all")
+            return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id", "display_name"])
+        # --- TEMİZLİK BURADA YAPILIYOR ---
+        # 1. Tamamen boş satırları sil
+        df = df.dropna(how="all")
+        # 2. Kullanıcı adı (username) boş olan satırları sil
+        df = df.dropna(subset=["username"])
+        # 3. 'display_name' sütunu yoksa oluştur (çökmeyi önlemek için)
+        if 'display_name' not in df.columns:
+            df['display_name'] = df['username']
+        return df
     except:
-        return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id", "puan_hedef"])
+        return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id", "display_name"])
 
 def save_to_gsheets(df):
     conn.update(data=df)
@@ -461,6 +469,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
