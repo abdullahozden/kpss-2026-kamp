@@ -151,26 +151,25 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
     if tema == "Aydınlık":
         st.markdown("""
             <style>
-            /* Sayfa arka planını beyaza yakın yumuşak bir gri yap */
-            .stApp { background-color: #F8F9FA !important; }
+            /* Tüm karanlık mod kalıntılarını temizle */
+            .stApp { background-color: #F8F9FA !important; color: #1F2937 !important; }
             
-            /* Siyah kalan header kutusunu düzeltecek sihirli dokunuş */
+            /* Başlığı (Header) bembeyaz yap */
             .custom-header {
-                background: white !important;
+                background-color: white !important;
                 color: #1F2937 !important;
                 border: 1px solid #E5E7EB !important;
-                box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1) !important;
             }
-            
-            /* Metrik yazılarını siyah yap (Okunabilirlik için en önemlisi) */
-            [data-testid="stMetricValue"], [data-testid="stMetricLabel"] {
+    
+            /* Metrik ve yazı renklerini zorla siyah yap */
+            [data-testid="stMetricValue"], [data-testid="stMetricLabel"], p, span, label {
                 color: #1F2937 !important;
             }
-            
-            /* Sidebar'ı biraz daha belirgin yap */
+    
+            /* Sidebar (Menü) */
             [data-testid="stSidebar"] { background-color: #F3F4F6 !important; }
             </style>
-            """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
     else:
         st.session_state.theme = 'dark'
     st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
@@ -355,6 +354,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
