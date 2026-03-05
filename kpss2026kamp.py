@@ -156,13 +156,13 @@ st.sidebar.markdown("""
         [data-testid="stSidebarUserContent"] {
             padding-top: -1rem !important;
             display: flex;
-            justify-content: flex-center !important; /* Ortalamayı bırak, yukarı yasla */
+            justify-content: center !important;
             height: 35vh;
         }
         /* 2. Widgetlar (butonlar, radiolar) arasındaki boşluğu aşırı daralt */
         [data-testid="stVerticalBlock"] > div {
-            gap: 0.4rem !important;
-            margin-bottom: -0.5rem !important;
+            gap: 0.2rem !important;
+            margin-bottom: -0.2rem !important;
         }
         /* 3. Expander (Ayarlar) içindeki boşlukları küçült */
         [data-testid="stExpander"] [data-testid="stVerticalBlock"] {
@@ -535,6 +535,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
