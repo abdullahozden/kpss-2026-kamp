@@ -147,10 +147,6 @@ else:
     d_name = username
 # Artık d_name değişkeni her durumda dolu, hata vermez:
 st.sidebar.markdown(f"👤 **{d_name}** <small>(@{username})</small>", unsafe_allow_html=True)
-if st.sidebar.button("🚪 Çıkış Yap", use_container_width=True):
-    st.session_state.user = None
-    st.rerun()
-st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
 with st.sidebar.expander("⚙️ Hesap Ayarları"):
     st.subheader("Profil Düzenle")
     # Mevcut display_name'i çek (yoksa kullanıcı adını kullan)
@@ -186,6 +182,11 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
             st.session_state.confirm_delete = False
             st.rerun()
         st.markdown("<hr style='margin:4px 0px;'>", unsafe_allow_html=True)
+            if st.sidebar.button("🚪 Çıkış Yap", use_container_width=True):
+                st.session_state.user = None
+                st.rerun()
+
+    st.markdown("<hr style='margin:4px 0px;'>", unsafe_allow_html=True)
 menu = st.sidebar.radio("Gezinti", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
 st.markdown('<div class="custom-header"><h1>🚀 <span style="color: #58a6ff;">2026 KPSS</span> ÇALIŞMA PLANI</h1></div>', unsafe_allow_html=True)
 
@@ -466,6 +467,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
