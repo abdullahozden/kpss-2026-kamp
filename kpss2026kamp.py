@@ -474,6 +474,8 @@ elif menu == "📊 Deneme Takibi":
                 col_bilgi, col_puan, col_islem = st.columns([3, 2, 1])
                 if fark >= 0:
                     st.success("🎉 HEDEFE ULAŞTIN TEBRİKLER! 🎉")
+                    if lottie_celebration:
+                        st_lottie(lottie_celebration, height=150, key=f"lottie_{d_row['id']}")
                 with col_bilgi:
                     st.markdown(f"**{d_row['konu']}**")
                     st.caption(f"📅 {d_row['tarih']}")
@@ -489,6 +491,7 @@ elif menu == "📊 Deneme Takibi":
                         time.sleep(1)
                         st.rerun()
                 st.markdown(f"<p style='font-style:italic; font-size:0.85rem; color:{color};'>{msg}</p>", unsafe_allow_html=True)
+
 
 
 
