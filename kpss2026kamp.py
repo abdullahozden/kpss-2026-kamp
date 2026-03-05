@@ -184,9 +184,13 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
 if st.sidebar.button("🚪 Çıkış Yap", use_container_width=True):
     st.session_state.user = None
     st.rerun()
-    st.markdown("<hr style='margin:4px 0px;'>", unsafe_allow_html=True)
 menu = st.sidebar.radio("Gezinti", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
-st.markdown('<div class="custom-header"><h1>🚀 <span style="color: #58a6ff;">2026 KPSS</span> ÇALIŞMA PLANI</h1></div>', unsafe_allow_html=True)
+st.markdown("""
+    <div class="custom-header"; style="text-align: center; margin-bottom: 20px;">
+        <h1 style="color: white; margin-bottom: 0;">🚀 2026 KPSS Çalışma Planım</h1>
+        <hr style="border: 1px solid #fe4a49; width: 50%; margin: auto;">
+    </div>
+    """, unsafe_allow_html=True)
 st.markdown("<hr style='margin:4px 0px;'>", unsafe_allow_html=True)
 
 # --- 6. PLAN OLUŞTUR ---
@@ -466,6 +470,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
