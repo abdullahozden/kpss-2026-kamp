@@ -166,6 +166,8 @@ st.sidebar.markdown("""
         [data-testid="stSidebarUserContent"] .stCaption {
             text-align: center;
             width: 100%;
+            height: 100%;
+            display: flex;
         }
         /* 2. Widgetlar (butonlar, radiolar) arasındaki boşluğu aşırı daralt */
         [data-testid="stVerticalBlock"] > div {
@@ -178,7 +180,7 @@ st.sidebar.markdown("""
         }
         /* 4. Yazı boyutlarını ve buton yüksekliklerini biraz küçült */
         .stButton button {
-            item-content= center;
+            item-align= center;
             padding-top: 0.5rem !important;
             padding-bottom: 0.5rem !important;
             min-height: 2rem !important;
@@ -545,6 +547,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
