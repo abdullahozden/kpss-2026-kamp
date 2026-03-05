@@ -165,7 +165,7 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
         all_db.loc[all_db['username'] == username, 'puan_hedef'] = yeni_hedef
         save_to_gsheets(all_db)
         st.toast("Hedef puan güncellendi! 🎯")
-    st.markdown("<hr style='margin:0px 1px;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin:1px 0px; align=center;'>", unsafe_allow_html=True)
     if st.button("❌ Hesabımı Sil", type="secondary", use_container_width=True):
         st.session_state.confirm_delete = True
     if st.session_state.get('confirm_delete', False):
@@ -470,6 +470,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
