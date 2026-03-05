@@ -427,7 +427,6 @@ elif menu == "📊 Deneme Takibi":
             fark = puan - h_puan
                 # Motivasyon Mesajı Belirleme
             if fark >= 0:
-                st.success("🎉 HEDEFE ULAŞTIN TEBRİKLER! 🎉")
                 msg = "🔥 Mükemmel! Hedefin üzerindesin, bu iş bitti!"
                 color = "#238636"
             elif fark >= -10:
@@ -441,6 +440,7 @@ elif menu == "📊 Deneme Takibi":
                 color = "#f85149"
                 
             with st.container(border=True):
+                col_bilgi, col_puan, col_islem = st.columns([3, 2, 1])
                 if fark >= 0:
                     st.success("🎉 HEDEFE ULAŞTIN TEBRİKLER! 🎉")
                     if lottie_celebration:
@@ -459,5 +459,4 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
-
-
+st.markdown(f"<p style='font-style:italic; font-size:0.85rem; color:{color};'>{msg}</p>", unsafe_allow_html=True)
