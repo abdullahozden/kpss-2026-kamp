@@ -124,7 +124,7 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
             st.session_state.user = yeni_u
             st.success("Kullanıcı adı değişti!")
             st.rerun()
-    st.divider()
+   st.markdown("<hr style='margin:2px 0px;'>", unsafe_allow_html=True)
     # 2. Hedef Puan Belirleme
     mevcut_hedef = user_df['puan_hedef'].iloc[0] if 'puan_hedef' in user_df.columns else 0
     yeni_hedef = st.number_input("Hedef KPSS Puanı", min_value=0.0, max_value=100.0, value=float(mevcut_hedef), step=0.5)
@@ -168,7 +168,7 @@ if menu == "📝 Plan Oluştur":
             if st.button("Ekle", use_container_width=True, type="primary"):
                 if n_d: st.session_state.dersler[n_d] = st.session_state.selected_icon; st.rerun()
     
-    st.divider()
+    st.markdown("<hr style='margin:2px 0px;'>", unsafe_allow_html=True)
     c1, c2 = st.columns(2)
     with c1:
         d_s = st.selectbox("Ders", list(st.session_state.dersler.keys()))
@@ -233,7 +233,7 @@ elif menu == "📅 Günlük Planım":
                         st.toast(f"{row['konu']} başarıyla sildiniz.", icon="🗑️") # Pop-up bildirim
                         time.sleep(1)
                         st.rerun()
-            st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
+            st.markdown("<hr style='margin:2px 0px;'>", unsafe_allow_html=True)
 
     active_df = user_df[(user_df['tamamlandi'] == False) & (user_df['konu'] != "Hesap Aktif")]
     if active_df.empty: st.info("Aktif görev yok.")
@@ -300,7 +300,7 @@ elif menu == "🏆 Başarılarım":
     c_m1, c_m2 = st.columns(2)
     with c_m1: st.markdown(f'<div class="stat-card"><h2>🔥 {int(bitenler["soru_cozulen"].sum())}</h2>Soru Çözüldü</div>', unsafe_allow_html=True)
     with c_m2: st.markdown(f'<div class="stat-card"><h2>✅ {len(bitenler)}</h2>Konu Tamamlandı</div>', unsafe_allow_html=True)
-    st.divider()
+    st.markdown("<hr style='margin:2px 0px;'>", unsafe_allow_html=True)
 
     for d, ikon in st.session_state.dersler.items():
         ders_df = user_df[user_df['ders'] == d]
@@ -356,4 +356,5 @@ elif menu == "📊 Deneme Takibi":
             # ama mevcut yapına uygun olarak 'ders' adını DENEME yaparak kaydediyoruz.
             save_to_gsheets(pd.concat([all_db, deneme_row], ignore_index=True))
             st.success("Deneme başarıyla kaydedildi!")
+
 
