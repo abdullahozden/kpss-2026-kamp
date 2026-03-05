@@ -153,6 +153,12 @@ if st.sidebar.button("🚪 Çıkış Yap", use_container_width=True):
 st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
 with st.sidebar.expander("⚙️ Hesap Ayarları"):
     st.subheader("Profil Düzenle")
+    # Mevcut display_name'i çekmeden önce verinin varlığını kontrol et
+    if not user_df.empty and 'display_name' in user_df.columns:
+        current_dn = user_df['display_name'].iloc[0] if pd.notna(user_df['display_name'].iloc[0]) else username
+    else:
+        current_dn = username
+    yeni_display = st.text_input("Ekranda Görünecek Adın", value=current_dn)
     # --- A. GÖRÜNEN AD DEĞİŞTİRME ---
     current_dn = user_df['display_name'].iloc[0] if 'display_name' in user_df.columns else username
     yeni_display = st.text_input("Ekranda Görünecek Adın", value=current_dn)
@@ -485,6 +491,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
