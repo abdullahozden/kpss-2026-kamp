@@ -414,22 +414,23 @@ elif menu == "📊 Deneme Takibi":
                 msg = "🚀 Yolun başındasın, pes etme; her deneme bir basamak!"
                 color = "#f85149"
                 
-            with st.container(border=True):
-                col_bilgi, col_puan, col_islem = st.columns([3, 2, 1])
-            with col_bilgi:
-                st.markdown(f"**{d_row['konu']}**")
-                st.caption(f"📅 {d_row['tarih']}")
-                st.write(f"GK: {d_row['deneme_gk_d']}D {d_row['deneme_gk_y']}Y | GY: {d_row['deneme_gy_d']}D {d_row['deneme_gy_y']}Y")
-             with col_puan:
-                st.markdown(f"<h3 style='margin:0; color:{color};'>{puan:.2f}</h3>", unsafe_allow_html=True)
-                st.caption(f"Hedefe Uzaklık: {fark:.2f}")
-            with col_islem:
-                if st.button("🗑️", key=f"del_deneme_{d_row['id']}", use_container_width=True):
-                    # Seçili ID hariç diğerlerini sakla ve güncelle
-                    save_to_gsheets(all_db[all_db['id'] != d_row['id']])
-                    st.toast("🗑️  Deneme silindi.")
-                    time.sleep(1)
-                    st.rerun()
+                with st.container(border=True):
+                    col_bilgi, col_puan, col_islem = st.columns([3, 2, 1])
+                with col_bilgi:
+                    st.markdown(f"**{d_row['konu']}**")
+                    st.caption(f"📅 {d_row['tarih']}")
+                    st.write(f"GK: {d_row['deneme_gk_d']}D {d_row['deneme_gk_y']}Y | GY: {d_row['deneme_gy_d']}D {d_row['deneme_gy_y']}Y")
+                 with col_puan:
+                    st.markdown(f"<h3 style='margin:0; color:{color};'>{puan:.2f}</h3>", unsafe_allow_html=True)
+                    st.caption(f"Hedefe Uzaklık: {fark:.2f}")
+                with col_islem:
+                    if st.button("🗑️", key=f"del_deneme_{d_row['id']}", use_container_width=True):
+                        # Seçili ID hariç diğerlerini sakla ve güncelle
+                        save_to_gsheets(all_db[all_db['id'] != d_row['id']])
+                        st.toast("🗑️  Deneme silindi.")
+                        time.sleep(1)
+                        st.rerun()
+
 
 
 
