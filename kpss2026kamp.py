@@ -41,10 +41,13 @@ def delete_user_account(df, username):
     st.cache_data.clear()
     
 def load_lottieurl(url: str):
-    r = requests.get(url)
-    if r.status_code != 200:
+    try:
+        r = requests.get(url, timeout=5)
+        if r.status_code != 200:
+            return None
+        return r.json()
+    except:
         return None
-    return r.json()
 
 # Load Lottie animations
 lottie_celebration = load_lottieurl("https://lottie.host/4db68bdb-e273-49e0-9439-421292e78cc9/E4yNFtGYzr.json")
@@ -415,7 +418,10 @@ elif menu == "📊 Deneme Takibi":
                 col_bilgi, col_puan, col_islem = st.columns([3, 2, 1])
                 st.markdown(f"<p style='margin-top:10px; font-style:italic; font-size:0.85rem; color:{color};'>{msg}</p>", unsafe_allow_html=True)
                 if fark >= 0:
-                    st_lottie(lottie_celebration, height=150, key=f"lottie_{d_row['id']}")
+                    if lottie_celebration:
+                        st_lottie(lottie_celebration, height=150, key=f"lottie_{d_row['id']}")
+                    else:
+                        st.write("🎉")
                 with col_bilgi:
                     st.markdown(f"**{d_row['konu']}**")
                     st.caption(f"📅 {d_row['tarih']}")
@@ -430,4 +436,5 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
