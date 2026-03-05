@@ -188,10 +188,9 @@ menu = st.sidebar.radio("Gezinti", ["📅 Günlük Planım", "📝 Plan Oluştur
 st.markdown("""
     <div class="custom-header"; style="text-align: center; margin-bottom: 20px;">
         <h1 style="color: white; margin-bottom: 0;">🚀 2026 KPSS Çalışma Planım</h1>
-        <hr style="border: 1px solid #fe4a49; width: 50%; margin: auto;">
+        <hr style="border: 1px solid #3d9df3; width: 50%; margin: auto;">
     </div>
     """, unsafe_allow_html=True)
-st.markdown("<hr style='margin:4px 0px;'>", unsafe_allow_html=True)
 
 # --- 6. PLAN OLUŞTUR ---
 if menu == "📝 Plan Oluştur":
@@ -470,6 +469,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
