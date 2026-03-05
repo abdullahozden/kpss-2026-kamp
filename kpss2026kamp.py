@@ -147,22 +147,32 @@ else:
     d_name = username
     
 # Artık d_name değişkeni her durumda dolu, hata vermez:
-st.sidebar.markdown(f"👤 **{d_name}** <medium>(@{username})</medium>", unsafe_allow_html=True)
-    # Sidebar elemanlarını dikeyde ortalamak için CSS
+st.sidebar.markdown(f"### 👤 {d_name}")
+st.sidebar.caption(f"@{username}") # Kullanıcı adını küçük harflerle altına ekler
+st.sidebar.write("---")
 st.sidebar.markdown("""
     <style>
-        /* Sidebar'ın içindeki ana alanı seçiyoruz */
-        [data-testid="stSidebarNavItems"] {
+        /* Sidebar'ın ana konteynerini flex yap ve ortala */
+        [data-testid="stSidebarUserContent"] {
             display: flex;
             flex-direction: column;
             justify-content: center;
-            height: 70vh; /* Ekran yüksekliğinin %70'ini kapla */
+            align-items: center;
+            min-height: 90vh; /* Neredeyse tüm ekran boyu */
         }
-        /* Kullanıcı adı ve ikon kısmını da merkeze odakla */
-        section[data-testid="stSidebar"] .stMarkdown {
+        /* Metinleri ve başlıkları ortala */
+        [data-testid="stSidebarUserContent"] .stMarkdown, 
+        [data-testid="stSidebarUserContent"] .stCaption {
             text-align: center;
+            width: 100%;
         }
-        /* Butonları genişlet ve hizala */
+        /* Menü seçeneklerini (Radio buttons) ortala */
+        [data-testid="stSidebarNavItems"], [data-testid="stWidgetLabel"] {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        /* Sidebar içindeki tüm butonları genişlet ve hizala */
         section[data-testid="stSidebar"] .stButton button {
             width: 100%;
         }
@@ -512,6 +522,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
