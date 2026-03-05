@@ -385,7 +385,7 @@ elif menu == "📊 Deneme Takibi":
                     color = "#93c572"
                 elif fark >= -20:
                     msg = "✍️ İşleri sıkı tut! Hedefine yaklaşıyorsun."
-                    color = "#ffa500"
+                    color = "#7cfc00"
                 else:
                     msg = "🚀 Yolun başındasın, pes etme; her deneme bir basamak!"
                     color = "#f85149"
@@ -406,6 +406,7 @@ elif menu == "📊 Deneme Takibi":
                     st.markdown(f"<small><i>{msg}</i></small>", unsafe_allow_html=True)
             except:
                 continue
+
 
 
 
