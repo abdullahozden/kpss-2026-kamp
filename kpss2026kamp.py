@@ -163,21 +163,6 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
         st.success("İsim güncellendi!")
         st.rerun()
     st.markdown("---")
-    # 2. Kullanıcı Adını Değiştir (Giriş adını değiştirir - KRİTİK!)
-    yeni_u = st.text_input("Giriş Kullanıcı Adını Değiştir", value=username)
-    if st.button("Kullanıcı Adını Güncelle"):
-        if yeni_u == username:
-            st.info("Zaten bu kullanıcı adını kullanıyorsunuz.")
-        elif yeni_u in all_db['username'].values:
-            # İŞTE BURASI: Başka biri bu adı almış mı kontrolü
-            st.error("⚠️ Bu kullanıcı adı başka bir kullanıcı tarafından alınmış! Lütfen farklı bir ad deneyin.")
-        elif yeni_u:
-            # Eğer müsaitse tüm tablodaki eski adları yenisiyle değiştir
-            all_db.loc[all_db['username'] == username, 'username'] = yeni_u
-            save_to_gsheets(all_db)
-            st.session_state.user = yeni_u
-            st.success("Kullanıcı adı başarıyla değiştirildi! Yeni adınızla giriş yapabilirsiniz.")
-            st.rerun()
     # 2. Hedef Puan Belirleme
     mevcut_hedef = user_df['puan_hedef'].iloc[0] if 'puan_hedef' in user_df.columns else 0
     yeni_hedef = st.number_input("Hedef KPSS Puanı", min_value=0.0, max_value=100.0, value=float(mevcut_hedef), step=0.5)
@@ -484,6 +469,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
