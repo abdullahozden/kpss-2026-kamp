@@ -441,10 +441,10 @@ elif menu == "📊 Deneme Takibi":
                 color = "#f85149"
                 
             with st.container(border=True):
-                    if fark >= 0:
-                        st.success("🎉 HEDEFE ULAŞTIN TEBRİKLER! 🎉")
-                        if lottie_celebration:
-                            st_lottie(lottie_celebration, height=150, key=f"lottie_{d_row['id']}")
+                if fark >= 0:
+                    st.success("🎉 HEDEFE ULAŞTIN TEBRİKLER! 🎉")
+                    if lottie_celebration:
+                        st_lottie(lottie_celebration, height=150, key=f"lottie_{d_row['id']}")
                 with col_bilgi:
                     st.markdown(f"**{d_row['konu']}**")
                     st.caption(f"📅 {d_row['tarih']}")
@@ -459,4 +459,5 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
