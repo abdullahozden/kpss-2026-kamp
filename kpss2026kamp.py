@@ -156,7 +156,7 @@ st.sidebar.markdown("""
     <style>
         /* Sidebar'ın ana konteynerini flex yap ve ortala */
         [data-testid="stSidebarUserContent"] {
-            display: flex;
+            display: fix;
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -521,6 +521,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
