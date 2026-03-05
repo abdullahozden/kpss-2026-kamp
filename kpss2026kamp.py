@@ -156,7 +156,7 @@ st.sidebar.markdown("""
         [data-testid="stSidebarUserContent"] {
             padding-top: -1rem !important;
             display: flex;
-            justify-content: flex-start !important;
+            justify-content: center !important;
             align-items: center;
             height: 35vh;
         }
@@ -536,6 +536,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
