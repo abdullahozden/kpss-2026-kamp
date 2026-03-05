@@ -186,8 +186,8 @@ if st.sidebar.button("🚪 Çıkış Yap", use_container_width=True):
     st.rerun()
     st.markdown("<hr style='margin:4px 0px;'>", unsafe_allow_html=True)
 menu = st.sidebar.radio("Gezinti", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
-st.markdown("<hr style='margin:4px 0px;'>", unsafe_allow_html=True)
 st.markdown('<div class="custom-header"><h1>🚀 <span style="color: #58a6ff;">2026 KPSS</span> ÇALIŞMA PLANI</h1></div>', unsafe_allow_html=True)
+st.markdown("<hr style='margin:4px 0px;'>", unsafe_allow_html=True)
 
 # --- 6. PLAN OLUŞTUR ---
 if menu == "📝 Plan Oluştur":
@@ -466,6 +466,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
