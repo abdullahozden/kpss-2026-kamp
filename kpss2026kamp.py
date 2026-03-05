@@ -362,6 +362,15 @@ elif menu == "🏆 Başarılarım":
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
 elif menu == "📊 Deneme Takibi":
+    # --- KONFETİ KONTROLÜ ---
+    # Kullanıcının hedefi geçtiği en az bir denemesi var mı?
+    basarili_deneme = all_db[(all_db['username'] == username) & 
+                             (all_db['ders'] == "DENEME") & 
+                             (all_db['deneme_puan'] >= all_db['puan_hedef'])]
+    
+    if not basarili_deneme.empty:
+        konfeti_patlat() # Sayfa açılır açılmaz patlar!
+    # ------------------------
     st.subheader("📊 Deneme Netleri ve Puan Hesaplama")
     
     # Hedef Puanı Veriden Çek (Varsayılan 85.0)
@@ -466,6 +475,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
