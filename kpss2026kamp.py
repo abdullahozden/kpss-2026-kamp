@@ -233,7 +233,7 @@ elif menu == "📅 Günlük Planım":
                         st.toast(f"{row['konu']} başarıyla sildiniz.", icon="🗑️") # Pop-up bildirim
                         time.sleep(1)
                         st.rerun()
-            st.divider()
+            st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
 
     active_df = user_df[(user_df['tamamlandi'] == False) & (user_df['konu'] != "Hesap Aktif")]
     if active_df.empty: st.info("Aktif görev yok.")
@@ -356,3 +356,4 @@ elif menu == "📊 Deneme Takibi":
             # ama mevcut yapına uygun olarak 'ders' adını DENEME yaparak kaydediyoruz.
             save_to_gsheets(pd.concat([all_db, deneme_row], ignore_index=True))
             st.success("Deneme başarıyla kaydedildi!")
+
