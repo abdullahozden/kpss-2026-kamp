@@ -149,7 +149,7 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
             st.session_state.confirm_delete = False
             st.rerun()
 menu = st.sidebar.radio("Gezinti", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
-st.markdown('<div class="custom-header"><h1>🚀 <span style="color: #58a6ff; align: center;">2026 KPSS</span> ÇALIŞMA PLANI</h1></div>', unsafe_allow_html=True)
+st.markdown('<div class="custom-header"><h1>🚀 <span style="color: #58a6ff;">2026 KPSS</span> ÇALIŞMA PLANI</h1></div>', unsafe_allow_html=True)
 
 # --- 6. PLAN OLUŞTUR ---
 if menu == "📝 Plan Oluştur":
@@ -324,41 +324,82 @@ elif menu == "🏆 Başarılarım":
 elif menu == "📊 Deneme Takibi":
     st.subheader("📊 Deneme Netleri ve Puan Hesaplama")
     
-    # Puan Hesaplama Formu
-    with st.container(border=True):
+    # Hedef Puanı Veriden Çek (Varsayılan 85.0)
+    user_settings = all_db[all_db['username'] == username]
+    hedef_puan = float(user_settings['puan_hedef'].iloc[0]) if 'puan_hedef' in user_settings.columns and not pd.isna(user_settings['puan_hedef'].iloc[0]) else 85.0
+
+    # 1. YENİ DENEME HESAPLAMA FORMU
+    with st.expander("➕ Yeni Deneme Hesapla ve Kaydet", expanded=True):
         c1, c2 = st.columns(2)
         with c1:
-            gk_dogru = st.number_input("Genel Kültür Doğru", min_value=0, max_value=60, value=0)
-            gk_yanlis = st.number_input("Genel Kültür Yanlış", min_value=0, max_value=60, value=0)
+            gk_d = st.number_input("GK Doğru", 0, 60, 0, key="new_gk_d")
+            gk_y = st.number_input("GK Yanlış", 0, 60, 0, key="new_gk_y")
         with c2:
-            gy_dogru = st.number_input("Genel Yetenek Doğru", min_value=0, max_value=60, value=0)
-            gy_yanlis = st.number_input("Genel Yetenek Yanlış", min_value=0, max_value=60, value=0)
+            gy_d = st.number_input("GY Doğru", 0, 60, 0, key="new_gy_d")
+            gy_y = st.number_input("GY Yanlış", 0, 60, 0, key="new_gy_y")
         
-        # Net Hesaplama
-        gk_net = gk_dogru - (gk_yanlis * 0.25)
-        gy_net = gy_dogru - (gy_yanlis * 0.25)
+        gk_net = gk_d - (gk_y * 0.25)
+        gy_net = gy_d - (gy_y * 0.25)
+        # KPSS P3 Yaklaşık Formül: 40 + (Toplam Net * 0.5)
+        hesaplanan_puan = 40 + ((gk_net + gy_net) * 0.5)
         
-        # KPSS P3 Tahmini Hesaplama (Standart sapmasız yaklaşık formül)
-        # Puan = 40 + (GK_Net * 0.5) + (GY_Net * 0.5)
-        tahmini_puan = 40 + (gk_net * 0.5) + (gy_net * 0.5)
+        st.success(f"🧮 Netlerin: **{gk_net + gy_net}** | Tahmini Puan: **{hesaplanan_puan:.3f}**")
         
-        st.info(f"💡 Tahmini Kpss Puanınız: **{tahmini_puan:.3f}** (Netler: GK: {gk_net} | GY: {gy_net})")
-        
-        if st.button("🚀 Denemeyi Kaydet", use_container_width=True):
-            deneme_row = pd.DataFrame([{
-                "username": username, "password": user_df['password'].values[0],
-                "ders": "DENEME", "konu": f"Deneme {datetime.now().strftime('%d/%m')}",
-                "tarih": str(datetime.now().date()), "tamamlandi": True,
-                "soru_cozulen": int(gk_net + gy_net), "soru_hedef": 120,
-                "videolar": json.dumps([]), "id": int(datetime.now().timestamp())
-            }])
-            # Not: Bu verileri ayrı bir 'denemeler' tablosunda tutmak daha iyi olur 
-            # ama mevcut yapına uygun olarak 'ders' adını DENEME yaparak kaydediyoruz.
-            save_to_gsheets(pd.concat([all_db, deneme_row], ignore_index=True))
-            st.success("Deneme başarıyla kaydedildi!")
+        d_ad = st.text_input("Deneme Adı/Yayın", placeholder="Örn: Pegem TG-1")
+        if st.button("🚀 Denemeyi Arşive Kaydet", use_container_width=True):
+            if d_ad:
+                # Videolar sütununa netleri JSON olarak gömüyoruz ki sonra okuyabilelim
+                net_data = json.dumps({"gk_d": gk_d, "gk_y": gk_y, "gy_d": gy_d, "gy_y": gy_y, "puan": hesaplanan_puan})
+                yeni_deneme = pd.DataFrame([{
+                    "username": username, "password": user_df['password'].values[0],
+                    "ders": "DENEME", "konu": d_ad, "tarih": str(datetime.now().date()),
+                    "videolar": net_data, "tamamlandi": True, "id": int(datetime.now().timestamp()),
+                    "soru_cozulen": int(gk_net + gy_net), "soru_hedef": 120, "puan_hedef": hedef_puan
+                }])
+                save_to_gsheets(pd.concat([all_db, yeni_deneme], ignore_index=True))
+                st.toast("Deneme kaydedildi!", icon="💾")
+                time.sleep(1)
+                st.rerun()
 
+    st.divider()
 
+    # 2. KAYDEDİLEN DENEMELER VE ANALİZ
+    st.subheader("📜 Deneme Arşivim")
+    deneme_gecmisi = all_db[(all_db['username'] == username) & (all_db['ders'] == "DENEME")].sort_values(by="id", ascending=False)
 
+    if deneme_gecmisi.empty:
+        st.info("Henüz kaydedilmiş bir deneme yok.")
+    else:
+        for _, d_row in deneme_gecmisi.iterrows():
+            try:
+                n = json.loads(d_row['videolar'])
+                puan = n.get('puan', 0)
+                fark = puan - hedef_puan
+                
+                # Motivasyon Mesajı Belirleme
+                if fark >= 0:
+                    msg = "🔥 Mükemmel! Hedefin üzerindesin, bu iş bitti!"
+                    color = "#238636"
+                elif fark > -5:
+                    msg = "💪 Çok yakınsın! Küçük bir gayretle hedef elinde."
+                    color = "#f1e05a"
+                else:
+                    msg = "🚀 Yolun başındasın, pes etme; her deneme bir basamak!"
+                    color = "#f85149"
 
-
-
+                with st.container(border=True):
+                    col_bilgi, col_puan, col_islem = st.columns([3, 2, 1])
+                    with col_bilgi:
+                        st.markdown(f"**{d_row['konu']}**")
+                        st.caption(f"📅 {d_row['tarih']} | GK: {n['gk_d']}D {n['gk_y']}Y | GY: {n['gy_d']}D {n['gy_y']}Y")
+                    with col_puan:
+                        st.markdown(f"<h3 style='margin:0; color:{color};'>{puan:.2f}</h3>", unsafe_allow_html=True)
+                        st.caption(f"Hedefe Uzaklık: {fark:.2f}")
+                    with col_islem:
+                        if st.button("🗑️", key=f"del_d_{d_row['id']}"):
+                            save_to_gsheets(all_db[all_db['id'] != d_row['id']])
+                            st.rerun()
+                    
+                    st.markdown(f"<small><i>{msg}</i></small>", unsafe_allow_html=True)
+            except:
+                continue
