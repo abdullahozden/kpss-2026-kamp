@@ -130,7 +130,7 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
         if col_del2.button("İPTAL", use_container_width=True):
             st.session_state.confirm_delete = False
             st.rerun()
-menu = st.sidebar.radio("Gezinti", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım"])
+menu = st.sidebar.radio("Gezinti", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
 st.markdown('<div class="custom-header"><h1>🚀 <span style="color: #58a6ff;">2026 KPSS</span> ÇALIŞMA PLANI</h1></div>', unsafe_allow_html=True)
 
 # --- 6. PLAN OLUŞTUR ---
@@ -303,6 +303,46 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+elif menu == "📊 Deneme Takibi":
+    st.subheader("📊 Deneme Netleri ve Puan Hesaplama")
+    
+    # Puan Hesaplama Formu
+    with st.container(border=True):
+        c1, c2 = st.columns(2)
+        with c1:
+            gk_dogru = st.number_input("Genel Kültür Doğru", min_value=0, max_value=60, value=30)
+            gk_yanlis = st.number_input("Genel Kültür Yanlış", min_value=0, max_value=60, value=0)
+        with c2:
+            gy_dogru = st.number_input("Genel Yetenek Doğru", min_value=0, max_value=60, value=30)
+            gy_yanlis = st.number_input("Genel Yetenek Yanlış", min_value=0, max_value=60, value=0)
+        
+        # Net Hesaplama
+        gk_net = gk_dogru - (gk_yanlis * 0.25)
+        gy_net = gy_dogru - (gy_yanlis * 0.25)
+        
+        # KPSS P3 Tahmini Hesaplama (Standart sapmasız yaklaşık formül)
+        # Puan = 40 + (GK_Net * 0.5) + (GY_Net * 0.5)
+        tahmini_puan = 40 + (gk_net * 0.5) + (gy_net * 0.5)
+        
+        st.info(f"💡 Tahmini P3 Puanınız: **{tahmini_puan:.3f}** (Netler: GK: {gk_net} | GY: {gy_net})")
+        
+        if st.button("🚀 Denemeyi Kaydet", use_container_width=True):
+            deneme_row = pd.DataFrame([{
+                "username": username, "password": user_df['password'].values[0],
+                "ders": "DENEME", "konu": f"Deneme {datetime.now().strftime('%d/%m')}",
+                "tarih": str(datetime.now().date()), "tamamlandi": True,
+                "soru_cozulen": int(gk_net + gy_net), "soru_hedef": 120,
+                "videolar": json.dumps([]), "id": int(datetime.now().timestamp())
+            }])
+            # Not: Bu verileri ayrı bir 'denemeler' tablosunda tutmak daha iyi olur 
+            # ama mevcut yapına uygun olarak 'ders' adını DENEME yaparak kaydediyoruz.
+            save_to_gsheets(pd.concat([all_db, deneme_row], ignore_index=True))
+            st.success("Deneme başarıyla kaydedildi!")
+
+    # Geçmiş Denemeler Grafiği (Opsiyonel)
+    denemeler = user_df[user_df['ders'] == "DENEME"]
+    if not denemeler.empty:
+        st.line_chart(denemeler.set_index('tarih')['soru_cozulen'])
 
 
 
