@@ -149,6 +149,7 @@ else:
 # Artık d_name değişkeni her durumda dolu, hata vermez:
 st.sidebar.markdown(f"### 👤 {d_name}")
 st.sidebar.caption(f"@{username}")
+st.markdown("<hr style='margin:2px 0px;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <style>
         /* Sidebar'ın ana konteynerini flex yap ve ortala */
@@ -521,6 +522,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
