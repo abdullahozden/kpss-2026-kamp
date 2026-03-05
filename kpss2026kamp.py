@@ -146,7 +146,9 @@ else:
     # Eğer user_df tamamen boşsa (giriş hatası veya veri çekme gecikmesi)
     d_name = username
 # Artık d_name değişkeni her durumda dolu, hata vermez:
-st.sidebar.markdown(f"👤 **{d_name}** <small>(@{username})</small>", unsafe_allow_html=True)
+st.sidebar.markdown(f"👤 **{d_name}** <medium>(@{username})</medium>", unsafe_allow_html=True)
+menu = st.sidebar.radio("Gezinti", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
+
 with st.sidebar.expander("⚙️ Hesap Ayarları"):
     st.subheader("Profil Düzenle")
     # Mevcut display_name'i çek (yoksa kullanıcı adını kullan)
@@ -183,7 +185,6 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
 if st.sidebar.button("🚪 Çıkış Yap", use_container_width=True):
     st.session_state.user = None
     st.rerun()
-menu = st.sidebar.radio("Gezinti", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
 st.markdown("""
     <div class="custom-header"; style="text-align: center; margin-bottom: 20px;">
         <h1 style="color: white; margin-bottom: 0;">🚀 2026 KPSS Çalışma Planım</h1>
@@ -469,6 +470,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
