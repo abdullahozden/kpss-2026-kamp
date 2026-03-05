@@ -151,24 +151,50 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
     if tema == "Aydınlık":
         st.markdown("""
             <style>
-            /* Tüm arka planı ve metin renklerini zorla değiştir */
+            /* Sayfa Arka Planı - Yumuşak Gri/Beyaz */
             .stApp, [data-testid="stAppViewContainer"] {
-                background-color: #FFFFFF !important;
-                color: #000000 !important;
+                background-color: #F8F9FA !important;
+                color: #2D3436 !important;
             }
-            /* Sidebar (Yan Menü) için aydınlık tema */
+
+            /* Sol Menü Barı (Sidebar) - Sayfadan Daha Koyu Gri */
             [data-testid="stSidebar"] {
-                background-color: #F0F2F6 !important;
+                background-color: #E9ECEF !important;
+                border-right: 1px solid #DEE2E6 !important;
             }
-            /* Yazıların görünmesi için */
-            h1, h2, h3, p, span, label {
-                color: #1F2937 !important;
+
+            /* Menü Yazıları ve Etiketler */
+            [data-testid="stSidebar"] .stMarkdown, [data-testid="stSidebar"] label, [data-testid="stSidebar"] span {
+                color: #2D3436 !important;
             }
-            /* Header kartını aydınlık yap */
+
+            /* Başlık Kartı (Header) */
             .custom-header {
-                background: #F3F4F6 !important;
-                border-bottom: 4px solid #3B82F6 !important;
-                color: #1F2937 !important;
+                background: #FFFFFF !important;
+                color: #2D3436 !important;
+                border: 1px solid #DEE2E6 !important;
+                box-shadow: 0px 4px 12px rgba(0,0,0,0.05) !important;
+            }
+
+            /* Görev Kartları ve Alt Kutular */
+            div[style*="background-color: #262730"], div[style*="background-color: #1c2128"] {
+                background-color: #FFFFFF !important;
+                color: #2D3436 !important;
+                border: 1px solid #DEE2E6 !important;
+            }
+
+            /* Input ve Yazı Alanları */
+            .stTextInput input, .stSelectbox div {
+                background-color: #FFFFFF !important;
+                color: #2D3436 !important;
+                border: 1px solid #CED4DA !important;
+            }
+            
+            /* Divider Boşluk Ayarı */
+            hr {
+                margin-top: 0.5rem !important;
+                margin-bottom: 0.5rem !important;
+                border-top: 1px solid #DEE2E6 !important;
             }
             </style>
             """, unsafe_allow_html=True)
@@ -375,6 +401,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
