@@ -200,8 +200,8 @@ if menu == "📝 Plan Oluştur":
                 st.success("Plan eklendi! Sayfa temizleniyor...")
                 time.sleep(1)
                 st.rerun()
-                else:
-                    st.error("Lütfen bir konu ismi girin!")
+        else:
+            st.error("Lütfen bir konu ismi girin!")
 
 # --- 7. GÜNLÜK PLANIM ---
 elif menu == "📅 Günlük Planım":
@@ -305,6 +305,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
