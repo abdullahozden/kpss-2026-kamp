@@ -174,12 +174,6 @@ st.sidebar.markdown("""
             justify-content: center;
             width: 100%;
         }
-        /* Sidebar içindeki tüm butonları genişlet ve hizala */
-        section[data-testid="stSidebar"] .stButton button {
-            width: 100%;
-            justify-content: center;
-            align-items: center;
-        }
         /* Ayarlar menüsünün (expander) içindeki butonları hedefle */
         [data-testid="stExpander"] .stButton button {
             width: 100% !important;   /* Butonu tüm genişliğe yayar */
@@ -190,6 +184,7 @@ st.sidebar.markdown("""
         /* Input başlıklarını (Görünen Adın, Hedef Puanın) ortala */
         [data-testid="stExpander"] label {
             text-align: center !important;
+            justify-align: center;
             width: 100%;
             display: block;
         }
@@ -545,6 +540,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
