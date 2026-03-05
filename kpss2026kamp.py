@@ -175,7 +175,9 @@ if menu == "📝 Plan Oluştur":
         with st.form("plan_form_final", clear_on_submit=True):
             
             v_u = [st.text_input(f"Video {i+1} Linki", key=f"ufin_{i}") for i in range(v_s)]
-            if st.form_submit_button("🚀 Planı Kaydet ve Listeye Ekle", use_container_width=True):
+            # 178. satır (Buton satırı)
+        if st.form_submit_button("🚀 Planı Kaydet ve Listeye Ekle", use_container_width=True):
+            # 179. satır (Bak, bu satır bir TAB daha içeride başladı)
             if k_a:
                 v_d = json.dumps([{"url": format_yt_link(u), "done": False} for u in v_u if u.strip()])
                 n_p = pd.DataFrame([{
@@ -186,13 +188,13 @@ if menu == "📝 Plan Oluştur":
                 }])
                 save_to_gsheets(pd.concat([all_db, n_p], ignore_index=True))
                 
-                # SADECE BU ÜÇ SATIRI EKLEMEN YETERLİ:
+                # Geri bildirimler
                 st.toast(f"✅ {k_a} başarıyla planlandı!", icon="📅")
-                st.success("Plan eklendi! Liste güncelleniyor...")
+                st.success("Plan eklendi! Sayfa temizleniyor...")
                 time.sleep(1)
                 st.rerun()
-                else:
-                    st.error("Lütfen konu adını boş bırakmayın!")
+            else:
+                st.error("Lütfen bir konu ismi girin!")
 
 # --- 7. GÜNLÜK PLANIM ---
 elif menu == "📅 Günlük Planım":
@@ -296,6 +298,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
