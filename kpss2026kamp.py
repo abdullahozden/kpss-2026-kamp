@@ -124,7 +124,7 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
             st.session_state.user = yeni_u
             st.success("Kullanıcı adı değişti!")
             st.rerun()
-       st.markdown("<hr style='margin:2px 0px;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin:2px 0px;'>", unsafe_allow_html=True)
     # 2. Hedef Puan Belirleme
     mevcut_hedef = user_df['puan_hedef'].iloc[0] if 'puan_hedef' in user_df.columns else 0
     yeni_hedef = st.number_input("Hedef KPSS Puanı", min_value=0.0, max_value=100.0, value=float(mevcut_hedef), step=0.5)
@@ -356,6 +356,7 @@ elif menu == "📊 Deneme Takibi":
             # ama mevcut yapına uygun olarak 'ders' adını DENEME yaparak kaydediyoruz.
             save_to_gsheets(pd.concat([all_db, deneme_row], ignore_index=True))
             st.success("Deneme başarıyla kaydedildi!")
+
 
 
 
