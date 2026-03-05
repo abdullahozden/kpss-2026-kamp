@@ -151,45 +151,64 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
     if tema == "Aydınlık":
         st.markdown("""
             <style>
-            /* 1. Ana Arka Plan ve En Üstteki Siyah Barı (Header) Beyaz/Gri Yap */
+            /* 1. Sayfa ve Sidebar Arka Planı */
             .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
-                background-color: #F8F9FA !important;
+                background-color: #F4F6F9 !important;
             }
-
-            /* 2. Sol Menü Barı (Sidebar) - Sayfadan Daha Koyu Gri */
             [data-testid="stSidebar"], [data-testid="stSidebarUserContent"] {
+                background-color: #E2E6EA !important;
+            }
+
+            /* 2. Ana Başlık Kutusu (Siyah Kalan Kısım) */
+            .custom-header {
+                background-color: #FFFFFF !important;
+                background: #FFFFFF !important;
+                color: #1E293B !important;
+                border: 2px solid #DEE2E6 !important;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
+            }
+            .custom-header h1, .custom-header h2, .custom-header span {
+                color: #1E293B !important;
+            }
+
+            /* 3. Görev Kartları ve İçindeki Siyah Kutular (1. Video vs.) */
+            div[style*="background-color: #1c2128"], 
+            div[style*="background-color: #262730"],
+            div[style*="background: #1c2128"] {
+                background-color: #F8F9FA !important;
+                background: #F8F9FA !important;
+                color: #1E293B !important;
+                border: 1px solid #CED4DA !important;
+            }
+
+            /* 4. Açılır Menüler (Matematik - Temel Kavramlar vs.) */
+            [data-testid="stExpander"] details summary {
                 background-color: #E9ECEF !important;
+                color: #1E293B !important;
             }
-
-            /* 3. Tüm Yazıları Koyu Gri Yap (Görünürlüğü Artır) */
-            .stApp p, .stApp span, .stApp div, .stApp label, .stApp h1, .stApp h2, .stApp h3 {
-                color: #2D3436 !important;
-            }
-
-            /* 4. Hesap Ayarları Kutusu (Expander) ve İçindeki Arka Plan */
-            [data-testid="stExpander"] details, [data-testid="stExpanderDetails"] {
+            [data-testid="stExpander"] details {
                 background-color: #FFFFFF !important;
                 border: 1px solid #CED4DA !important;
-                border-radius: 8px !important;
-            }
-            [data-testid="stExpander"] summary {
-                background-color: #F8F9FA !important;
             }
 
-            /* 5. Butonları Aydınlat (Çıkış Yap ve Hesabımı Sil butonları) */
-            button[kind="secondary"], [data-testid="baseButton-secondary"] {
+            /* 5. İnput Kutuları (Hedef/Çözülen Kısımları) */
+            [data-baseweb="input"] > div, [data-baseweb="base-input"], input {
                 background-color: #FFFFFF !important;
-                color: #2D3436 !important;
-                border: 1px solid #ADB5BD !important;
-            }
-            button[kind="secondary"]:hover {
-                background-color: #E9ECEF !important;
+                color: #1E293B !important;
+                -webkit-text-fill-color: #1E293B !important;
+                border-color: #CED4DA !important;
             }
 
-            /* 6. Çizgiler (Divider) */
-            hr {
-                border-color: #DEE2E6 !important;
-                margin: 10px 0px !important;
+            /* 6. Tüm Genel Metinleri Koyu Gri Yap */
+            .stApp p, .stApp label, .stApp span:not([style*="color: white"]) {
+                color: #2D3436 !important;
+            }
+            
+            /* Sidebar Çıkış Yap ve Hesap Sil Butonları */
+            button[kind="secondary"] {
+                background-color: #FFFFFF !important;
+                color: #dc3545 !important;
+                border: 1px solid #dc3545 !important;
             }
             </style>
             """, unsafe_allow_html=True)
@@ -377,6 +396,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
