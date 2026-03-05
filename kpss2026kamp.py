@@ -54,29 +54,39 @@ def konfeti_patlat():
     confetti_js = """
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>
-        var duration = 3 * 1000;
-        var animationEnd = Date.now() + duration;
-        var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+        // Ana pencereye (parent) erişip konfeti fırlatıyoruz
+        window.parent.confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            zIndex: 999999 // Her şeyin üzerinde görünmesi için
+        });
+        
+        // Rastgele patlamalar için kısa bir dizi
+        var end = Date.now() + (2 * 1000);
+        (function frame() {
+          window.parent.confetti({
+            particleCount: 5,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 },
+            zIndex: 999999
+          });
+          window.parent.confetti({
+            particleCount: 5,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 },
+            zIndex: 999999
+          });
 
-        function randomInRange(min, max) {
-          return Math.random() * (max - min) + min;
-        }
-
-        var interval = setInterval(function() {
-          var timeLeft = animationEnd - Date.now();
-
-          if (timeLeft <= 0) {
-            return clearInterval(interval);
+          if (Date.now() < end) {
+            requestAnimationFrame(frame);
           }
-
-          var particleCount = 50 * (timeLeft / duration);
-          confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
-          confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
-        }, 250);
+        }());
     </script>
     """
-    # Sayfaya enjekte et (key eklemek önemli)
-    components.html(confetti_js, height=1)
+    components.html(confetti_js, height=0, width=0)
 
 # Load Lottie animations
 lottie_celebration = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_u4yrau.json")
@@ -475,6 +485,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
