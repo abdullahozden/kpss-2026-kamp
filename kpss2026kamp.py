@@ -83,7 +83,12 @@ if 'dersler' not in st.session_state:
 
 # --- 4. GİRİŞ KONTROLÜ ---
 if st.session_state.user is None:
-    st.markdown('<div class="custom-header"><h1 style="align= center;">🚀 2026 KPSS Çalışma Planı Giriş</h1></div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h1 style="color: white; margin-bottom: 0;">🚀 2026 KPSS Çalışma Planı Giriş</h1>
+        <hr style="border: 1px solid #fe4a49; width: 50%; margin: auto;">
+    </div>
+    """, unsafe_allow_html=True)
     t1, t2 = st.tabs(["🔑 Giriş Yap", "📝 Kayıt Ol"])
     
     with t1:
@@ -469,6 +474,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
