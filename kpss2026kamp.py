@@ -182,7 +182,7 @@ st.sidebar.markdown("""
         }
     </style>
 """, unsafe_allow_html=True)
-menu = st.sidebar.radio(["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
+menu = st.sidebar.radio("", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
 with st.sidebar.expander("⚙️ Hesap Ayarları"):
     st.subheader("Profil Düzenle")
     # Mevcut display_name'i çek (yoksa kullanıcı adını kullan)
@@ -526,79 +526,3 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
