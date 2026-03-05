@@ -307,13 +307,12 @@ elif menu == "📅 Günlük Planım":
                     # 1. Veri Hazırlığı
                     h_q = int(row['soru_hedef'])
                     c_q = int(row['soru_cozulen'])
-                    yuzde_float = min(c_q / h_q, 1.0) if h_q > 0 else 0.0
-                    st.write(f"📊 **Soru İlerlemesi: %{int(yuzde_float * 100)}**")
-                    st.progress(yuzde_float)
-                    m_col1, m_col2 = st.columns(2)
-                    m_col1.metric("Hedef", f"{h_q}")
-                    fark = c_q - h_q
-                    m_col2.metric("Çözülen", f"{c_q}", delta=fark if fark != 0 else None)
+                    yuzde_f = min(c_q / h_q, 1.0) if h_q > 0 else 0.0
+                    st.write(f"📊 **İlerleme: %{int(yuzde_f * 100)}**")
+                    st.progress(yuzde_f)
+                    col_m1, col_m2 = st.columns(2)
+                    col_m1.metric("Hedef", h_q)
+                    col_m2.metric("Çözülen", c_q, delta=c_q - h_q if h_q > 0 else None)
                     n_q = st.number_input("Sayıyı Güncelle", value=c_q, key=f"q_{row['id']}", label_visibility="collapsed")
                     if n_q != c_q:
                         all_db.loc[all_db['id'] == row['id'], 'soru_cozulen'] = int(n_q)
@@ -363,6 +362,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
