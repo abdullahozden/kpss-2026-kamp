@@ -183,7 +183,6 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
         """, unsafe_allow_html=True)
     else:
         st.session_state.theme = 'dark'
-        .stApp { background-color: #0d1117; color: #c9d1d9; }
     st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
     if st.button("❌ Hesabımı Sil", type="secondary", use_container_width=True):
         st.session_state.confirm_delete = True
@@ -373,6 +372,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
