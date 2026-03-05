@@ -406,7 +406,6 @@ elif menu == "📊 Deneme Takibi":
                 "soru_cozulen": int(gk_net + gy_net),
                 "soru_hedef": 120
         }])
-        
                 # Mevcut veritabanına ekle ve gönder
                 save_to_gsheets(pd.concat([all_db, yeni_deneme], ignore_index=True))
                 st.toast(f"✅ {d_ad} başarıyla kaydedildi!", icon="🚀")
@@ -414,9 +413,7 @@ elif menu == "📊 Deneme Takibi":
                 st.rerun()
             else:
                 st.error("Lütfen deneme adını giriniz!")
-
-    st.divider()
-
+    st.markdown("<hr style='margin:2px 0px;'>", unsafe_allow_html=True)
     # 2. KAYDEDİLEN DENEMELER VE ANALİZ
     st.subheader("📜 Deneme Arşivim")
     deneme_gecmisi = all_db[(all_db['username'] == username) & (all_db['ders'] == "DENEME")].sort_values(by="id", ascending=False)
@@ -468,6 +465,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
