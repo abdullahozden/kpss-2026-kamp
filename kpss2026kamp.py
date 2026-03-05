@@ -364,7 +364,6 @@ elif menu == "📊 Deneme Takibi":
                 hesaplanan_puan = 40 + ((gk_net + gy_net) * 0.5)
                 if hesaplanan_puan >= hedef_puan:
                     st.balloons()
-                    st.toast("🎯 HEDEF AŞILDI! Mükemmel sonuç!", icon="🎉")
                 yeni_deneme = pd.DataFrame([{
                 "username": username, 
                 "password": user_df['password'].values[0],
