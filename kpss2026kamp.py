@@ -151,50 +151,45 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
     if tema == "Aydınlık":
         st.markdown("""
             <style>
-            /* Sayfa Arka Planı - Yumuşak Gri/Beyaz */
-            .stApp, [data-testid="stAppViewContainer"] {
+            /* 1. Ana Arka Plan ve En Üstteki Siyah Barı (Header) Beyaz/Gri Yap */
+            .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
                 background-color: #F8F9FA !important;
-                color: #2D3436 !important;
             }
 
-            /* Sol Menü Barı (Sidebar) - Sayfadan Daha Koyu Gri */
-            [data-testid="stSidebar"] {
+            /* 2. Sol Menü Barı (Sidebar) - Sayfadan Daha Koyu Gri */
+            [data-testid="stSidebar"], [data-testid="stSidebarUserContent"] {
                 background-color: #E9ECEF !important;
-                border-right: 1px solid #DEE2E6 !important;
             }
 
-            /* Menü Yazıları ve Etiketler */
-            [data-testid="stSidebar"] .stMarkdown, [data-testid="stSidebar"] label, [data-testid="stSidebar"] span {
+            /* 3. Tüm Yazıları Koyu Gri Yap (Görünürlüğü Artır) */
+            .stApp p, .stApp span, .stApp div, .stApp label, .stApp h1, .stApp h2, .stApp h3 {
                 color: #2D3436 !important;
             }
 
-            /* Başlık Kartı (Header) */
-            .custom-header {
-                background: #FFFFFF !important;
-                color: #2D3436 !important;
-                border: 1px solid #DEE2E6 !important;
-                box-shadow: 0px 4px 12px rgba(0,0,0,0.05) !important;
-            }
-
-            /* Görev Kartları ve Alt Kutular */
-            div[style*="background-color: #262730"], div[style*="background-color: #1c2128"] {
+            /* 4. Hesap Ayarları Kutusu (Expander) ve İçindeki Arka Plan */
+            [data-testid="stExpander"] details, [data-testid="stExpanderDetails"] {
                 background-color: #FFFFFF !important;
-                color: #2D3436 !important;
-                border: 1px solid #DEE2E6 !important;
-            }
-
-            /* Input ve Yazı Alanları */
-            .stTextInput input, .stSelectbox div {
-                background-color: #FFFFFF !important;
-                color: #2D3436 !important;
                 border: 1px solid #CED4DA !important;
+                border-radius: 8px !important;
             }
-            
-            /* Divider Boşluk Ayarı */
+            [data-testid="stExpander"] summary {
+                background-color: #F8F9FA !important;
+            }
+
+            /* 5. Butonları Aydınlat (Çıkış Yap ve Hesabımı Sil butonları) */
+            button[kind="secondary"], [data-testid="baseButton-secondary"] {
+                background-color: #FFFFFF !important;
+                color: #2D3436 !important;
+                border: 1px solid #ADB5BD !important;
+            }
+            button[kind="secondary"]:hover {
+                background-color: #E9ECEF !important;
+            }
+
+            /* 6. Çizgiler (Divider) */
             hr {
-                margin-top: 0.5rem !important;
-                margin-bottom: 0.5rem !important;
-                border-top: 1px solid #DEE2E6 !important;
+                border-color: #DEE2E6 !important;
+                margin: 10px 0px !important;
             }
             </style>
             """, unsafe_allow_html=True)
@@ -382,6 +377,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
