@@ -277,6 +277,8 @@ elif menu == "📅 Günlük Planım":
                     if st.button("🗑️ Planı Sil", key=f"del_act_{row['id']}", use_container_width=True):
                         save_to_gsheets(all_db[all_db['id'] != row['id']]); st.rerun()
                         st.toast(f"{row['konu']} konusunu sildiniz!", icon="🗑️") # Pop-up bildirim
+                        time.sleep(1.5)
+                        st.rerun()
 
 # --- 8. BAŞARILARIM ---
 elif menu == "🏆 Başarılarım":
@@ -306,6 +308,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
