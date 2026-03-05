@@ -5,8 +5,12 @@ import json
 import hashlib
 from datetime import datetime
 import time
+from streamlit_lottie import st_lottie
+import requests
+
 
 # --- 1. VERİ BAĞLANTISI & OPTİMİZASYON ---
+st.write("Uygulama yükleniyor...")
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 # Veri çekme işlemini cache ile hızlandırıyoruz (Sunucu yükünü azaltır)
@@ -15,7 +19,7 @@ def load_all_data():
     try:
         df = conn.read(ttl=0)
         if df is None or df.empty:
-            return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id"])
+            return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id", "gk_d", "gk_y", "gy_d", "gy_y", "puan"])
         return df.dropna(how="all")
     except:
         return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id"])
@@ -30,10 +34,20 @@ def hash_password(password):
 def format_yt_link(url):
     url = url.strip()
     return url if url.startswith("http") else f"https://{url}" if url else ""
+
 def delete_user_account(df, username):
     new_df = df[df['username'] != username]
     save_to_gsheets(new_df)
     st.cache_data.clear()
+    
+def load_lottieurl(url: str):
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    return r.json()
+
+# Load Lottie animations
+lottie_celebration = load_lottieurl("https://lottie.host/4db68bdb-e273-49e0-9439-421292e78cc9/E4yNFtGYzr.json")
 
 # --- 2. TASARIM AYARLARI (ESKİ TASARIM BİREBİR KORUNDU) ---
 st.set_page_config(page_title="2026 KPSS ÇALIŞMA PLANI", layout="wide", page_icon="🎓")
@@ -372,17 +386,19 @@ elif menu == "📊 Deneme Takibi":
     else:
         for _, d_row in deneme_gecmisi.iterrows():
             try:
-                n = json.loads(d_row['videolar'])
+                n = json.loads(d_row['deneme'])
                 puan = n.get('puan', 0)
                 fark = puan - hedef_puan
                 
                 # Motivasyon Mesajı Belirleme
                 if fark >= 0:
+                    st_lottie(lottie_celebration, height=300, key="celebrate")
+                    st.success("HEDEF AŞILDI!")
                     msg = "🔥 Mükemmel! Hedefin üzerindesin, bu iş bitti!"
                     color = "#238636"
                 elif fark >= -10:
                     msg = "💪 Çok yakınsın! Küçük bir gayretle hedef elinde."
-                    color = "#7cfc00"
+                    color = "#9df000"
                 elif fark >= -20:
                     msg = "✍️ İşleri sıkı tut! Hedefine yaklaşıyorsun."
                     color = "#ffa500"
@@ -406,9 +422,3 @@ elif menu == "📊 Deneme Takibi":
                     st.markdown(f"<small><i>{msg}</i></small>", unsafe_allow_html=True)
             except:
                 continue
-
-
-
-
-
-
