@@ -156,7 +156,8 @@ st.sidebar.markdown("""
         [data-testid="stSidebarUserContent"] {
             padding-top: -1rem !important;
             display: flex;
-            justify-content: center !important;
+            justify-content: flex-start !important;
+            align-items: center;
             height: 35vh;
         }
         /* 2. Widgetlar (butonlar, radiolar) arasındaki boşluğu aşırı daralt */
@@ -535,6 +536,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
