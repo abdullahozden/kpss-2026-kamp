@@ -14,7 +14,7 @@ st.write("Uygulama yükleniyor...")
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 # Veri çekme işlemini cache ile hızlandırıyoruz (Sunucu yükünü azaltır)
-@st.cache_data(ttl=0)
+@st.cache_data(ttl=600)
 def load_all_data():
     try:
         return conn.read()
@@ -88,7 +88,7 @@ if st.session_state.user is None:
             if st.form_submit_button("Hesap Oluştur", use_container_width=True):
                 if nu in all_db['username'].values: st.error("Bu kullanıcı mevcut.")
                 else:
-                    new_u_row = pd.DataFrame([{"username": nu, "password": hash_password(np), "tamamlandi": True, "id": 0, "konu": "Hesap Aktif", "soru_cozulen": 0, "soru_hedef": 1}])
+                    new_u_row = pd.DataFrame([{"username": nu, "password": hash_password(np), "tamamlandi": True, "id": 0, "konu": "Hesap Aktif", "soru_cozulen": 0, "soru_hedef": 1, "puan_hedef": 0.0}])
                     save_to_gsheets(pd.concat([all_db, new_u_row], ignore_index=True))
                     st.success("Kayıt başarılı!")
     st.stop()
@@ -410,4 +410,3 @@ elif menu == "📊 Deneme Takibi":
                         time.sleep(1)
                         st.rerun()
                         st.markdown(f"<p style='margin-top:10px; font-style:italic; font-size:0.85rem;'>{msg}</p>", unsafe_allow_html=True)
-
