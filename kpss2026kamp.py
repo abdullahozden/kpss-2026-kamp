@@ -165,14 +165,12 @@ st.sidebar.markdown("""
         /* Metinleri ve başlıkları ortala */
         [data-testid="stSidebarUserContent"] .stMarkdown, 
         [data-testid="stSidebarUserContent"] .stCaption {
-            text-align: center
-            align: center;
+            text-align: center;
             width: 100%;
         }
         /* Menü seçeneklerini (Radio buttons) ortala */
         [data-testid="stSidebarNavItems"], [data-testid="stWidgetLabel"] {
-            display: flex;
-            align: center;
+            display: flex;;
             justify-content: center;
             width: 100%;
         }
@@ -523,6 +521,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
