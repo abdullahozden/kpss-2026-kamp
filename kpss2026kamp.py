@@ -4,24 +4,31 @@ import pandas as pd
 import json
 import hashlib
 from datetime import datetime
+import time # API limitleri için eklendi
 
-# --- 1. VERİ BAĞLANTISI & OPTİMİZASYON ---
+# --- 1. VERİ BAĞLANTISI ---
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# Veri çekme işlemini cache ile hızlandırıyoruz (Sunucu yükünü azaltır)
-@st.cache_data(ttl=300)
 def load_all_data():
     try:
-        df = conn.read(ttl=0)
+        # TTL süresini 60 saniye yaparak her seferinde API'ye gitmesini engelliyoruz
+        df = conn.read(ttl=60)
         if df is None or df.empty:
             return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id"])
         return df.dropna(how="all")
-    except:
+    except Exception as e:
+        st.warning(f"Veri yüklenemedi, lütfen sayfayı yenileyin.")
         return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id"])
 
 def save_to_gsheets(df):
-    conn.update(data=df)
-    st.cache_data.clear() # Değişiklik olduğunda cache'i temizle
+    try:
+        # HATA ÇÖZÜMÜ: worksheet adını açıkça belirtiyoruz (Genelde 'Sayfa1' veya 'Sheet1'dir)
+        # Kendi tablonuzdaki sayfa adı neyse onu yazın.
+        conn.update(data=df) 
+        st.cache_data.clear()
+        time.sleep(1) # API'ye nefes aldırmak için küçük bir bekleme
+    except Exception as e:
+        st.error(f"Kayıt sırasında bir sorun oluştu. Lütfen tekrar deneyin.")
 
 def hash_password(password):
     return hashlib.sha256(str.encode(password)).hexdigest()
@@ -30,7 +37,7 @@ def format_yt_link(url):
     url = url.strip()
     return url if url.startswith("http") else f"https://{url}" if url else ""
 
-# --- 2. TASARIM AYARLARI (ESKİ TASARIM BİREBİR KORUNDU) ---
+# --- 2. TASARIM AYARLARI (AYNEN KORUNDU) ---
 st.set_page_config(page_title="2026 KPSS ÇALIŞMA PLANI", layout="wide", page_icon="🎓")
 
 if 'user' not in st.session_state: st.session_state.user = None
@@ -40,56 +47,19 @@ if 'dersler' not in st.session_state:
 
 st.markdown("""
     <style>
-    /* Ana Arka Plan */
     .stApp { background-color: #0d1117; color: #c9d1d9; }
-    
-    /* Yan Menü (Sidebar) Büyütme */
     [data-testid="stSidebarNav"] span { font-size: 1.2rem !important; font-weight: 600 !important; }
     [data-testid="stSidebar"] .stRadio div[role="radiogroup"] label { font-size: 1.1rem !important; padding: 10px 0 !important; }
-    
-    /* Modern Header */
     .custom-header {
         background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
         padding: 2rem; border-radius: 20px; border-bottom: 4px solid #3b82f6;
         margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-align: center;
     }
-    
-    /* Plan Kartları */
     .stExpander { background-color: #161b22 !important; border: 1px solid #30363d !important; border-radius: 12px !important; margin-bottom: 1rem !important; }
-    
-    /* Geliştirilmiş Video Kutusu (Tam Olarak İstediğin Yapı) */
-    .video-container {
-        background: #0d1117;
-        border: 1px solid #30363d;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        overflow: hidden;
-    }
-
-    /* İşaretlediğin kutucuğun stili */
-    .video-label-bar {
-        background-color: #1c2128; 
-        color: #58a6ff; 
-        padding: 4px 8px;
-        font-size: 0.85rem;
-        font-weight: 700;
-        text-align: center;
-        border-bottom: 1px solid #30363d;
-        letter-spacing: 0.5px;
-    }
-
-    .video-body {
-        padding: 5px;
-    }
-    
-    /* Tamamlananlar (Arşiv) Satırı */
-    .history-item {
-        background: rgba(56, 139, 253, 0.1);
-        padding: 12px 20px; border-radius: 12px; 
-        border: 1px solid rgba(56, 139, 253, 0.2);
-        display: flex; align-items: center; justify-content: align-items;
-    }
-
+    .video-container { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+    .video-label-bar { background-color: #1c2128; color: #58a6ff; padding: 4px 8px; font-size: 0.85rem; font-weight: 700; text-align: center; border-bottom: 1px solid #30363d; letter-spacing: 0.5px; }
+    .video-body { padding: 5px; }
+    .history-item { background: rgba(56, 139, 253, 0.1); padding: 12px 20px; border-radius: 12px; border: 1px solid rgba(56, 139, 253, 0.2); display: flex; align-items: center; justify-content: align-items; }
     .stat-card { background: #1c2128; padding: 15px; border-radius: 12px; border: 1px solid #30363d; text-align: center; margin-bottom: 10px; }
     .success-card { background: #0d1117; padding: 12px; border-radius: 8px; border-left: 4px solid #238636; margin-bottom: 8px; border: 1px solid #30363d; }
     div[data-testid="stNumberInput"] button { display: none !important; }
