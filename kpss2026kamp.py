@@ -14,7 +14,7 @@ st.write("Uygulama yükleniyor...")
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 # Veri çekme işlemini cache ile hızlandırıyoruz (Sunucu yükünü azaltır)
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=0)
 def load_all_data():
     try:
         return conn.read()
@@ -410,3 +410,4 @@ elif menu == "📊 Deneme Takibi":
                         time.sleep(1)
                         st.rerun()
                         st.markdown(f"<p style='margin-top:10px; font-style:italic; font-size:0.85rem;'>{msg}</p>", unsafe_allow_html=True)
+
