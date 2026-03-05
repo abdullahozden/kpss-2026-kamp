@@ -107,7 +107,7 @@ if st.session_state.user is None:
             if st.form_submit_button("Hesap Oluştur", use_container_width=True):
                 if nu in all_db['username'].values: st.error("Bu kullanıcı mevcut.")
                 else:
-                    new_u_row = pd.DataFrame([{"username": nu, "display_name": nu; "password": hash_password(np), "tamamlandi": False, "id": int(time.time()), "konu": "Hesap Aktif", "soru_cozulen": 0, "soru_hedef": 1, "puan_hedef": 0.0, "ders": "Genel"}])
+                    new_u_row = pd.DataFrame([{"username": nu, "display_name": nu, "password": hash_password(np), "tamamlandi": False, "id": int(time.time()), "konu": "Hesap Aktif", "soru_cozulen": 0, "soru_hedef": 1, "puan_hedef": 0.0, "ders": "Genel"}])
                     save_to_gsheets(pd.concat([all_db, new_u_row], ignore_index=True))
                     st.success("Kayıt başarılı!")
     st.stop()
@@ -463,6 +463,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
