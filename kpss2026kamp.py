@@ -155,7 +155,6 @@ st.sidebar.markdown("""
         /* 1. Sidebar içeriğini yukarı sabitle ve boşlukları sıfırla */
         [data-testid="stSidebarUserContent"] {
             margin-top: -30px !important;
-            margin-bottom: 20px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -170,6 +169,7 @@ st.sidebar.markdown("""
         }
         /* 2. Widgetlar (butonlar, radiolar) arasındaki boşluğu aşırı daralt */
         [data-testid="stVerticalBlock"] > div {
+            margin-top: -20px;
             gap: 0.2rem !important;
             margin-bottom: -0.2rem !important;
         }
@@ -546,6 +546,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
