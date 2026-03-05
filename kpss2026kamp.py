@@ -7,6 +7,7 @@ from datetime import datetime
 import time
 from streamlit_lottie import st_lottie
 import requests
+import streamlit.components.v1 as components
 
 
 # --- 1. VERİ BAĞLANTISI & OPTİMİZASYON ---
@@ -48,6 +49,28 @@ def load_lottieurl(url: str):
         return r.json()
     except:
         return None
+
+def konfeti_patlat():
+    confetti_js = """
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script>
+        var count = 200;
+        var defaults = {
+          origin: { y: 0.7 }
+        };
+        function fire(particleRatio, opts) {
+          confetti(Object.assign({}, defaults, opts, {
+            particleCount: Math.floor(count * particleRatio)
+          }));
+        }
+        fire(0.25, { spread: 26, startVelocity: 55 });
+        fire(0.2, { spread: 60 });
+        fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+        fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+        fire(0.1, { spread: 120, startVelocity: 45 });
+    </script>
+    """
+    components.html(confetti_js, height=0)
 
 # Load Lottie animations
 lottie_celebration = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_u4yrau.json")
@@ -401,6 +424,7 @@ elif menu == "📊 Deneme Takibi":
             fark = puan - h_puan
                 # Motivasyon Mesajı Belirleme
             if fark >= 0:
+                konfeti_patlat()
                 st.success("🎉 HEDEFE ULAŞTIN TEBRİKLER! 🎉")
                 msg = "🔥 Mükemmel! Hedefin üzerindesin, bu iş bitti!"
                 color = "#238636"
@@ -436,6 +460,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
