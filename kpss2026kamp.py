@@ -159,11 +159,6 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
     else:
         current_dn = username
     yeni_display = st.text_input("Ekranda Görünecek Adın", value=current_dn)
-    # --- A. GÖRÜNEN AD DEĞİŞTİRME ---
-    current_dn = user_df['display_name'].iloc[0] if 'display_name' in user_df.columns else username
-    yeni_display = st.text_input("Ekranda Görünecek Adın", value=current_dn)
-    if st.button("İsmi Güncelle"):
-        all_db.loc[all_db['username'] == username, 'display_name'] = yeni_display
         save_to_gsheets(all_db)
         st.success("Görünen isminiz güncellendi!")
         time.sleep(1)
@@ -491,6 +486,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
