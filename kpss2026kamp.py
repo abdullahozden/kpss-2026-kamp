@@ -190,7 +190,7 @@ if menu == "📝 Plan Oluştur":
                 # Geri bildirimler
                 st.toast(f"✅ {k_a} başarıyla planlandı!", icon="📅")
                 st.success("Plan eklendi! Liste güncelleniyor...")
-                time.sleep(1)
+                time.sleep(2)
                 st.rerun()
             else:
                 st.error("Lütfen bir konu ismi girin!")
@@ -217,13 +217,13 @@ elif menu == "📅 Günlük Planım":
                         all_db.loc[all_db['id'] == row['id'], 'tamamlandi'] = False
                         save_to_gsheets(all_db);
                         st.toast(f"{row['konu']} tekrar çalışma planına eklendi.", icon="🗑️") # Pop-up bildirim
-                        time.sleep(0.1)
+                        time.sleep(2)
                         st.rerun()
                 with c_arc_del:
                     if st.button("🗑️", key=f"del_arc_{row['id']}", help="Sil", use_container_width=True):
                         save_to_gsheets(all_db[all_db['id'] != row['id']]);
                         st.toast(f"{row['konu']} başarıyla sildiniz.", icon="🗑️") # Pop-up bildirim
-                        time.sleep(0.1)
+                        time.sleep(2)
                         st.rerun()
             st.divider()
 
@@ -268,14 +268,14 @@ elif menu == "📅 Günlük Planım":
                         all_db.loc[all_db['id'] == row['id'], 'videolar'] = json.dumps(v_l)
                         all_db.loc[all_db['id'] == row['id'], 'tamamlandi'] = True
                         save_to_gsheets(all_db)
+                        st.rerun()
                         st.balloons() # Konfetiler
                         st.toast(f"Tebrikler! {row['konu']} konusunu bitirdin!", icon="🏆") # Pop-up bildirim
-                        time.sleep(1.5)
-                        st.rerun()
+                        time.sleep(2)
                     if st.button("🗑️ Planı Sil", key=f"del_act_{row['id']}", use_container_width=True):
                         save_to_gsheets(all_db[all_db['id'] != row['id']]);
                         st.toast(f"{row['konu']} konusunu sildiniz!", icon="🗑️") # Pop-up bildirim
-                        time.sleep(1.5)
+                        time.sleep(2)
                         st.rerun()
 
 # --- 8. BAŞARILARIM ---
@@ -306,6 +306,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
