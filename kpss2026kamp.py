@@ -144,7 +144,7 @@ st.sidebar.markdown(f"👤 **{username}**")
 if st.sidebar.button("🚪 Çıkış Yap", use_container_width=True):
     st.session_state.user = None
     st.rerun()
-st.sidebar.divider() # Araya ince bir çizgi çeker
+st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
 with st.sidebar.expander("⚙️ Hesap Ayarları"):
     st.subheader("Görünüm")
     tema = st.radio("Tema Seçimi", ["Karanlık", "Aydınlık"], index=0 if st.session_state.get('theme') == 'dark' else 1)
@@ -200,11 +200,11 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
             """, unsafe_allow_html=True)
     else:
         st.session_state.theme = 'dark'
-    st.markdown("<hr style='margin:100px 0px; opacity:0.2;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
     st.subheader("Kişiselleştirme")
     show_quote = st.toggle("Motivasyon Sözü Göster", value=st.session_state.get('show_quote', True))
     st.session_state.show_quote = show_quote
-    st.markdown("<hr style='margin:2px 0px;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
     if st.button("❌ Hesabımı Sil", type="secondary", use_container_width=True):
         st.session_state.confirm_delete = True
     if st.session_state.get('confirm_delete', False):
@@ -401,6 +401,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
