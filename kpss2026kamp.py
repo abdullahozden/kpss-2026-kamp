@@ -151,64 +151,58 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
     if tema == "Aydınlık":
         st.markdown("""
             <style>
-            /* 1. Sayfa ve Sidebar Arka Planı */
-            .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
-                background-color: #F4F6F9 !important;
-            }
-            [data-testid="stSidebar"], [data-testid="stSidebarUserContent"] {
-                background-color: #E2E6EA !important;
-            }
-
-            /* 2. Ana Başlık Kutusu (Siyah Kalan Kısım) */
-            .custom-header {
-                background-color: #FFFFFF !important;
-                background: #FFFFFF !important;
-                color: #1E293B !important;
-                border: 2px solid #DEE2E6 !important;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
-            }
-            .custom-header h1, .custom-header h2, .custom-header span {
-                color: #1E293B !important;
-            }
-
-            /* 3. Görev Kartları ve İçindeki Siyah Kutular (1. Video vs.) */
-            div[style*="background-color: #1c2128"], 
-            div[style*="background-color: #262730"],
-            div[style*="background: #1c2128"] {
-                background-color: #F8F9FA !important;
-                background: #F8F9FA !important;
-                color: #1E293B !important;
-                border: 1px solid #CED4DA !important;
-            }
-
-            /* 4. Açılır Menüler (Matematik - Temel Kavramlar vs.) */
-            [data-testid="stExpander"] details summary {
-                background-color: #E9ECEF !important;
-                color: #1E293B !important;
-            }
-            [data-testid="stExpander"] details {
-                background-color: #FFFFFF !important;
-                border: 1px solid #CED4DA !important;
-            }
-
-            /* 5. İnput Kutuları (Hedef/Çözülen Kısımları) */
-            [data-baseweb="input"] > div, [data-baseweb="base-input"], input {
-                background-color: #FFFFFF !important;
-                color: #1E293B !important;
-                -webkit-text-fill-color: #1E293B !important;
-                border-color: #CED4DA !important;
-            }
-
-            /* 6. Tüm Genel Metinleri Koyu Gri Yap */
-            .stApp p, .stApp label, .stApp span:not([style*="color: white"]) {
+            /* 1. Sayfa Temeli - Göz yormayan açık gri */
+            .stApp {
+                background-color: #F7F9FC !important;
                 color: #2D3436 !important;
             }
+
+            /* 2. Sidebar - Net bir ayırım için biraz daha koyu */
+            [data-testid="stSidebar"] {
+                background-color: #EDF1F7 !important;
+                border-right: 1px solid #D1D9E6 !important;
+            }
+
+            /* 3. Kartlar ve Kutular (Gördüğün o siyah alanları temizler) */
+            .custom-header, div[style*="background-color"], .stExpander, div[data-testid="stExpander"] {
+                background-color: #FFFFFF !important;
+                background: #FFFFFF !important;
+                color: #2D3436 !important;
+                border-radius: 12px !important;
+                border: 1px solid #E2E8F0 !important;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
+            }
+
+            /* 4. Inputlar (Hedef/Çözülen alanları) - En çok göz yoran yerler */
+            input, .stTextInput div, [data-baseweb="input"] {
+                background-color: #F1F4F8 !important;
+                color: #2D3436 !important;
+                border-radius: 8px !important;
+                border: none !important;
+            }
             
-            /* Sidebar Çıkış Yap ve Hesap Sil Butonları */
+            /* 5. Yazı Renklerini Zorla Düzenle */
+            h1, h2, h3, p, span, label, .stMarkdown {
+                color: #2D3436 !important;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+            }
+
+            /* 6. Video ve İlerleme Çubuğu Alanları */
+            div[style*="background-color: #1c2128"] {
+                background-color: #F8FAFC !important;
+                border: 1px solid #E2E8F0 !important;
+            }
+
+            /* 7. Butonlar - Modern Görünüm */
             button[kind="secondary"] {
                 background-color: #FFFFFF !important;
-                color: #dc3545 !important;
-                border: 1px solid #dc3545 !important;
+                border: 1px solid #D1D9E6 !important;
+                color: #4A5568 !important;
+                transition: all 0.3s !important;
+            }
+            button[kind="secondary"]:hover {
+                border-color: #3B82F6 !important;
+                color: #3B82F6 !important;
             }
             </style>
             """, unsafe_allow_html=True)
@@ -396,6 +390,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
