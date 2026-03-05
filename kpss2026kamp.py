@@ -182,9 +182,9 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
             st.session_state.confirm_delete = False
             st.rerun()
     st.markdown("<hr style='margin:4px 0px;'>", unsafe_allow_html=True)
-        if st.sidebar.button("🚪 Çıkış Yap", use_container_width=True):
-            st.session_state.user = None
-            st.rerun()
+if st.sidebar.button("🚪 Çıkış Yap", use_container_width=True):
+    st.session_state.user = None
+    st.rerun()
 
 st.markdown("<hr style='margin:4px 0px;'>", unsafe_allow_html=True)
 menu = st.sidebar.radio("Gezinti", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
@@ -467,6 +467,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
