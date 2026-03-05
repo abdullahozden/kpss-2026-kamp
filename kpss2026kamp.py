@@ -423,7 +423,7 @@ elif menu == "📊 Deneme Takibi":
                 col_bilgi, col_puan, col_islem = st.columns([3, 2, 1])
                 with col_bilgi:
                     st.markdown(f"**{d_row['konu']}**")
-                    st.markdown("<div style='margin-bottom: -10px; font-size: 3rem;'></div>", unsafe_allow_html=True)
+                    st.markdown("<div style='margin-bottom: -10px;'></div>", unsafe_allow_html=True)
                     st.caption(f"📅 {d_row['tarih']}")
                     st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
                     st.write(f"GK: {d_row['deneme_gk_d']}D {d_row['deneme_gk_y']}Y | GY: {d_row['deneme_gy_d']}D {d_row['deneme_gy_y']}Y")
@@ -432,9 +432,9 @@ elif menu == "📊 Deneme Takibi":
                     st.markdown(f"""
                         <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
                             <h2 style="margin: 0; color: {color}; font-size: 2.2rem;">{puan:.2f}</h2>
-                            <p style="margin: 0; opacity: 0.8; font-size: 1rem;">Hedefe Uzaklık: {fark:.2f}</p>
+                            <p style="margin: 0; opacity: 0.6; font-size: 1rem;">Hedefe Uzaklık: {fark:.2f}</p>
                             <div style="margin-top: 15px;"></div>
-                            <p style="font-style: italic; font-size: 1.2rem; color: {color}; font-weight: 500;">{msg}</p>
+                            <p style="font-style: italic; font-size: 1.1rem; color: {color}; font-weight: 500;">{msg}</p>
                         </div>
                     """, unsafe_allow_html=True)
                 with col_islem:
@@ -444,6 +444,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
