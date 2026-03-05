@@ -185,6 +185,7 @@ st.sidebar.markdown("""
 menu = st.sidebar.radio("", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
 with st.sidebar.expander("⚙️ Hesap Ayarları"):
     # 1. Görünen Ad Kısmı
+    current_display_name = user_df['display_name'].iloc[0] if 'display_name' in user_df.columns else username
     yeni_display = st.text_input("Ekranda Görünecek Adın", value="current_dn", key="set_dn")
     if st.button("Görünen Adı Güncelle", key="btn_dn"):
         all_db.loc[all_db['username'] == username, 'display_name'] = yeni_display
@@ -525,6 +526,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
