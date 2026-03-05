@@ -162,7 +162,6 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
         save_to_gsheets(all_db)
         st.success("Görünen isminiz güncellendi!")
         time.sleep(1)
-        st.rerun()
         st.divider()
     # --- B. GİRİŞ ADI (USERNAME) DEĞİŞTİRME + ÇAKIŞMA KONTROLÜ ---
     yeni_u = st.text_input("Giriş Kullanıcı Adını Değiştir", value=username)
@@ -486,6 +485,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
