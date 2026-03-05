@@ -180,24 +180,6 @@ st.sidebar.markdown("""
             justify-content: center;
             align-items: center;
         }
-        /* Expander (Hesap Ayarları) içindeki her şeyi ortala */
-        [data-testid="stExpander"] .stButton button {
-            width: 100% !important;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        /* Expander içindeki metin giriş alanlarını ve etiketleri ortala */
-        [data-testid="stExpander"] .stMarkdown, 
-        [data-testid="stExpander"] label {
-            text-align: center !important;
-            display: block;
-            width: 100%;
-        }
-        /* Sayı giriş alanını (Numeric Input) ortala */
-        [data-testid="stExpander"] .stNumberInput {
-            width: 100%;
-        }
     </style>
 """, unsafe_allow_html=True)
 menu = st.sidebar.radio("", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
@@ -544,4 +526,5 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
