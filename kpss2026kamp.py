@@ -163,7 +163,7 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
         st.success("Görünen isminiz güncellendi!")
         time.sleep(1)
         st.rerun()
-    st.divider()
+        st.divider()
     # --- B. GİRİŞ ADI (USERNAME) DEĞİŞTİRME + ÇAKIŞMA KONTROLÜ ---
     yeni_u = st.text_input("Giriş Kullanıcı Adını Değiştir", value=username)
     if st.button("Kullanıcı Adını Onayla"):
@@ -486,6 +486,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
