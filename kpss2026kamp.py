@@ -164,7 +164,7 @@ st.sidebar.markdown("""
         /* Metinleri ve başlıkları ortala */
         [data-testid="stSidebarUserContent"] .stMarkdown, 
         [data-testid="stSidebarUserContent"] .stCaption {
-            margin-top: -10px;
+            margin-top: -3px;
             text-align: center;
             width: 100%;
         }
@@ -546,6 +546,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
