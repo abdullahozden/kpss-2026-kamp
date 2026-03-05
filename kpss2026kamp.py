@@ -194,6 +194,30 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
         save_to_gsheets(all_db)
         st.success("İsim güncellendi!")
         st.rerun()
+        st.sidebar.markdown("""
+    <style>
+        /* Expander (Hesap Ayarları) içindeki her şeyi ortala */
+        [data-testid="stExpander"] .stButton button {
+            width: 100% !important;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Expander içindeki metin giriş alanlarını ve etiketleri ortala */
+        [data-testid="stExpander"] .stMarkdown, 
+        [data-testid="stExpander"] label {
+            text-align: center !important;
+            display: block;
+            width: 100%;
+        }
+
+        /* Sayı giriş alanını (Numeric Input) ortala */
+        [data-testid="stExpander"] .stNumberInput {
+            width: 100%;
+        }
+    </style>
+""", unsafe_allow_html=True)
     # 2. Hedef Puan Belirleme
     mevcut_hedef = user_df['puan_hedef'].iloc[0] if 'puan_hedef' in user_df.columns else 0
     yeni_hedef = st.number_input("Hedef KPSS Puanı", min_value=0.0, max_value=100.0, value=float(mevcut_hedef), step=0.5)
@@ -526,5 +550,6 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
