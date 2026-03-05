@@ -401,7 +401,7 @@ elif menu == "📊 Deneme Takibi":
             fark = puan - h_puan
                 # Motivasyon Mesajı Belirleme
             if fark >= 0:
-                st.success("HEDEF AŞILDI!")
+                st.success("🎉 HEDEFE ULAŞTIN TEBRİKLER! 🎉")
                 msg = "🔥 Mükemmel! Hedefin üzerindesin, bu iş bitti!"
                 color = "#238636"
             elif fark >= -10:
@@ -436,6 +436,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
