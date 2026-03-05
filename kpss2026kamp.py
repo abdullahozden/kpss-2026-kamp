@@ -142,24 +142,24 @@ user_df = all_db[all_db['username'] == username].copy()
 
 st.sidebar.markdown(f"👤 **{username}**")
 if st.sidebar.button("🚪 Çıkış Yap"):
-    with st.sidebar.expander("⚙️ Hesap Ayarları"):
-        if st.button("❌ Hesabımı Sil", type="secondary", use_container_width=True):
-            st.session_state.confirm_delete = True
+with st.sidebar.expander("⚙️ Hesap Ayarları"):
+if st.button("❌ Hesabımı Sil", type="secondary", use_container_width=True):
+    st.session_state.confirm_delete = True
 
-        if st.session_state.get('confirm_delete', False):
-            st.warning("Tüm verileriniz kalıcı olarak silinecektir. Emin misiniz?")
-            col_del1, col_del2 = st.columns(2)
-         if col_del1.button("EVET, SİL", type="primary", use_container_width=True):
-            delete_user_account(all_db, username)
-            st.toast("Hesabınız ve tüm verileriniz silindi.", icon="🗑️")
-            st.session_state.user = None
-            st.session_state.confirm_delete = False
-            time.sleep(2)
-            st.rerun()
-        if col_del2.button("İPTAL", use_container_width=True):
-            st.session_state.confirm_delete = False
-            st.rerun()
-        st.session_state.user = None; st.rerun()
+if st.session_state.get('confirm_delete', False):
+    st.warning("Tüm verileriniz kalıcı olarak silinecektir. Emin misiniz?")
+    col_del1, col_del2 = st.columns(2)
+    if col_del1.button("EVET, SİL", type="primary", use_container_width=True):
+    delete_user_account(all_db, username)
+    st.toast("Hesabınız ve tüm verileriniz silindi.", icon="🗑️")
+    st.session_state.user = None
+    st.session_state.confirm_delete = False
+    time.sleep(2)
+    st.rerun()
+if col_del2.button("İPTAL", use_container_width=True):
+    st.session_state.confirm_delete = False
+    st.rerun()
+st.session_state.user = None; st.rerun()
 
 menu = st.sidebar.radio("Gezinti", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım"])
 st.markdown('<div class="custom-header"><h1>🚀 <span style="color: #58a6ff;">2026 KPSS</span> ÇALIŞMA PLANI</h1></div>', unsafe_allow_html=True)
