@@ -185,14 +185,17 @@ st.sidebar.markdown("""
 menu = st.sidebar.radio("", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım", "📊 Deneme Takibi"])
 with st.sidebar.expander("⚙️ Hesap Ayarları"):
     st.subheader("Profil Düzenle")
+    
     current_display_name = user_df['display_name'].iloc[0] if 'display_name' in user_df.columns else username
     yeni_display = st.text_input("Ekranda Görünecek Adın", value=current_display_name)
+    
     if st.button("Görünen Adı Güncelle"):
         all_db.loc[all_db['username'] == username, 'display_name'] = yeni_display
         save_to_gsheets(all_db)
         st.success("İsim güncellendi!")
         st.rerun()
-    st.markdown("---")
+        
+    st.divider()
     
     # 2. Hedef Puan Belirleme
     mevcut_hedef = user_df['puan_hedef'].iloc[0] if 'puan_hedef' in user_df.columns else 0
@@ -526,6 +529,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
