@@ -172,23 +172,31 @@ if menu == "📝 Plan Oluştur":
     v_s = st.select_slider("Video Sayısı", options=range(1, 11), value=1)
     with st.form("plan_form_final"):
         v_u = [st.text_input(f"Video {i+1} Linki", key=f"ufin_{i}") for i in range(v_s)]
-        with st.form("plan_form_final", clear_on_submit=True): # Bu satır inputları sıfırlar
-    v_u = [st.text_input(f"Video {i+1} Linki", key=f"ufin_{i}") for i in range(v_s)]
-    if st.form_submit_button("🚀 Planı Kaydet ve Listeye Ekle", use_container_width=True):
-        if k_a:
-            v_d = json.dumps([{"url": format_yt_link(u), "done": False} for u in v_u if u.strip()])
-            n_p = pd.DataFrame([{
-                "username": username, "password": user_df['password'].values[0],
-                "ders": d_s, "konu": k_a, "tarih": str(t_r), "videolar": v_d,
-                "soru_hedef": int(s_h), "soru_cozulen": 0, "tamamlandi": False, "id": int(datetime.now().timestamp())
-            }])
-            save_to_gsheets(pd.concat([all_db, n_p], ignore_index=True))
-            st.toast(f"✅ {k_a} başarıyla planlandı!", icon="📅") # Pop-up bildirim
-            st.success("Plan eklendi! Sayfa temizleniyor...")
-            time.sleep(1)
-            st.rerun()
-        else:
-            st.error("Lütfen konu adını boş bırakmayın!")
+        with st.form("plan_form_final", clear_on_submit=True):
+        v_u = [st.text_input(f"Video {i+1} Linki", key=f"ufin_{i}") for i in range(v_s)]
+        
+        if st.form_submit_button("🚀 Planı Kaydet ve Listeye Ekle", use_container_width=True):
+            if k_a:
+                v_d = json.dumps([{"url": format_yt_link(u), "done": False} for u in v_u if u.strip()])
+                n_p = pd.DataFrame([{
+                    "username": username, 
+                    "password": user_df['password'].values[0],
+                    "ders": d_s, 
+                    "konu": k_a, 
+                    "tarih": str(t_r), 
+                    "videolar": v_d,
+                    "soru_hedef": int(s_h), 
+                    "soru_cozulen": 0, 
+                    "tamamlandi": False, 
+                    "id": int(datetime.now().timestamp())
+                }])
+                save_to_gsheets(pd.concat([all_db, n_p], ignore_index=True))
+                st.toast(f"✅ {k_a} başarıyla planlandı!", icon="📅")
+                st.success("Plan eklendi! Sayfa temizleniyor...")
+                time.sleep(1)
+                st.rerun()
+            else:
+                st.error("Lütfen konu adını boş bırakmayın!")
 
 # --- 7. GÜNLÜK PLANIM ---
 elif menu == "📅 Günlük Planım":
@@ -292,3 +300,4 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
