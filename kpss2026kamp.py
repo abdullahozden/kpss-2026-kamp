@@ -201,10 +201,6 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
     else:
         st.session_state.theme = 'dark'
     st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
-    st.subheader("Kişiselleştirme")
-    show_quote = st.toggle("Motivasyon Sözü Göster", value=st.session_state.get('show_quote', True))
-    st.session_state.show_quote = show_quote
-    st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
     if st.button("❌ Hesabımı Sil", type="secondary", use_container_width=True):
         st.session_state.confirm_delete = True
     if st.session_state.get('confirm_delete', False):
@@ -222,21 +218,6 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
             st.rerun()
 menu = st.sidebar.radio("Gezinti", ["📅 Günlük Planım", "📝 Plan Oluştur", "🏆 Başarılarım"])
 st.markdown('<div class="custom-header"><h1>🚀 <span style="color: #58a6ff;">2026 KPSS</span> ÇALIŞMA PLANI</h1></div>', unsafe_allow_html=True)
-if st.session_state.get('show_quote', True):
-    import random
-    if random.random() < 0.5: # 0.5 = %50 ihtimal. %20 istersen 0.2 yap.
-        sozler = [
-            "Başarı, her gün tekrarlanan küçük çabaların toplamıdır.",
-            "Gelecek, bugün hazırlananlara aittir.",
-            "Zorluklar, başarının değerini artıran süslerdir.",
-            "Vazgeçmediğin sürece yenilmezsin!"
-        ]
-        # Şık bir kutu içinde gösterelim
-        st.markdown(f"""
-            <div style="background-color: #1c2128; padding: 15px; border-radius: 10px; border-left: 5px solid #58a6ff; margin-bottom: 20px;">
-                <i style="color: #8b949e;">"{random.choice(sozler)}"</i>
-            </div>
-            """, unsafe_allow_html=True)
 
 # --- 6. PLAN OLUŞTUR ---
 if menu == "📝 Plan Oluştur":
@@ -401,6 +382,7 @@ elif menu == "🏆 Başarılarım":
                 for _, b in b_df.iterrows():
                     v_say = len(json.loads(b['videolar'])) if isinstance(b['videolar'], str) else 0
                     st.markdown(f'<div class="success-card"><b>{b["konu"]}</b><br><small>📝 {int(b["soru_cozulen"])} Soru | 📺 {v_say} Video | 📅 {b["tarih"]}</small></div>', unsafe_allow_html=True)
+
 
 
 
