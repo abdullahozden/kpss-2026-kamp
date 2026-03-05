@@ -165,7 +165,8 @@ st.sidebar.markdown("""
         [data-testid="stSidebarUserContent"] .stMarkdown, 
         [data-testid="stSidebarUserContent"] .stCaption {
             text-align: center;
-            width: 50%;
+            width: 100%;
+            height: 50%;
         }
         /* 2. Widgetlar (butonlar, radiolar) arasındaki boşluğu aşırı daralt */
         [data-testid="stVerticalBlock"] > div {
@@ -545,6 +546,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
