@@ -158,7 +158,7 @@ st.sidebar.markdown("""
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 200vh; /* Neredeyse tüm ekran boyu */
+            min-height: 50vh; /* Neredeyse tüm ekran boyu */
         }
         /* Metinleri ve başlıkları ortala */
         [data-testid="stSidebarUserContent"] .stMarkdown, 
@@ -522,6 +522,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
