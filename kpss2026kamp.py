@@ -12,7 +12,7 @@ import requests
 # --- 1. VERİ BAĞLANTISI & OPTİMİZASYON ---
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-@st.cache_data(ttl=0)
+@st.cache_data(ttl=600)
 def load_all_data():
     try:
         df = conn.read()
@@ -444,6 +444,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
