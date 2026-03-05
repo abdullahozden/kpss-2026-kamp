@@ -154,13 +154,13 @@ st.sidebar.markdown("""
     <style>
         /* 1. Sidebar içeriğini yukarı sabitle ve boşlukları sıfırla */
         [data-testid="stSidebarUserContent"] {
-            margin-top: -20px !important;
+            margin-top: -30px !important;
             margin-bottom: 20px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 25vh;
+            min-height: 20vh;
         }
         /* Metinleri ve başlıkları ortala */
         [data-testid="stSidebarUserContent"] .stMarkdown, 
@@ -546,6 +546,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
