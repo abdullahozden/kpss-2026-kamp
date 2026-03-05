@@ -170,12 +170,12 @@ st.sidebar.markdown("""
         }
         /* 2. Widgetlar (butonlar, radiolar) arasındaki boşluğu aşırı daralt */
         [data-testid="stVerticalBlock"] > div {
+            margin-top: 10px;
             gap: 0.2rem !important;
             margin-bottom: -0.2rem !important;
         }
         /* 3. Expander (Ayarlar) içindeki boşlukları küçült */
         [data-testid="stExpander"] [data-testid="stVerticalBlock"] {
-            margin-top: 2px;
             gap: 1rem !important;
         }
         /* 4. Yazı boyutlarını ve buton yüksekliklerini biraz küçült */
@@ -547,6 +547,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
