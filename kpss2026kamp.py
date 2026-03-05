@@ -425,7 +425,7 @@ elif menu == "📊 Deneme Takibi":
                     st.markdown(f"**{d_row['konu']}**")
                     st.markdown("<div style='margin-bottom: 20px;'></div>", unsafe_allow_html=True)
                     st.caption(f"📅 {d_row['tarih']}")
-                    st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
+                    st.markdown("<div style='margin-top: 80px;'></div>", unsafe_allow_html=True)
                     st.write(f"GK: {d_row['deneme_gk_d']}D {d_row['deneme_gk_y']}Y | GY: {d_row['deneme_gy_d']}D {d_row['deneme_gy_y']}Y")
                     st.markdown("<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
                 with col_puan:
@@ -444,5 +444,6 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
