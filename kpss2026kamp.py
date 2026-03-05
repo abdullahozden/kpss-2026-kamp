@@ -164,12 +164,12 @@ st.sidebar.markdown("""
         /* Metinleri ve başlıkları ortala */
         [data-testid="stSidebarUserContent"] .stMarkdown, 
         [data-testid="stSidebarUserContent"] .stCaption {
+            margin-top: -10px;
             text-align: center;
             width: 100%;
         }
         /* 2. Widgetlar (butonlar, radiolar) arasındaki boşluğu aşırı daralt */
         [data-testid="stVerticalBlock"] > div {
-            margin-top: -8px;
             gap: 0.2rem !important;
             margin-bottom: -0.2rem !important;
         }
@@ -546,6 +546,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
