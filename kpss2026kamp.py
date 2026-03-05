@@ -423,8 +423,11 @@ elif menu == "📊 Deneme Takibi":
                 col_bilgi, col_puan, col_islem = st.columns([3, 2, 1])
                 with col_bilgi:
                     st.markdown(f"**{d_row['konu']}**")
+                    st.markdown("<div style='margin-bottom: -10px;'></div>", unsafe_allow_html=True)
                     st.caption(f"📅 {d_row['tarih']}")
+                    st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
                     st.write(f"GK: {d_row['deneme_gk_d']}D {d_row['deneme_gk_y']}Y | GY: {d_row['deneme_gy_d']}D {d_row['deneme_gy_y']}Y")
+                    st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
                 with col_puan:
                     st.markdown(f"<h3 style='margin:0; color:{color};'>{puan:.2f}</h3>", unsafe_allow_html=True)
                     st.caption(f"Hedefe Uzaklık: {fark:.2f}")
@@ -436,6 +439,7 @@ elif menu == "📊 Deneme Takibi":
                             time.sleep(1)
                             st.rerun()
                     st.markdown(f"<p style='margin-top:10px; font-style:italic; font-size:1rem; color:{color};'>{msg}</p>", unsafe_allow_html=True)
+
 
 
 
