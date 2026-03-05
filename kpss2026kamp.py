@@ -114,6 +114,24 @@ if st.sidebar.button("🚪 Çıkış Yap", use_container_width=True):
     st.rerun()
 st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
 with st.sidebar.expander("⚙️ Hesap Ayarları"):
+    st.subheader("Profil Düzenle")
+    # 1. Kullanıcı Adı Değiştirme
+    yeni_u = st.text_input("Yeni Kullanıcı Adı", value=username)
+    if st.button("Kullanıcı Adını Güncelle"):
+        if yeni_u and yeni_u != username:
+            all_db.loc[all_db['username'] == username, 'username'] = yeni_u
+            save_to_gsheets(all_db)
+            st.session_state.user = yeni_u
+            st.success("Kullanıcı adı değişti!")
+            st.rerun()
+    st.divider()
+    # 2. Hedef Puan Belirleme
+    mevcut_hedef = user_df['puan_hedef'].iloc[0] if 'puan_hedef' in user_df.columns else 0
+    yeni_hedef = st.number_input("Hedef KPSS Puanı", min_value=0.0, max_value=100.0, value=float(mevcut_hedef), step=0.5)
+    if st.button("Hedefi Kaydet"):
+        all_db.loc[all_db['username'] == username, 'puan_hedef'] = yeni_hedef
+        save_to_gsheets(all_db)
+        st.toast("Hedef puan güncellendi! 🎯")
     st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
     if st.button("❌ Hesabımı Sil", type="secondary", use_container_width=True):
         st.session_state.confirm_delete = True
@@ -310,10 +328,10 @@ elif menu == "📊 Deneme Takibi":
     with st.container(border=True):
         c1, c2 = st.columns(2)
         with c1:
-            gk_dogru = st.number_input("Genel Kültür Doğru", min_value=0, max_value=60, value=30)
+            gk_dogru = st.number_input("Genel Kültür Doğru", min_value=0, max_value=60, value=0)
             gk_yanlis = st.number_input("Genel Kültür Yanlış", min_value=0, max_value=60, value=0)
         with c2:
-            gy_dogru = st.number_input("Genel Yetenek Doğru", min_value=0, max_value=60, value=30)
+            gy_dogru = st.number_input("Genel Yetenek Doğru", min_value=0, max_value=60, value=0)
             gy_yanlis = st.number_input("Genel Yetenek Yanlış", min_value=0, max_value=60, value=0)
         
         # Net Hesaplama
@@ -324,7 +342,7 @@ elif menu == "📊 Deneme Takibi":
         # Puan = 40 + (GK_Net * 0.5) + (GY_Net * 0.5)
         tahmini_puan = 40 + (gk_net * 0.5) + (gy_net * 0.5)
         
-        st.info(f"💡 Tahmini P3 Puanınız: **{tahmini_puan:.3f}** (Netler: GK: {gk_net} | GY: {gy_net})")
+        st.info(f"💡 Tahmini Kpss Puanınız: **{tahmini_puan:.3f}** (Netler: GK: {gk_net} | GY: {gy_net})")
         
         if st.button("🚀 Denemeyi Kaydet", use_container_width=True):
             deneme_row = pd.DataFrame([{
@@ -338,64 +356,3 @@ elif menu == "📊 Deneme Takibi":
             # ama mevcut yapına uygun olarak 'ders' adını DENEME yaparak kaydediyoruz.
             save_to_gsheets(pd.concat([all_db, deneme_row], ignore_index=True))
             st.success("Deneme başarıyla kaydedildi!")
-
-    # Geçmiş Denemeler Grafiği (Opsiyonel)
-    denemeler = user_df[user_df['ders'] == "DENEME"]
-    if not denemeler.empty:
-        st.line_chart(denemeler.set_index('tarih')['soru_cozulen'])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
