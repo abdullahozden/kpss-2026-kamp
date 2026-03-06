@@ -91,7 +91,7 @@ if st.session_state.user is None:
                     if not user_check.empty:
                         st.session_state.user = str(u)
                         st.success(f"Hoş geldin {u}!")
-                        time.sleep(0.3)
+                        time.sleep(0.5)
                         st.rerun()
                     else:
                         st.error("Kullanıcı adı veya şifre hatalı!")
@@ -293,7 +293,7 @@ if menu == "📝 Plan Oluştur":
                 # Geri bildirimler
                 st.toast(f"✅ {k_a} başarıyla planlandı!", icon="📅")
                 st.success("Plan eklendi! Liste güncelleniyor...")
-                time.sleep(0.3)
+                time.sleep(0.5)
                 st.rerun()
             else:
                 st.error("Lütfen bir konu ismi girin!")
@@ -380,7 +380,7 @@ elif menu == "📅 Günlük Planım":
                         save_to_gsheets(all_db)
                         st.balloons() # Konfetiler
                         st.toast(f"Tebrikler! {row['konu']} konusunu bitirdin!", icon="🏆") # Pop-up bildirim
-                        time.sleep(0.3)
+                        time.sleep(1)
                         st.rerun()
                     if st.button("🗑️ Planı Sil", key=f"del_act_{row['id']}", use_container_width=True):
                         save_to_gsheets(all_db[all_db['id'] != row['id']]);
@@ -469,7 +469,7 @@ elif menu == "📊 Deneme Takibi":
                 # Mevcut veritabanına ekle ve gönder
                 save_to_gsheets(pd.concat([all_db, yeni_deneme], ignore_index=True))
                 st.toast(f"✅ {d_ad} başarıyla kaydedildi!", icon="🚀")
-                time.sleep(0.3)
+                time.sleep(0.5)
                 st.rerun()
             else:
                 st.error("Lütfen deneme adını giriniz!")
@@ -523,5 +523,5 @@ elif menu == "📊 Deneme Takibi":
                     if st.button("🗑️", key=f"del_deneme_{d_row['id']}", use_container_width=True):
                         save_to_gsheets(all_db[all_db['id'] != d_row['id']])
                         st.toast("🗑️  Deneme silindi.")
-                        time.sleep(0.3)
+                        time.sleep(0.5)
                         st.rerun()
