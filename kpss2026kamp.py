@@ -207,6 +207,7 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
     
     current_display_name = user_df['display_name'].iloc[0] if 'display_name' in user_df.columns else username
     yeni_display = st.text_input("Ekranda Görünecek Adın", value=current_display_name)
+    yeni_display = any
     
     if st.button("Görünen Adı Güncelle"):
         all_db.loc[all_db['username'] == username, 'display_name'] = yeni_display
@@ -525,5 +526,6 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(0.5)
                         st.rerun()
+
 
 
