@@ -5,8 +5,7 @@ import json
 import hashlib
 from datetime import datetime
 import time
-from streamlit_lottie import st_lottie
-import requests
+import time
 
 
 # --- 1. VERİ BAĞLANTISI & OPTİMİZASYON ---
@@ -53,16 +52,6 @@ def format_yt_link(url):
 def delete_user_account(df, username):
     new_df = df[df['username'] != username]
     save_to_gsheets(new_df)
-    st.cache_data.clear()
-    
-def load_lottieurl(url: str):
-    try:
-        r = requests.get(url, timeout=5)
-        if r.status_code != 200:
-            return None
-        return r.json()
-    except:
-        return None
 
 st.set_page_config(page_title="2026 KPSS ÇALIŞMA PLANI", layout="wide", page_icon="🎓")
 # --- 0. SESSION STATE BAŞLATMA ---
@@ -102,7 +91,7 @@ if st.session_state.user is None:
                     if not user_check.empty:
                         st.session_state.user = str(u)
                         st.success(f"Hoş geldin {u}!")
-                        time.sleep(1)
+                        time.sleep(0.3)
                         st.rerun()
                     else:
                         st.error("Kullanıcı adı veya şifre hatalı!")
@@ -115,7 +104,7 @@ if st.session_state.user is None:
             if st.form_submit_button("Hesap Oluştur", use_container_width=True):
                 if nu in all_db['username'].values: st.error("Bu kullanıcı mevcut.")
                 else:
-                    new_u_row = pd.DataFrame([{"username": nu, "display_name": nu, "password": hash_password(np), "tamamlandi": False, "id": int(time.time()), "konu": "Hesap Aktif", "soru_cozulen": 0, "soru_hedef": 1, "puan_hedef": 0.0, "ders": "Genel"}])
+                    new_u_row = pd.DataFrame([{"username": nu, "display_name": nu, "password": hash_password(np), "tamamlandi": False, "id": int(time.time() * 1000), "konu": "Hesap Aktif", "soru_cozulen": 0, "soru_hedef": 1, "puan_hedef": 0.0, "ders": "Genel"}])
                     save_to_gsheets(pd.concat([all_db, new_u_row], ignore_index=True))
                     st.success("Kayıt başarılı!")
     st.stop()
@@ -297,14 +286,14 @@ if menu == "📝 Plan Oluştur":
                 n_p = pd.DataFrame([{
                     "username": username, "password": user_df['password'].values[0],
                     "ders": d_s, "konu": k_a, "tarih": str(t_r), "videolar": v_d,
-                    "soru_hedef": int(s_h), "soru_cozulen": 0, "tamamlandi": False, "id": int(datetime.now().timestamp())
+                    "soru_hedef": int(s_h), "soru_cozulen": 0, "tamamlandi": False, "id": int(time.time() * 1000)
                 }])
                 save_to_gsheets(pd.concat([all_db, n_p], ignore_index=True))
                 
                 # Geri bildirimler
                 st.toast(f"✅ {k_a} başarıyla planlandı!", icon="📅")
                 st.success("Plan eklendi! Liste güncelleniyor...")
-                time.sleep(1)
+                time.sleep(0.3)
                 st.rerun()
             else:
                 st.error("Lütfen bir konu ismi girin!")
@@ -331,13 +320,13 @@ elif menu == "📅 Günlük Planım":
                         all_db.loc[all_db['id'] == row['id'], 'tamamlandi'] = False
                         save_to_gsheets(all_db);
                         st.toast(f"{row['konu']} tekrar çalışma planına eklendi.", icon="⏪") # Pop-up bildirim
-                        time.sleep(1)
+                        time.sleep(0.3)
                         st.rerun()
                 with c_arc_del:
                     if st.button("🗑️", key=f"del_arc_{row['id']}", help="Sil", use_container_width=True):
                         save_to_gsheets(all_db[all_db['id'] != row['id']]);
                         st.toast(f"{row['konu']} başarıyla sildiniz.", icon="🗑️") # Pop-up bildirim
-                        time.sleep(1)
+                        time.sleep(0.3)
                         st.rerun()
             st.markdown("<hr style='margin:2px 0px;'>", unsafe_allow_html=True)
 
@@ -379,7 +368,7 @@ elif menu == "📅 Günlük Planım":
                     col_m1.metric("Hedef", h_q)
                     col_m2.metric("Çözülen", c_q, delta=c_q - h_q if h_q > 0 else None)
                     n_q = st.number_input("Sayıyı Güncelle", value=c_q, key=f"q_{row['id']}", label_visibility="collapsed")
-                    if n_q != c_q:
+                    if st.button("💾 Kaydet", key=f"save_q_{row['id']}"):
                         all_db.loc[all_db['id'] == row['id'], 'soru_cozulen'] = int(n_q)
                         save_to_gsheets(all_db)
                         st.rerun()
@@ -391,12 +380,12 @@ elif menu == "📅 Günlük Planım":
                         save_to_gsheets(all_db)
                         st.balloons() # Konfetiler
                         st.toast(f"Tebrikler! {row['konu']} konusunu bitirdin!", icon="🏆") # Pop-up bildirim
-                        time.sleep(1)
+                        time.sleep(0.3)
                         st.rerun()
                     if st.button("🗑️ Planı Sil", key=f"del_act_{row['id']}", use_container_width=True):
                         save_to_gsheets(all_db[all_db['id'] != row['id']]);
                         st.toast(f"{row['konu']} konusunu sildiniz!", icon="🗑️") # Pop-up bildirim
-                        time.sleep(1)
+                        time.sleep(0.3)
                         st.rerun()
 
 # --- 8. BAŞARILARIM ---
@@ -472,7 +461,7 @@ elif menu == "📊 Deneme Takibi":
                 "deneme_puan": float(hesaplanan_puan), # Puanı sayı olarak kaydet
                 "puan_hedef": float(hedef_puan),
                 "tamamlandi": True, 
-                "id": int(datetime.now().timestamp()),
+                "id": int(time.time() * 1000),
                 "videolar": "[]", # Burayı boş liste bırakıyoruz
                 "soru_cozulen": int(gk_net + gy_net),
                 "soru_hedef": 120
@@ -480,7 +469,7 @@ elif menu == "📊 Deneme Takibi":
                 # Mevcut veritabanına ekle ve gönder
                 save_to_gsheets(pd.concat([all_db, yeni_deneme], ignore_index=True))
                 st.toast(f"✅ {d_ad} başarıyla kaydedildi!", icon="🚀")
-                time.sleep(1)
+                time.sleep(0.3)
                 st.rerun()
             else:
                 st.error("Lütfen deneme adını giriniz!")
@@ -534,5 +523,5 @@ elif menu == "📊 Deneme Takibi":
                     if st.button("🗑️", key=f"del_deneme_{d_row['id']}", use_container_width=True):
                         save_to_gsheets(all_db[all_db['id'] != d_row['id']])
                         st.toast("🗑️  Deneme silindi.")
-                        time.sleep(1)
+                        time.sleep(0.3)
                         st.rerun()
