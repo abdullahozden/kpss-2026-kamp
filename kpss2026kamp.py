@@ -111,7 +111,7 @@ if st.session_state.user is None:
 
 # --- 5. ANA EKRAN ---
 username = st.session_state.user
-user_df = all_db[all_db['username'].astype(str) == str(username)].copy()
+user_df = all_db[all_db['username'] == username].copy()
 if not user_df.empty and 'puan_hedef' in user_df.columns:
     val = user_df['puan_hedef'].iloc[0]
     mevcut_hedef = float(val) if pd.notna(val) else 0.0
@@ -380,7 +380,7 @@ elif menu == "📅 Günlük Planım":
                         save_to_gsheets(all_db)
                         st.balloons() # Konfetiler
                         st.toast(f"Tebrikler! {row['konu']} konusunu bitirdin!", icon="🏆") # Pop-up bildirim
-                        time.sleep(1)
+                        time.sleep(1.5)
                         st.rerun()
                     if st.button("🗑️ Planı Sil", key=f"del_act_{row['id']}", use_container_width=True):
                         save_to_gsheets(all_db[all_db['id'] != row['id']]);
