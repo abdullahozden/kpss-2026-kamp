@@ -12,23 +12,30 @@ import requests
 # --- 1. VERİ BAĞLANTISI & OPTİMİZASYON ---
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-@st.cache_data(ttl=0)
+@st.cache_data(ttl=30)
 def load_all_data():
+    default_cols = ["username", "password", "ders", "konu", "tarih", "videolar",
+                    "soru_hedef", "soru_cozulen", "tamamlandi", "id", "display_name"]
     try:
         df = conn.read()
         if df is None or df.empty:
-            return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id", "display_name"])
-        # --- TEMİZLİK BURADA YAPILIYOR ---
-        # 1. Tamamen boş satırları sil
+            return pd.DataFrame(columns=default_cols)
         df = df.dropna(how="all")
-        # 2. Kullanıcı adı (username) boş olan satırları sil
         df = df.dropna(subset=["username"])
-        # 3. 'display_name' sütunu yoksa oluştur (çökmeyi önlemek için)
         if 'display_name' not in df.columns:
             df['display_name'] = df['username']
+        if 'tamamlandi' in df.columns:
+            df['tamamlandi'] = df['tamamlandi'].astype(str).str.lower().map(
+                {'true': True, 'false': False, '1': True, '0': False, '1.0': True, '0.0': False}
+            ).fillna(False)
+        for col in ['id', 'soru_cozulen', 'soru_hedef']:
+            if col in df.columns:
+                default_val = 1 if col == 'soru_hedef' else 0
+                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(default_val).astype(int)
         return df
-    except:
-        return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id", "display_name"])
+    except Exception as e:
+        st.warning(f"Veri yüklenirken hata oluştu: {e}")
+        return pd.DataFrame(columns=default_cols)
 
 def save_to_gsheets(df):
     conn.update(data=df)
@@ -67,13 +74,6 @@ if 'confirm_delete' not in st.session_state:
 # --- 3. VERİ ÇEKME VE TİP DÖNÜŞÜMÜ ---
 all_db = load_all_data()
 
-for col in ['tamamlandi', 'id', 'soru_cozulen', 'soru_hedef']:
-    if col in all_db.columns:
-        if col == 'tamamlandi':
-            all_db[col] = all_db[col].astype(str).str.lower().map({'true': True, 'false': False, '1': True, '0': False, '1.0': True, '0.0': False}).fillna(False)
-        else:
-            all_db[col] = pd.to_numeric(all_db[col], errors='coerce').fillna(0 if col != 'soru_hedef' else 1).astype(int)
-
 if 'selected_icon' not in st.session_state: st.session_state.selected_icon = "📌"
 if 'dersler' not in st.session_state:
     st.session_state.dersler = {"Matematik": "📐", "Türkçe": "📚", "Tarih": "🏛️", "Coğrafya": "🌍", "Güncel Bilgiler": "📰"}
@@ -94,22 +94,20 @@ if st.session_state.user is None:
             p = st.text_input("Şifre", type="password", key="login_p").strip()
             
             if st.form_submit_button("Sisteme Bağlan", use_container_width=True):
-                if u and p: # Boş giriş kontrolü
-                    user_check = all_db[(all_db['username'].fillna("").astype(str) == str(u)) & 
-                                        (all_db['password'].fillna("").astype(str) == hash_password(str(p)))]
-                    
-                if not user_check.empty:
-                    st.session_state.user = str(u)
-                    if 'puan_hedef' in user_check.columns:
-                        mevcut_hedef = user_check['puan_hedef'].iloc[0]
-                        if pd.isna(mevcut_hedef):
-                            mevcut_hedef = 0.0
-
-                    st.success(f"Hoş geldin {u}!")
-                    time.sleep(1)
-                    st.rerun()
+                if u and p:
+                    user_check = all_db[
+                        (all_db['username'].fillna("").astype(str) == str(u)) & 
+                        (all_db['password'].fillna("").astype(str) == hash_password(str(p)))
+                    ]
+                    if not user_check.empty:
+                        st.session_state.user = str(u)
+                        st.success(f"Hoş geldin {u}!")
+                        time.sleep(1)
+                        st.rerun()
+                    else:
+                        st.error("Kullanıcı adı veya şifre hatalı!")
                 else:
-                    st.error("Kullanıcı adı veya şifre hatalı!")
+                    st.warning("Kullanıcı adı ve şifre boş bırakılamaz!")
     with t2:
         with st.form("reg_form_unique"):
             nu = st.text_input("Yeni Kullanıcı Adı", key="reg_user_input").strip()
@@ -177,7 +175,6 @@ st.sidebar.markdown("""
         }
         /* 4. Yazı boyutlarını ve buton yüksekliklerini biraz küçült */
         .stButton button {
-            item-align= center;
             padding-top: 0.5rem !important;
             padding-bottom: 0.5rem !important;
             min-height: 2rem !important;
@@ -185,7 +182,6 @@ st.sidebar.markdown("""
         }
         /* 5. Radio buton (Menü) yazılarını küçült */
         [data-testid="stWidgetLabel"] p {
-            text-align= center;
             font-size: 1rem !important;
         }
         /* 6. Input kutularını daralt */
@@ -196,6 +192,23 @@ st.sidebar.markdown("""
         /* 7. Scroll barı gizle (Zorunlu kalmadıkça çıkmaz) */
         [data-testid="stSidebar"] {
             overflow: hidden !important;
+        }
+        /* Sidebar'ın içindeki ana alanı seçiyoruz */
+        [data-testid="stSidebarNavItems"] {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 70vh; /* Ekran yüksekliğinin %70'ini kapla */
+        }
+        
+        /* Kullanıcı adı ve ikon kısmını da merkeze odakla */
+        section[data-testid="stSidebar"] .stMarkdown {
+            text-align: center;
+        }
+        
+        /* Butonları genişlet ve hizala */
+        section[data-testid="stSidebar"] .stButton button {
+            width: 100%;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -237,33 +250,12 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
 if st.sidebar.button("🚪 Çıkış Yap", use_container_width=True):
     st.session_state.user = None
     st.rerun()
-    # Sidebar elemanlarını dikeyde ortalamak için CSS
-    st.sidebar.markdown("""
-        <style>
-            /* Sidebar'ın içindeki ana alanı seçiyoruz */
-            [data-testid="stSidebarNavItems"] {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                height: 70vh; /* Ekran yüksekliğinin %70'ini kapla */
-            }
-            
-            /* Kullanıcı adı ve ikon kısmını da merkeze odakla */
-            section[data-testid="stSidebar"] .stMarkdown {
-                text-align: center;
-            }
-            
-            /* Butonları genişlet ve hizala */
-            section[data-testid="stSidebar"] .stButton button {
-                width: 100%;
-            }
-        </style>
-    """, unsafe_allow_html=True)
+    
 st.markdown("""
     <div class="custom-header"; style="text-align: center; margin-bottom: 20px;">
         <h1 style="color: white; margin-bottom: 0;">🚀 2026 KPSS Çalışma Planım</h1>
-        <hr style="border: 2px solid #88c3f7; width: 50%; margin: auto; opacity: 0,7;">
-        <hr style="border: 4px solid #3d9df3; width: 50%; bottom: 2px; margin: auto; opacity: 0,3;">
+        <hr style="border: 2px solid #88c3f7; width: 50%; margin: auto; opacity: 0.7;">
+        <hr style="border: 4px solid #3d9df3; width: 50%; bottom: 2px; margin: auto; opacity: 0.3;">
     </div>
     """, unsafe_allow_html=True)
 
@@ -544,4 +536,3 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
-
