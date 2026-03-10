@@ -67,7 +67,7 @@ for col in ['tamamlandi', 'id', 'soru_cozulen', 'soru_hedef']:
 
 if 'selected_icon' not in st.session_state: st.session_state.selected_icon = "📌"
 if 'dersler' not in st.session_state:
-    st.session_state.dersler = {"Matematik": "📐", "Türkçe": "📚", "Tarih": "🏛️", "Coğrafya": "🌍", "Güncel Bilgiler": "📰"}
+    st.session_state.dersler = {"Matematik": "🧮", "Türkçe": "📚", "Tarih": "🏛️", "Coğrafya": "🌍", "Güncel Bilgiler": "📰", "Geometri": "📐"}
 
 # --- 4. GİRİŞ KONTROLÜ ---
 if st.session_state.user is None:
@@ -560,6 +560,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
