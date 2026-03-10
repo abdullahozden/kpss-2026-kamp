@@ -282,7 +282,7 @@ if menu == "📝 Plan Oluştur":
         k_a = st.text_input("Konu")
     with c2:
         t_r = st.date_input("Tarih", format="DD/MM/YYYY")
-        s_h = st.number_input("Hedef Soru", min_value=1, value=150)
+        s_h = st.number_input("Hedef Soru", min_value=1, value=50)
 
     v_s = st.select_slider("Video Sayısı", options=range(1, 11), value=1)
     
@@ -343,60 +343,70 @@ elif menu == "📅 Günlük Planım":
     active_df = user_df[(user_df['tamamlandi'] == False) & (user_df['ders'] != "DENEME") & (user_df['konu'] != "Hesap Aktif")]
     if active_df.empty: st.info("Aktif görev yok.")
     else:
-        for idx, row in active_df.iterrows():
-            ikon = st.session_state.dersler.get(row['ders'], "📌")
-            with st.expander(f"{ikon} {row['ders']} - {row['konu']}", expanded=True):
-                v_l = json.loads(row['videolar']) if isinstance(row['videolar'], str) else []
-                cl, cr = st.columns([4, 1.5])
-                with cl:
-                    if v_l:
-                        num_v = len(v_l); v_cols_num = 2 if num_v <= 2 else (3 if num_v <= 6 else 5)
-                        v_cols = st.columns(v_cols_num)
-                        for v_i, v in enumerate(v_l):
-                            with v_cols[v_i % v_cols_num]:
-                                if not v['done']:
-                                    st.markdown(f"""
-                                        <div class="video-container">
-                                            <div class="video-label-bar">{v_i+1}. Video</div>
-                                            <div class="video-body">
-                                    """, unsafe_allow_html=True)
-                                    st.video(v['url'])
-                                    st.markdown('</div></div>', unsafe_allow_html=True)
-                                    if st.button(f"İzlendi ✅", key=f"v_{row['id']}_{v_i}", use_container_width=True):
-                                        v['done'] = True
-                                        all_db.loc[all_db['id'] == row['id'], 'videolar'] = json.dumps(v_l)
-                                        save_to_gsheets(all_db); st.rerun()
-                                else: st.success(f"{v_i+1}. Video Bitti")
-                with cr:
-                    # 1. Veri Hazırlığı
-                    h_q = int(row['soru_hedef'])
-                    c_q = int(row['soru_cozulen'])
-                    yuzde_f = min(c_q / h_q, 1.0) if h_q > 0 else 0.0
-                    st.write(f"📊 **İlerleme: %{int(yuzde_f * 100)}**")
-                    st.progress(yuzde_f)
-                    col_m1, col_m2 = st.columns(2)
-                    col_m1.metric("Hedef", h_q)
-                    col_m2.metric("Çözülen", c_q, delta=c_q - h_q if h_q > 0 else None)
-                    n_q = st.number_input("Sayıyı Güncelle", value=c_q, key=f"q_{row['id']}", label_visibility="collapsed")
-                    if n_q != c_q:
-                        all_db.loc[all_db['id'] == row['id'], 'soru_cozulen'] = int(n_q)
-                        save_to_gsheets(all_db)
-                        st.rerun()
-                    st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
-                    if st.button("🌟 GÖREVİ TAMAMLA", key=f"f_{row['id']}", use_container_width=True, type="primary"):
-                        for v in v_l: v['done'] = False
-                        all_db.loc[all_db['id'] == row['id'], 'videolar'] = json.dumps(v_l)
-                        all_db.loc[all_db['id'] == row['id'], 'tamamlandi'] = True
-                        save_to_gsheets(all_db)
-                        st.balloons() # Konfetiler
-                        st.toast(f"Tebrikler! {row['konu']} konusunu bitirdin!", icon="🏆") # Pop-up bildirim
-                        time.sleep(1)
-                        st.rerun()
-                    if st.button("🗑️ Planı Sil", key=f"del_act_{row['id']}", use_container_width=True):
-                        save_to_gsheets(all_db[all_db['id'] != row['id']]);
-                        st.toast(f"{row['konu']} konusunu sildiniz!", icon="🗑️") # Pop-up bildirim
-                        time.sleep(1)
-                        st.rerun()
+        active_df = active_df.sort_values(by="tarih")
+        unique_dates = active_df['tarih'].unique() 
+        for date_val in unique_dates:
+            try:
+                display_date = datetime.strptime(str(date_val), '%Y-%m-%d').strftime('%d %B %Y')
+            except:
+                display_date = date_val
+            st.markdown(f"#### 📅 {display_date}") # Gün başlığı
+            day_tasks = active_df[active_df['tarih'] == date_val]
+            for idx, row in day_tasks.iterrows():
+                ikon = st.session_state.dersler.get(row['ders'], "📌")
+                with st.expander(f"{ikon} {row['ders']} - {row['konu']}", expanded=False):
+                    v_l = json.loads(row['videolar']) if isinstance(row['videolar'], str) else []
+                    cl, cr = st.columns([4, 1.5])
+                    with cl:
+                        if v_l:
+                            num_v = len(v_l); v_cols_num = 2 if num_v <= 2 else (3 if num_v <= 6 else 5)
+                            v_cols = st.columns(v_cols_num)
+                            for v_i, v in enumerate(v_l):
+                                with v_cols[v_i % v_cols_num]:
+                                    if not v['done']:
+                                        st.markdown(f"""
+                                            <div class="video-container">
+                                                <div class="video-label-bar">{v_i+1}. Video</div>
+                                                <div class="video-body">
+                                        """, unsafe_allow_html=True)
+                                        st.video(v['url'])
+                                        st.markdown('</div></div>', unsafe_allow_html=True)
+                                        if st.button(f"İzlendi ✅", key=f"v_{row['id']}_{v_i}", use_container_width=True):
+                                            v['done'] = True
+                                            all_db.loc[all_db['id'] == row['id'], 'videolar'] = json.dumps(v_l)
+                                            save_to_gsheets(all_db); st.rerun()
+                                    else: st.success(f"{v_i+1}. Video Bitti")
+                    with cr:
+                        # 1. Veri Hazırlığı
+                        h_q = int(row['soru_hedef'])
+                        c_q = int(row['soru_cozulen'])
+                        yuzde_f = min(c_q / h_q, 1.0) if h_q > 0 else 0.0
+                        st.write(f"📊 **İlerleme: %{int(yuzde_f * 100)}**")
+                        st.progress(yuzde_f)
+                        col_m1, col_m2 = st.columns(2)
+                        col_m1.metric("Hedef", h_q)
+                        col_m2.metric("Çözülen", c_q, delta=c_q - h_q if h_q > 0 else None)
+                        n_q = st.number_input("Sayıyı Güncelle", value=c_q, key=f"q_{row['id']}", label_visibility="collapsed")
+                        if n_q != c_q:
+                            all_db.loc[all_db['id'] == row['id'], 'soru_cozulen'] = int(n_q)
+                            save_to_gsheets(all_db)
+                            st.rerun()
+                        st.markdown("<hr style='margin:1px 0px;'>", unsafe_allow_html=True)
+                        if st.button("🌟 GÖREVİ TAMAMLA", key=f"f_{row['id']}", use_container_width=True, type="primary"):
+                            for v in v_l: v['done'] = False
+                            all_db.loc[all_db['id'] == row['id'], 'videolar'] = json.dumps(v_l)
+                            all_db.loc[all_db['id'] == row['id'], 'tamamlandi'] = True
+                            save_to_gsheets(all_db)
+                            st.balloons() # Konfetiler
+                            st.toast(f"Tebrikler! {row['konu']} konusunu bitirdin!", icon="🏆") # Pop-up bildirim
+                            time.sleep(1)
+                            st.rerun()
+                        if st.button("🗑️ Planı Sil", key=f"del_act_{row['id']}", use_container_width=True):
+                            save_to_gsheets(all_db[all_db['id'] != row['id']]);
+                            st.toast(f"{row['konu']} konusunu sildiniz!", icon="🗑️") # Pop-up bildirim
+                            time.sleep(1)
+                            st.rerun()
+                st.markdown("---")
 
 # --- 8. BAŞARILARIM ---
 elif menu == "🏆 Başarılarım":
@@ -533,4 +543,3 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
-
