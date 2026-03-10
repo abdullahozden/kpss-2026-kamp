@@ -18,11 +18,13 @@ def load_all_data():
         if df is None or df.empty:
             return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id", "display_name"])
         # --- TEMİZLİK BURADA YAPILIYOR ---
-        # 1. Tamamen boş satırları sil
+        # 1. Kullanıcı adı string olarak okunmaya zorlanıyor.
+        df['username'] = df['username'].astype(str)
+        # 2. Tamamen boş satırları sil
         df = df.dropna(how="all")
-        # 2. Kullanıcı adı (username) boş olan satırları sil
+        # 3. Kullanıcı adı (username) boş olan satırları sil
         df = df.dropna(subset=["username"])
-        # 3. 'display_name' sütunu yoksa oluştur (çökmeyi önlemek için)
+        # 4. 'display_name' sütunu yoksa oluştur (çökmeyi önlemek için)
         if 'display_name' not in df.columns:
             df['display_name'] = df['username']
         return df
@@ -84,8 +86,8 @@ if st.session_state.user is None:
             
             if st.form_submit_button("Sisteme Bağlan", use_container_width=True):
                 if u and p: # Boş giriş kontrolü
-                    user_check = all_db[(all_db['username'].fillna("").astype(str) == str(u)) & 
-                                        (all_db['password'].fillna("").astype(str) == hash_password(str(p)))]
+                    user_check = all_db[(all_db['username'] == str(u)) & 
+                                        (all_db['password'] == hash_password(str(p)))]
                     
                 if not user_check.empty:
                     st.session_state.user = str(u)
