@@ -267,7 +267,7 @@ if menu == "📝 Plan Oluştur":
         with c_add1: n_d = st.text_input("Ders Adı", placeholder="Örn: Vatandaşlık", label_visibility="collapsed")
         with c_add2:
             with st.popover(st.session_state.selected_icon, use_container_width=True):
-                emos = ["📚", "📐", "🏛️", "🌍", "📰", "⚖️", "🧪", "🎨", "💻", "⏰", "💡", "📝", "✅", "🔥", "📌"]
+                emos = ["📚", "📐", "🏛️", "🌍", "📰", "⚖️", "🧪", "🎨", "💻", "⏰", "💡", "📝", "✅", "🔥", "📌", "🧮"]
                 cols = st.columns(4)
                 for i, emo in enumerate(emos):
                     if cols[i % 4].button(emo, key=f"emo_{i}"):
@@ -560,6 +560,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
