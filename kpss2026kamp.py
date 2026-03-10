@@ -406,7 +406,7 @@ elif menu == "📅 Günlük Planım":
                             st.toast(f"{row['konu']} konusunu sildiniz!", icon="🗑️") # Pop-up bildirim
                             time.sleep(1)
                             st.rerun()
-                        with st.popover("📅 Tarihi Değiştir", use_container_width=False):
+                        with st.popover("📅 Tarihi Değiştir", use_container_width=True):
                             yeni_tarih = st.date_input(
                                 "Yeni Tarih Seç", 
                                 value=datetime.strptime(str(row['tarih']), '%d-%m-%Y').date(), 
@@ -554,3 +554,4 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
