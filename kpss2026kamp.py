@@ -418,11 +418,11 @@ elif menu == "📅 Günlük Planım":
                             st.toast(f"📅 {row['konu']} tarihi {yeni_tarih} olarak güncellendi!", icon="🔄")
                             time.sleep(0.5)
                             st.rerun()    
-                    if st.button("🗑️ Planı Sil", key=f"del_act_{row['id']}", use_container_width=True):
-                        save_to_gsheets(all_db[all_db['id'] != row['id']]);
-                        st.toast(f"{row['konu']} konusunu sildiniz!", icon="🗑️") # Pop-up bildirim
-                        time.sleep(1)
-                        st.rerun()
+                        if st.button("🗑️ Planı Sil", key=f"del_act_{row['id']}", use_container_width=True):
+                            save_to_gsheets(all_db[all_db['id'] != row['id']]);
+                            st.toast(f"{row['konu']} konusunu sildiniz!", icon="🗑️") # Pop-up bildirim
+                            time.sleep(1)
+                            st.rerun()
                         
 # --- 8. BAŞARILARIM ---
 elif menu == "🏆 Başarılarım":
@@ -559,3 +559,4 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
