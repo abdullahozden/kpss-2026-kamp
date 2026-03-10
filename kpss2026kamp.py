@@ -409,9 +409,10 @@ elif menu == "📅 Günlük Planım":
                                 time.sleep(1)
                                 st.rerun()
                         with col_btn2:
+                                current_date_obj = datetime.strptime(str(row['tarih']), '%Y-%m-%d').date()
                                 yeni_tarih = st.date_input(
                                     "Yeni Tarih Seç", 
-                                    value=datetime.strptime(str(row['tarih']), '%Y-%m-%d').date(), 
+                                    value=current_date_obj,
                                     key=f"date_edit_{row['id']}"
                                     label_visibility="collapsed"
                                     format="DD/MM/YYYY"
