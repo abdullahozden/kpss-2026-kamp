@@ -444,8 +444,8 @@ elif menu == "📊 Deneme Takibi":
         
         gk_net = gk_d - (gk_y * 0.25)
         gy_net = gy_d - (gy_y * 0.25)
-        sp_gy = 10 * [(gy_net - 22.5) / 9.8] + 50
-        sp_gk = 10 * [(gk_net - 24.0) / 10.2] + 50
+        sp_gy = 10 * ((gy_net - 22.5) / 9.8) + 50
+        sp_gk = 10 * ((gk_net - 24.0) / 10.2) + 50
         asp = 0.50 * sp_gy + 0.50 * sp_gk
         hesaplanan_puan = 70 + 30 * (2*(asp - 50) - 10) / (2*(85 - 50) - 10)
         
