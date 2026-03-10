@@ -401,7 +401,7 @@ elif menu == "📅 Günlük Planım":
                             st.toast(f"Tebrikler! {row['konu']} konusunu bitirdin!", icon="🏆") # Pop-up bildirim
                             time.sleep(1)
                             st.rerun()
-                        col_btn1, col_btn2, col_btn3 = st.columns([3, 2])
+                        col_btn1, col_btn2, col_btn3 = st.columns([3, 2, 1])
                     with col_btn1:
                         current_date_obj = datetime.strptime(str(row['tarih']), '%Y-%m-%d').date()
                         yeni_tarih = st.date_input(
@@ -560,3 +560,4 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
