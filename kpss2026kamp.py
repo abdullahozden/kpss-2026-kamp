@@ -353,7 +353,7 @@ elif menu == "📅 Günlük Planım":
             st.markdown(f"#### 📅 {display_date}") # Gün başlığı
             day_tasks = active_df[active_df['tarih'] == date_val]
             for idx, row in day_tasks.iterrows():
-                ikon = st.session_state.dersler.get(row['ders'], "📌")
+                ikon = st.session_state.dersler.get(row['ders'], "📐")
                 with st.expander(f"{ikon} {row['ders']} - {row['konu']}", expanded=False):
                     v_l = json.loads(row['videolar']) if isinstance(row['videolar'], str) else []
                     cl, cr = st.columns([4, 1.5])
