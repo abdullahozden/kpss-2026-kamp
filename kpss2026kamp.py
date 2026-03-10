@@ -201,7 +201,6 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
         all_db.loc[all_db['username'] == username, 'display_name'] = yeni_display
         save_to_gsheets(all_db)
         st.success("İsim güncellendi!")
-        time.sleep(0.3)
         st.rerun()
         
     # 2. Hedef Puan Belirleme
@@ -560,5 +559,6 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
