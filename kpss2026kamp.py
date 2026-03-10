@@ -201,6 +201,7 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
         all_db.loc[all_db['username'] == username, 'display_name'] = yeni_display
         save_to_gsheets(all_db)
         st.success("İsim güncellendi!")
+        time.sleep(0.3)
         
     # 2. Hedef Puan Belirleme
     mevcut_hedef = user_df['puan_hedef'].iloc[0] if 'puan_hedef' in user_df.columns else 0
@@ -209,6 +210,7 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
         all_db.loc[all_db['username'] == username, 'puan_hedef'] = yeni_hedef
         save_to_gsheets(all_db)
         st.success("Hedef puan güncellendi! 🎯")
+        time.sleep(0.3)
     if st.button("❌ Hesabımı Sil", type="secondary", use_container_width=True):
         st.session_state.confirm_delete = True
     if st.session_state.get('confirm_delete', False):
@@ -558,6 +560,7 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
 
 
