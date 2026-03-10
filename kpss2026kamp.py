@@ -406,10 +406,10 @@ elif menu == "📅 Günlük Planım":
                             st.toast(f"{row['konu']} konusunu sildiniz!", icon="🗑️") # Pop-up bildirim
                             time.sleep(1)
                             st.rerun()
-                        with st.popover("📅 Tarihi Değiştir", use_container_width=True):
+                        with st.popover("📅 Tarihi Değiştir", use_container_width=False):
                             yeni_tarih = st.date_input(
                                 "Yeni Tarih Seç", 
-                                value=datetime.strptime(str(row['tarih']), '%Y-%m-%d').date(), 
+                                value=datetime.strptime(str(row['tarih']), '%d-%m-%Y').date(), 
                                 key=f"date_edit_{row['id']}"
                             )
                             if st.button("Tarihi Güncelle", key=f"date_btn_{row['id']}", use_container_width=True):
