@@ -5,40 +5,34 @@ import json
 import hashlib
 from datetime import datetime
 import time
+from streamlit_lottie import st_lottie
+import requests
 
-st.set_page_config(page_title="2026 KPSS ÇALIŞMA PLANI", layout="wide", page_icon="🎓")
 
 # --- 1. VERİ BAĞLANTISI & OPTİMİZASYON ---
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-@st.cache_data(ttl=30)
+@st.cache_data(ttl=0)
 def load_all_data():
-    default_cols = ["username", "password", "ders", "konu", "tarih", "videolar",
-                    "soru_hedef", "soru_cozulen", "tamamlandi", "id", "display_name"]
     try:
         df = conn.read()
         if df is None or df.empty:
-            return pd.DataFrame(columns=default_cols)
+            return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id", "display_name"])
+        # --- TEMİZLİK BURADA YAPILIYOR ---
+        # 1. Tamamen boş satırları sil
         df = df.dropna(how="all")
+        # 2. Kullanıcı adı (username) boş olan satırları sil
         df = df.dropna(subset=["username"])
+        # 3. 'display_name' sütunu yoksa oluştur (çökmeyi önlemek için)
         if 'display_name' not in df.columns:
             df['display_name'] = df['username']
-        if 'tamamlandi' in df.columns:
-            df['tamamlandi'] = df['tamamlandi'].astype(str).str.lower().map(
-                {'true': True, 'false': False, '1': True, '0': False, '1.0': True, '0.0': False}
-            ).fillna(False)
-        for col in ['id', 'soru_cozulen', 'soru_hedef']:
-            if col in df.columns:
-                default_val = 1 if col == 'soru_hedef' else 0
-                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(default_val).astype(int)
         return df
-    except Exception as e:
-        st.warning(f"Veri yüklenirken hata oluştu: {e}")
-        return pd.DataFrame(columns=default_cols)
+    except:
+        return pd.DataFrame(columns=["username", "password", "ders", "konu", "tarih", "videolar", "soru_hedef", "soru_cozulen", "tamamlandi", "id", "display_name"])
 
 def save_to_gsheets(df):
     conn.update(data=df)
-    load_all_data.clear()
+    st.cache_data.clear() # Değişiklik olduğunda cache'i temizle
 
 def hash_password(password):
     pepper = st.secrets.get("security", {}).get("pepper", "")
@@ -52,7 +46,18 @@ def format_yt_link(url):
 def delete_user_account(df, username):
     new_df = df[df['username'] != username]
     save_to_gsheets(new_df)
+    st.cache_data.clear()
+    
+def load_lottieurl(url: str):
+    try:
+        r = requests.get(url, timeout=5)
+        if r.status_code != 200:
+            return None
+        return r.json()
+    except:
+        return None
 
+st.set_page_config(page_title="2026 KPSS ÇALIŞMA PLANI", layout="wide", page_icon="🎓")
 # --- 0. SESSION STATE BAŞLATMA ---
 if 'user' not in st.session_state:
     st.session_state.user = None
@@ -61,6 +66,13 @@ if 'confirm_delete' not in st.session_state:
 
 # --- 3. VERİ ÇEKME VE TİP DÖNÜŞÜMÜ ---
 all_db = load_all_data()
+
+for col in ['tamamlandi', 'id', 'soru_cozulen', 'soru_hedef']:
+    if col in all_db.columns:
+        if col == 'tamamlandi':
+            all_db[col] = all_db[col].astype(str).str.lower().map({'true': True, 'false': False, '1': True, '0': False, '1.0': True, '0.0': False}).fillna(False)
+        else:
+            all_db[col] = pd.to_numeric(all_db[col], errors='coerce').fillna(0 if col != 'soru_hedef' else 1).astype(int)
 
 if 'selected_icon' not in st.session_state: st.session_state.selected_icon = "📌"
 if 'dersler' not in st.session_state:
@@ -82,20 +94,22 @@ if st.session_state.user is None:
             p = st.text_input("Şifre", type="password", key="login_p").strip()
             
             if st.form_submit_button("Sisteme Bağlan", use_container_width=True):
-                if u and p:
-                    user_check = all_db[
-                        (all_db['username'].fillna("").astype(str) == u) & 
-                        (all_db['password'].fillna("").astype(str) == hash_password(p))
-                    ]
-                    if not user_check.empty:
-                        st.session_state.user = str(u)
-                        st.success(f"Hoş geldin {u}!")
-                        time.sleep(0.5)
-                        st.rerun()
-                    else:
-                        st.error("Kullanıcı adı veya şifre hatalı!")
+                if u and p: # Boş giriş kontrolü
+                    user_check = all_db[(all_db['username'].fillna("").astype(str) == str(u)) & 
+                                        (all_db['password'].fillna("").astype(str) == hash_password(str(p)))]
+                    
+                if not user_check.empty:
+                    st.session_state.user = str(u)
+                    if 'puan_hedef' in user_check.columns:
+                        mevcut_hedef = user_check['puan_hedef'].iloc[0]
+                        if pd.isna(mevcut_hedef):
+                            mevcut_hedef = 0.0
+
+                    st.success(f"Hoş geldin {u}!")
+                    time.sleep(1)
+                    st.rerun()
                 else:
-                    st.warning("Kullanıcı adı ve şifre boş bırakılamaz!")
+                    st.error("Kullanıcı adı veya şifre hatalı!")
     with t2:
         with st.form("reg_form_unique"):
             nu = st.text_input("Yeni Kullanıcı Adı", key="reg_user_input").strip()
@@ -103,14 +117,14 @@ if st.session_state.user is None:
             if st.form_submit_button("Hesap Oluştur", use_container_width=True):
                 if nu in all_db['username'].values: st.error("Bu kullanıcı mevcut.")
                 else:
-                    new_u_row = pd.DataFrame([{"username": nu, "display_name": nu, "password": hash_password(np), "tamamlandi": False, "id": int(time.time() * 1000), "konu": "Hesap Aktif", "soru_cozulen": 0, "soru_hedef": 1, "puan_hedef": 0.0, "ders": "Genel"}])
+                    new_u_row = pd.DataFrame([{"username": nu, "display_name": nu, "password": hash_password(np), "tamamlandi": False, "id": int(time.time()), "konu": "Hesap Aktif", "soru_cozulen": 0, "soru_hedef": 1, "puan_hedef": 0.0, "ders": "Genel"}])
                     save_to_gsheets(pd.concat([all_db, new_u_row], ignore_index=True))
                     st.success("Kayıt başarılı!")
     st.stop()
 
 # --- 5. ANA EKRAN ---
 username = st.session_state.user
-user_df = all_db[all_db['username'] == username].copy()
+user_df = all_db[all_db['username'].astype(str) == str(username)].copy()
 if not user_df.empty and 'puan_hedef' in user_df.columns:
     val = user_df['puan_hedef'].iloc[0]
     mevcut_hedef = float(val) if pd.notna(val) else 0.0
@@ -163,6 +177,7 @@ st.sidebar.markdown("""
         }
         /* 4. Yazı boyutlarını ve buton yüksekliklerini biraz küçült */
         .stButton button {
+            item-align= center;
             padding-top: 0.5rem !important;
             padding-bottom: 0.5rem !important;
             min-height: 2rem !important;
@@ -170,6 +185,7 @@ st.sidebar.markdown("""
         }
         /* 5. Radio buton (Menü) yazılarını küçült */
         [data-testid="stWidgetLabel"] p {
+            text-align= center;
             font-size: 1rem !important;
         }
         /* 6. Input kutularını daralt */
@@ -180,23 +196,6 @@ st.sidebar.markdown("""
         /* 7. Scroll barı gizle (Zorunlu kalmadıkça çıkmaz) */
         [data-testid="stSidebar"] {
             overflow: hidden !important;
-        }
-        /* Sidebar'ın içindeki ana alanı seçiyoruz */
-        [data-testid="stSidebarNavItems"] {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            height: 70vh; /* Ekran yüksekliğinin %70'ini kapla */
-        }
-        
-        /* Kullanıcı adı ve ikon kısmını da merkeze odakla */
-        section[data-testid="stSidebar"] .stMarkdown {
-            text-align: center;
-        }
-        
-        /* Butonları genişlet ve hizala */
-        section[data-testid="stSidebar"] .stButton button {
-            width: 100%;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -238,12 +237,33 @@ with st.sidebar.expander("⚙️ Hesap Ayarları"):
 if st.sidebar.button("🚪 Çıkış Yap", use_container_width=True):
     st.session_state.user = None
     st.rerun()
-    
+    # Sidebar elemanlarını dikeyde ortalamak için CSS
+    st.sidebar.markdown("""
+        <style>
+            /* Sidebar'ın içindeki ana alanı seçiyoruz */
+            [data-testid="stSidebarNavItems"] {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                height: 70vh; /* Ekran yüksekliğinin %70'ini kapla */
+            }
+            
+            /* Kullanıcı adı ve ikon kısmını da merkeze odakla */
+            section[data-testid="stSidebar"] .stMarkdown {
+                text-align: center;
+            }
+            
+            /* Butonları genişlet ve hizala */
+            section[data-testid="stSidebar"] .stButton button {
+                width: 100%;
+            }
+        </style>
+    """, unsafe_allow_html=True)
 st.markdown("""
     <div class="custom-header"; style="text-align: center; margin-bottom: 20px;">
         <h1 style="color: white; margin-bottom: 0;">🚀 2026 KPSS Çalışma Planım</h1>
-        <hr style="border: 2px solid #88c3f7; width: 50%; margin: auto; opacity: 0.7;">
-        <hr style="border: 4px solid #3d9df3; width: 50%; bottom: 2px; margin: auto; opacity: 0.3;">
+        <hr style="border: 2px solid #88c3f7; width: 50%; margin: auto; opacity: 0,7;">
+        <hr style="border: 4px solid #3d9df3; width: 50%; bottom: 2px; margin: auto; opacity: 0,3;">
     </div>
     """, unsafe_allow_html=True)
 
@@ -283,16 +303,16 @@ if menu == "📝 Plan Oluştur":
             if k_a:
                 v_d = json.dumps([{"url": format_yt_link(u), "done": False} for u in v_u if u.strip()])
                 n_p = pd.DataFrame([{
-                    "username": username, "password": user_df['password'].iloc[0],
+                    "username": username, "password": user_df['password'].values[0],
                     "ders": d_s, "konu": k_a, "tarih": str(t_r), "videolar": v_d,
-                    "soru_hedef": int(s_h), "soru_cozulen": 0, "tamamlandi": False, "id": int(time.time() * 1000)
+                    "soru_hedef": int(s_h), "soru_cozulen": 0, "tamamlandi": False, "id": int(datetime.now().timestamp())
                 }])
                 save_to_gsheets(pd.concat([all_db, n_p], ignore_index=True))
                 
                 # Geri bildirimler
                 st.toast(f"✅ {k_a} başarıyla planlandı!", icon="📅")
                 st.success("Plan eklendi! Liste güncelleniyor...")
-                time.sleep(0.5)
+                time.sleep(1)
                 st.rerun()
             else:
                 st.error("Lütfen bir konu ismi girin!")
@@ -319,13 +339,13 @@ elif menu == "📅 Günlük Planım":
                         all_db.loc[all_db['id'] == row['id'], 'tamamlandi'] = False
                         save_to_gsheets(all_db);
                         st.toast(f"{row['konu']} tekrar çalışma planına eklendi.", icon="⏪") # Pop-up bildirim
-                        time.sleep(0.3)
+                        time.sleep(1)
                         st.rerun()
                 with c_arc_del:
                     if st.button("🗑️", key=f"del_arc_{row['id']}", help="Sil", use_container_width=True):
                         save_to_gsheets(all_db[all_db['id'] != row['id']]);
                         st.toast(f"{row['konu']} başarıyla sildiniz.", icon="🗑️") # Pop-up bildirim
-                        time.sleep(0.3)
+                        time.sleep(1)
                         st.rerun()
             st.markdown("<hr style='margin:2px 0px;'>", unsafe_allow_html=True)
 
@@ -354,8 +374,7 @@ elif menu == "📅 Günlük Planım":
                                     if st.button(f"İzlendi ✅", key=f"v_{row['id']}_{v_i}", use_container_width=True):
                                         v['done'] = True
                                         all_db.loc[all_db['id'] == row['id'], 'videolar'] = json.dumps(v_l)
-                                        save_to_gsheets(all_db)
-                                        st.rerun()
+                                        save_to_gsheets(all_db); st.rerun()
                                 else: st.success(f"{v_i+1}. Video Bitti")
                 with cr:
                     # 1. Veri Hazırlığı
@@ -368,7 +387,7 @@ elif menu == "📅 Günlük Planım":
                     col_m1.metric("Hedef", h_q)
                     col_m2.metric("Çözülen", c_q, delta=c_q - h_q if h_q > 0 else None)
                     n_q = st.number_input("Sayıyı Güncelle", value=c_q, key=f"q_{row['id']}", label_visibility="collapsed")
-                    if st.button("💾 Kaydet", key=f"save_q_{row['id']}"):
+                    if n_q != c_q:
                         all_db.loc[all_db['id'] == row['id'], 'soru_cozulen'] = int(n_q)
                         save_to_gsheets(all_db)
                         st.rerun()
@@ -380,12 +399,12 @@ elif menu == "📅 Günlük Planım":
                         save_to_gsheets(all_db)
                         st.balloons() # Konfetiler
                         st.toast(f"Tebrikler! {row['konu']} konusunu bitirdin!", icon="🏆") # Pop-up bildirim
-                        time.sleep(1.5)
+                        time.sleep(1)
                         st.rerun()
                     if st.button("🗑️ Planı Sil", key=f"del_act_{row['id']}", use_container_width=True):
                         save_to_gsheets(all_db[all_db['id'] != row['id']]);
                         st.toast(f"{row['konu']} konusunu sildiniz!", icon="🗑️") # Pop-up bildirim
-                        time.sleep(0.3)
+                        time.sleep(1)
                         st.rerun()
 
 # --- 8. BAŞARILARIM ---
@@ -420,7 +439,8 @@ elif menu == "📊 Deneme Takibi":
     st.subheader("📊 Deneme Netleri ve Puan Hesaplama")
     
     # Hedef Puanı Veriden Çek (Varsayılan 75.0)
-    hedef_puan = float(mevcut_hedef) if mevcut_hedef > 0 else 75.0
+    user_settings = all_db[all_db['username'] == username]
+    hedef_puan = float(user_settings['puan_hedef'].iloc[0]) if 'puan_hedef' in user_settings.columns and not pd.isna(user_settings['puan_hedef'].iloc[0]) else 75.0
 
     # 1. YENİ DENEME HESAPLAMA FORMU
     with st.expander("➕ Yeni Deneme Hesapla ve Kaydet", expanded=True):
@@ -449,7 +469,7 @@ elif menu == "📊 Deneme Takibi":
                     st.balloons()
                 yeni_deneme = pd.DataFrame([{
                 "username": username, 
-                "password": user_df['password'].iloc[0],
+                "password": user_df['password'].values[0],
                 "ders": "DENEME", 
                 "konu": d_ad, 
                 "tarih": str(datetime.now().date()),
@@ -460,7 +480,7 @@ elif menu == "📊 Deneme Takibi":
                 "deneme_puan": float(hesaplanan_puan), # Puanı sayı olarak kaydet
                 "puan_hedef": float(hedef_puan),
                 "tamamlandi": True, 
-                "id": int(time.time() * 1000),
+                "id": int(datetime.now().timestamp()),
                 "videolar": "[]", # Burayı boş liste bırakıyoruz
                 "soru_cozulen": int(gk_net + gy_net),
                 "soru_hedef": 120
@@ -468,7 +488,7 @@ elif menu == "📊 Deneme Takibi":
                 # Mevcut veritabanına ekle ve gönder
                 save_to_gsheets(pd.concat([all_db, yeni_deneme], ignore_index=True))
                 st.toast(f"✅ {d_ad} başarıyla kaydedildi!", icon="🚀")
-                time.sleep(0.5)
+                time.sleep(1)
                 st.rerun()
             else:
                 st.error("Lütfen deneme adını giriniz!")
@@ -522,5 +542,5 @@ elif menu == "📊 Deneme Takibi":
                     if st.button("🗑️", key=f"del_deneme_{d_row['id']}", use_container_width=True):
                         save_to_gsheets(all_db[all_db['id'] != d_row['id']])
                         st.toast("🗑️  Deneme silindi.")
-                        time.sleep(0.5)
+                        time.sleep(1)
                         st.rerun()
