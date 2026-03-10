@@ -368,7 +368,7 @@ elif menu == "📅 Günlük Planım":
                 for item_text in sorted_items:
                     current_id = int(item_text.split(" - ")[0])
                     row = day_tasks[day_tasks['id'] == current_id].iloc[0]
-                    with st.expander(f"{ikon} {row['ders']} - {row['konu']}", expanded=False):
+                    with st.expander(f"{row['ders']} - {row['konu']}", expanded=False):
                         v_l = json.loads(row['videolar']) if isinstance(row['videolar'], str) else []
                         cl, cr = st.columns([4, 1.5])
                         with cl:
