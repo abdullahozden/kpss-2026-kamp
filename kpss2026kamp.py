@@ -5,7 +5,6 @@ import json
 import hashlib
 from datetime import datetime
 import time
-from streamlit_sortables import sort_items
 
 st.set_page_config(page_title="2026 KPSS ÇALIŞMA PLANI", layout="wide", page_icon="🎓")
 
@@ -352,44 +351,31 @@ elif menu == "📅 Günlük Planım":
             except:
                 display_date = date_val
             st.markdown(f"#### 📅 {display_date}") # Gün başlığı
-            for date_val in unique_dates:
-                st.markdown(f"#### 📅 {date_val}")
-                day_tasks = active_df[active_df['tarih'] == date_val]
-                if 'sira_no' in day_tasks.columns:
-                    day_tasks = day_tasks.sort_values(by="sira_no")
-                items = [f"{id_val} - {konu_adi}" for id_val, konu_adi in zip(day_tasks['id'], day_tasks['konu'])]
-                sorted_items = sort_items(items, key=f"sort_{date_val}", direction="vertical")
-                if sorted_items != items:
-                    for index, item_text in enumerate(sorted_items):
-                        current_id = int(item_text.split(" - ")[0])
-                        all_db.loc[all_db['id'] == current_id, 'sira_no'] = index
-                    save_to_gsheets(all_db)
-                    st.rerun()
-                for item_text in sorted_items:
-                    current_id = int(item_text.split(" - ")[0])
-                    row = day_tasks[day_tasks['id'] == current_id].iloc[0]
-                    with st.expander(f"{row['ders']} - {row['konu']}", expanded=False):
-                        v_l = json.loads(row['videolar']) if isinstance(row['videolar'], str) else []
-                        cl, cr = st.columns([4, 1.5])
-                        with cl:
-                            if v_l:
-                                num_v = len(v_l); v_cols_num = 2 if num_v <= 2 else (3 if num_v <= 6 else 5)
-                                v_cols = st.columns(v_cols_num)
-                                for v_i, v in enumerate(v_l):
-                                    with v_cols[v_i % v_cols_num]:
-                                        if not v['done']:
-                                            st.markdown(f"""
-                                                <div class="video-container">
-                                                    <div class="video-label-bar">{v_i+1}. Video</div>
-                                                    <div class="video-body">
-                                            """, unsafe_allow_html=True)
-                                            st.video(v['url'])
-                                            st.markdown('</div></div>', unsafe_allow_html=True)
-                                            if st.button(f"İzlendi ✅", key=f"v_{row['id']}_{v_i}", use_container_width=True):
-                                                v['done'] = True
-                                                all_db.loc[all_db['id'] == row['id'], 'videolar'] = json.dumps(v_l)
-                                                save_to_gsheets(all_db); st.rerun()
-                                        else: st.success(f"{v_i+1}. Video Bitti")
+            day_tasks = active_df[active_df['tarih'] == date_val]
+            for idx, row in day_tasks.iterrows():
+                ikon = st.session_state.dersler.get(row['ders'], "📌")
+                with st.expander(f"{ikon} {row['ders']} - {row['konu']}", expanded=False):
+                    v_l = json.loads(row['videolar']) if isinstance(row['videolar'], str) else []
+                    cl, cr = st.columns([4, 1.5])
+                    with cl:
+                        if v_l:
+                            num_v = len(v_l); v_cols_num = 2 if num_v <= 2 else (3 if num_v <= 6 else 5)
+                            v_cols = st.columns(v_cols_num)
+                            for v_i, v in enumerate(v_l):
+                                with v_cols[v_i % v_cols_num]:
+                                    if not v['done']:
+                                        st.markdown(f"""
+                                            <div class="video-container">
+                                                <div class="video-label-bar">{v_i+1}. Video</div>
+                                                <div class="video-body">
+                                        """, unsafe_allow_html=True)
+                                        st.video(v['url'])
+                                        st.markdown('</div></div>', unsafe_allow_html=True)
+                                        if st.button(f"İzlendi ✅", key=f"v_{row['id']}_{v_i}", use_container_width=True):
+                                            v['done'] = True
+                                            all_db.loc[all_db['id'] == row['id'], 'videolar'] = json.dumps(v_l)
+                                            save_to_gsheets(all_db); st.rerun()
+                                    else: st.success(f"{v_i+1}. Video Bitti")
                     with cr:
                         # 1. Veri Hazırlığı
                         h_q = int(row['soru_hedef'])
