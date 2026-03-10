@@ -5,9 +5,8 @@ import json
 import hashlib
 from datetime import datetime
 import time
-from streamlit_lottie import st_lottie
-import requests
 
+st.set_page_config(page_title="2026 KPSS ÇALIŞMA PLANI", layout="wide", page_icon="🎓")
 
 # --- 1. VERİ BAĞLANTISI & OPTİMİZASYON ---
 conn = st.connection("gsheets", type=GSheetsConnection)
@@ -48,16 +47,6 @@ def delete_user_account(df, username):
     save_to_gsheets(new_df)
     st.cache_data.clear()
     
-def load_lottieurl(url: str):
-    try:
-        r = requests.get(url, timeout=5)
-        if r.status_code != 200:
-            return None
-        return r.json()
-    except:
-        return None
-
-st.set_page_config(page_title="2026 KPSS ÇALIŞMA PLANI", layout="wide", page_icon="🎓")
 # --- 0. SESSION STATE BAŞLATMA ---
 if 'user' not in st.session_state:
     st.session_state.user = None
@@ -439,8 +428,7 @@ elif menu == "📊 Deneme Takibi":
     st.subheader("📊 Deneme Netleri ve Puan Hesaplama")
     
     # Hedef Puanı Veriden Çek (Varsayılan 75.0)
-    user_settings = all_db[all_db['username'] == username]
-    hedef_puan = float(user_settings['puan_hedef'].iloc[0]) if 'puan_hedef' in user_settings.columns and not pd.isna(user_settings['puan_hedef'].iloc[0]) else 75.0
+    hedef_puan = float(mevcut_hedef) if mevcut_hedef > 0 else 75.0
 
     # 1. YENİ DENEME HESAPLAMA FORMU
     with st.expander("➕ Yeni Deneme Hesapla ve Kaydet", expanded=True):
@@ -469,7 +457,7 @@ elif menu == "📊 Deneme Takibi":
                     st.balloons()
                 yeni_deneme = pd.DataFrame([{
                 "username": username, 
-                "password": user_df['password'].values[0],
+                "password": all_db[all_db['username'] == username]['password'].iloc[0],
                 "ders": "DENEME", 
                 "konu": d_ad, 
                 "tarih": str(datetime.now().date()),
