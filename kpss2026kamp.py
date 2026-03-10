@@ -413,8 +413,8 @@ elif menu == "📅 Günlük Planım":
                                 yeni_tarih = st.date_input(
                                     "Yeni Tarih Seç", 
                                     value=current_date_obj,
-                                    key=f"date_edit_{row['id']}"
-                                    label_visibility="collapsed"
+                                    key=f"date_edit_{row['id']}",
+                                    label_visibility="collapsed",
                                     format="DD/MM/YYYY"
                                 )
                                 if st.button("Tarihi Güncelle", key=f"date_btn_{row['id']}", use_container_width=True):
