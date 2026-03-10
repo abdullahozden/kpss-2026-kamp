@@ -409,17 +409,18 @@ elif menu == "📅 Günlük Planım":
                                 time.sleep(1)
                                 st.rerun()
                         with col_btn2:
-                            with st.popover("📅 Tarihi Değiştir", use_container_width=True):
                                 yeni_tarih = st.date_input(
                                     "Yeni Tarih Seç", 
                                     value=datetime.strptime(str(row['tarih']), '%Y-%m-%d').date(), 
                                     key=f"date_edit_{row['id']}"
+                                    label_visibility="collapsed"
+                                    format="DD/MM/YYYY"
                                 )
                                 if st.button("Tarihi Güncelle", key=f"date_btn_{row['id']}", use_container_width=True):
                                     all_db.loc[all_db['id'] == row['id'], 'tarih'] = str(yeni_tarih)
                                     save_to_gsheets(all_db)
                                     st.toast(f"📅 {row['konu']} tarihi {yeni_tarih} olarak güncellendi!", icon="🔄")
-                                    time.sleep(1)
+                                    time.sleep(0.5)
                                     st.rerun()
                             
 # --- 8. BAŞARILARIM ---
