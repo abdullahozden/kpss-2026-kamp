@@ -353,6 +353,10 @@ elif menu == "📅 Günlük Planım":
             st.markdown(f"#### 📅 {display_date}") # Gün başlığı
             day_tasks = active_df[active_df['tarih'] == date_val].sort_values(by="sira_no")
             for idx, row in day_tasks.iterrows():
+                ders_ismi = str(row['ders']).lower()
+                if "mat" in ders_ismi: ikon = "📐"
+                elif "tar" in ders_ismi: ikon = "📜"
+                else: ikon = "📚"
                 col_ikon, col_baslik, col_up, col_down = st.columns([0.5, 7.5, 1, 1])
                 with col_ikon:
                     st.write(f"### {ikon}")
