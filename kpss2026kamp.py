@@ -406,7 +406,6 @@ elif menu == "📅 Günlük Planım":
                             st.toast(f"{row['konu']} konusunu sildiniz!", icon="🗑️") # Pop-up bildirim
                             time.sleep(1)
                             st.rerun()
-                st.markdown("---")
 
 # --- 8. BAŞARILARIM ---
 elif menu == "🏆 Başarılarım":
@@ -543,3 +542,4 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
