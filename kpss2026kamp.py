@@ -409,7 +409,7 @@ elif menu == "📅 Günlük Planım":
                         with st.popover("📅 Tarihi Değiştir", use_container_width=True):
                             yeni_tarih = st.date_input(
                                 "Yeni Tarih Seç", 
-                                value=datetime.strptime(str(row['tarih']), '%d-%m-%Y').date(), 
+                                value=datetime.strptime(str(row['tarih']), '%Y-%m-%d').date(), 
                                 key=f"date_edit_{row['id']}"
                             )
                             if st.button("Tarihi Güncelle", key=f"date_btn_{row['id']}", use_container_width=True):
@@ -554,4 +554,5 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
+
 
