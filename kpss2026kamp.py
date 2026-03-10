@@ -453,6 +453,7 @@ elif menu == "📊 Deneme Takibi":
         
         d_ad = st.text_input("Deneme Adı/Yayın", placeholder="Örn: Pegem TG-1")
         if st.button("🚀 Denemeyi Arşive Kaydet", use_container_width=True):
+            if d_ad:
                 if hesaplanan_puan >= hedef_puan:
                     st.success("🎉 HEDEFİNE ULAŞTIN TEBRİKLER! 🎉")
                     st.balloons()
