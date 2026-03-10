@@ -351,10 +351,24 @@ elif menu == "📅 Günlük Planım":
             except:
                 display_date = date_val
             st.markdown(f"#### 📅 {display_date}") # Gün başlığı
-            day_tasks = active_df[active_df['tarih'] == date_val]
+            day_tasks = active_df[active_df['tarih'] == date_val].sort_values(by="sira_no")
             for idx, row in day_tasks.iterrows():
-                ikon = st.session_state.dersler.get(row['ders'], "📌")
-                with st.expander(f"{ikon} {row['ders']} - {row['konu']}", expanded=False):
+                col_ikon, col_baslik, col_up, col_down = st.columns([0.5, 7.5, 1, 1])
+                with col_ikon:
+                    st.write(f"### {ikon}")
+                with col_baslik:
+                    st.write(f"### {row['ders']} - {row['konu']}")
+                with col_up:
+                    if st.button("🔼", key=f"up_{row['id']}", use_container_width=True):
+                        all_db.loc[all_db['id'] == row['id'], 'sira_no'] = row['sira_no'] - 1.5
+                        save_to_gsheets(all_db)
+                        st.rerun()
+                with col_down:
+                    if st.button("🔽", key=f"down_{row['id']}", use_container_width=True):
+                        all_db.loc[all_db['id'] == row['id'], 'sira_no'] = row['sira_no'] + 1.5
+                        save_to_gsheets(all_db)
+                        st.rerun()
+                with st.expander("Detayları Gör / Videolar", expanded=False):
                     v_l = json.loads(row['videolar']) if isinstance(row['videolar'], str) else []
                     cl, cr = st.columns([4, 1.5])
                     with cl:
