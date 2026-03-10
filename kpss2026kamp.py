@@ -354,7 +354,9 @@ elif menu == "📅 Günlük Planım":
             st.markdown(f"#### 📅 {display_date}") # Gün başlığı
             for date_val in unique_dates:
                 st.markdown(f"#### 📅 {date_val}")
-                day_tasks = active_df[active_df['tarih'] == date_val].sort_values(by="sira_no")
+                day_tasks = active_df[active_df['tarih'] == date_val]
+                if 'sira_no' in day_tasks.columns:
+                    day_tasks = day_tasks.sort_values(by="sira_no")
                 items = [f"{id_val} - {konu_adi}" for id_val, konu_adi in zip(day_tasks['id'], day_tasks['konu'])]
                 sorted_items = sort_items(items, key=f"sort_{date_val}", direction="vertical")
                 if sorted_items != items:
