@@ -455,7 +455,6 @@ elif menu == "📊 Deneme Takibi":
         if st.button("🚀 Denemeyi Arşive Kaydet", use_container_width=True):
             if d_ad:
                 if hesaplanan_puan >= hedef_puan:
-                    st.success("🎉 HEDEFİNE ULAŞTIN TEBRİKLER! 🎉")
                     st.balloons()
                 yeni_deneme = pd.DataFrame([{
                 "username": username, 
@@ -496,6 +495,7 @@ elif menu == "📊 Deneme Takibi":
             fark = puan - h_puan
                 # Motivasyon Mesajı Belirleme
             if fark >= 0:
+                st.success("🎉 HEDEFİNE ULAŞTIN TEBRİKLER! 🎉")
                 msg = "🔥 Mükemmel! Hedefin üzerindesin, bu iş bitti!"
                 color = "#238636"
             elif fark >= -10:
