@@ -385,8 +385,8 @@ elif menu == "📅 Günlük Planım":
                         st.progress(yuzde_f)
                         col_m1, col_m2 = st.columns(2)
                         col_m1.metric("Hedef", h_q)
-                        col_m2.metric("Çözülen", c_q, delta=c_q - h_q if h_q > 0 else None)
-                        n_q = st.number_input("Sayıyı Güncelle", value=c_q, key=f"q_{row['id']}", label_visibility="collapsed")
+                        col_m2.metric("Çözülen", c_q)
+                        n_q = st.number_input("Sayıyı Güncelle", value=c_q, key=f"q_{row['id']}", label_visibility="collapsed", step=1)
                         if n_q != c_q:
                             all_db.loc[all_db['id'] == row['id'], 'soru_cozulen'] = int(n_q)
                             save_to_gsheets(all_db)
@@ -401,23 +401,26 @@ elif menu == "📅 Günlük Planım":
                             st.toast(f"Tebrikler! {row['konu']} konusunu bitirdin!", icon="🏆") # Pop-up bildirim
                             time.sleep(1)
                             st.rerun()
-                        if st.button("🗑️ Planı Sil", key=f"del_act_{row['id']}", use_container_width=True):
-                            save_to_gsheets(all_db[all_db['id'] != row['id']]);
-                            st.toast(f"{row['konu']} konusunu sildiniz!", icon="🗑️") # Pop-up bildirim
-                            time.sleep(1)
-                            st.rerun()
-                        with st.popover("📅 Tarihi Değiştir", use_container_width=True):
-                            yeni_tarih = st.date_input(
-                                "Yeni Tarih Seç", 
-                                value=datetime.strptime(str(row['tarih']), '%Y-%m-%d').date(), 
-                                key=f"date_edit_{row['id']}"
-                            )
-                            if st.button("Tarihi Güncelle", key=f"date_btn_{row['id']}", use_container_width=True):
-                                all_db.loc[all_db['id'] == row['id'], 'tarih'] = str(yeni_tarih)
-                                save_to_gsheets(all_db)
-                                st.toast(f"📅 {row['konu']} tarihi {yeni_tarih} olarak güncellendi!", icon="🔄")
+                        col_btn1, col_btn2 = st.columns(2)
+                        with col_btn1:
+                            if st.button("🗑️ Planı Sil", key=f"del_act_{row['id']}", use_container_width=True):
+                                save_to_gsheets(all_db[all_db['id'] != row['id']]);
+                                st.toast(f"{row['konu']} konusunu sildiniz!", icon="🗑️") # Pop-up bildirim
                                 time.sleep(1)
                                 st.rerun()
+                        with col_btn2:
+                            with st.popover("📅 Tarihi Değiştir", use_container_width=True):
+                                yeni_tarih = st.date_input(
+                                    "Yeni Tarih Seç", 
+                                    value=datetime.strptime(str(row['tarih']), '%Y-%m-%d').date(), 
+                                    key=f"date_edit_{row['id']}"
+                                )
+                                if st.button("Tarihi Güncelle", key=f"date_btn_{row['id']}", use_container_width=True):
+                                    all_db.loc[all_db['id'] == row['id'], 'tarih'] = str(yeni_tarih)
+                                    save_to_gsheets(all_db)
+                                    st.toast(f"📅 {row['konu']} tarihi {yeni_tarih} olarak güncellendi!", icon="🔄")
+                                    time.sleep(1)
+                                    st.rerun()
                             
 # --- 8. BAŞARILARIM ---
 elif menu == "🏆 Başarılarım":
@@ -554,5 +557,3 @@ elif menu == "📊 Deneme Takibi":
                         st.toast("🗑️  Deneme silindi.")
                         time.sleep(1)
                         st.rerun()
-
-
