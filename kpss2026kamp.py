@@ -283,7 +283,7 @@ if menu == "📝 Plan Oluştur":
         k_a = st.text_input("Konu")
     with c2:
         t_r = st.date_input("Tarih", format="DD/MM/YYYY")
-        s_h = st.number_input("Hedef Soru", min_value=1, value=150)
+        s_h = st.number_input("Hedef Soru", min_value=1, value=60)
 
     v_s = st.select_slider("Video Sayısı", options=range(1, 11), value=1)
     
