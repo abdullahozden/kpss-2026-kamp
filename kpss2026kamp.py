@@ -358,7 +358,7 @@ elif menu == "📅 Günlük Planım":
                 display_date = f"{date_obj.day} {aylar_tr[date_obj.month]} {date_obj.year} <span style='font-size: 0.8em; color: #8a9ba8; font-weight: normal; margin-left: 6px;'>{gun_adi}</span>"
             except:
                 display_date = date_val
-            st.markdown(f"#### 📅 {display_date}") # Gün başlığı
+            st.markdown(f"#### 📅 {display_date}", unsafe_allow_html=True) # Gün başlığı
             day_tasks = active_df[active_df['tarih'] == date_val]
             for idx, row in day_tasks.iterrows():
                 ikon = st.session_state.dersler.get(row['ders'], "📐")
