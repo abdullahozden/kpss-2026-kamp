@@ -369,7 +369,7 @@ elif menu == "📅 Günlük Planım":
                             # Sadece bu expander'a özel dinamik bir yükleme kilidi koyuyoruz
                             videolari_yukle = st.checkbox("📺 Videoları Göster/Yükle", key=f"load_v_{row['id']}", value=False)
                             
-                            if violari_yukle: # <--- KART AÇILSA BİLE KUTU SEÇİLMEDEN ASLA YÜKLENMEZ
+                            if videolari_yukle: # <--- KART AÇILSA BİLE KUTU SEÇİLMEDEN ASLA YÜKLENMEZ
                                 num_v = len(v_l); v_cols_num = 2 if num_v <= 2 else (3 if num_v <= 6 else 5)
                                 v_cols = st.columns(v_cols_num)
                                 for v_i, v in enumerate(v_l):
