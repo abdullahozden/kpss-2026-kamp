@@ -366,23 +366,29 @@ elif menu == "📅 Günlük Planım":
                     cl, cr = st.columns([4, 1.5])
                     with cl:
                         if v_l:
-                            num_v = len(v_l); v_cols_num = 2 if num_v <= 2 else (3 if num_v <= 6 else 5)
-                            v_cols = st.columns(v_cols_num)
-                            for v_i, v in enumerate(v_l):
-                                with v_cols[v_i % v_cols_num]:
-                                    if not v['done']:
-                                        st.markdown(f"""
-                                            <div class="video-container">
-                                                <div class="video-label-bar">{v_i+1}. Video</div>
-                                                <div class="video-body">
-                                        """, unsafe_allow_html=True)
-                                        st.video(v['url'])
-                                        st.markdown('</div></div>', unsafe_allow_html=True)
-                                        if st.button(f"İzlendi ✅", key=f"v_{row['id']}_{v_i}", use_container_width=True):
-                                            v['done'] = True
-                                            all_db.loc[all_db['id'] == row['id'], 'videolar'] = json.dumps(v_l)
-                                            save_to_gsheets(all_db); st.rerun()
-                                    else: st.success(f"{v_i+1}. Video Bitti")
+                            # Sadece bu expander'a özel dinamik bir yükleme kilidi koyuyoruz
+                            videolari_yukle = st.checkbox("📺 Videoları Göster/Yükle", key=f"load_v_{row['id']}", value=False)
+                            
+                            if violari_yukle: # <--- KART AÇILSA BİLE KUTU SEÇİLMEDEN ASLA YÜKLENMEZ
+                                num_v = len(v_l); v_cols_num = 2 if num_v <= 2 else (3 if num_v <= 6 else 5)
+                                v_cols = st.columns(v_cols_num)
+                                for v_i, v in enumerate(v_l):
+                                    with v_cols[v_i % v_cols_num]:
+                                        if not v['done']:
+                                            st.markdown(f"""
+                                                <div class="video-container">
+                                                    <div class="video-label-bar">{v_i+1}. Video</div>
+                                                    <div class="video-body">
+                                            """, unsafe_allow_html=True)
+                                            st.video(v['url']) # Artık sadece ihtiyaç anında yükleniyor!
+                                            st.markdown('</div></div>', unsafe_allow_html=True)
+                                            if st.button(f"İzlendi ✅", key=f"v_{row['id']}_{v_i}", use_container_width=True):
+                                                v['done'] = True
+                                                all_db.loc[all_db['id'] == row['id'], 'videolar'] = json.dumps(v_l)
+                                                save_to_gsheets(all_db); st.rerun()
+                                        else: st.success(f"{v_i+1}. Video Bitti")
+                            else:
+                                st.info("Videoların yüklenmesi ve uygulamanın hızlanması için yukarıdaki kutucuğu işaretleyin.")
                     with cr:
                         # 1. Veri Hazırlığı
                         h_q = int(row['soru_hedef'])
