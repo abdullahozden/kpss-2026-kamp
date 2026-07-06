@@ -354,7 +354,6 @@ elif menu == "📅 Günlük Planım":
                             7: "Temmuz", 8: "Ağustos", 9: "Eylül", 10: "Ekim", 11: "Kasım", 12: "Aralık"}
                 gunler_tr = {0: "Pazartesi", 1: "Salı", 2: "Çarşamba", 3: "Perşembe", 4: "Cuma", 5: "Cumartesi", 6: "Pazar"}
                 
-                gun_adi = gunler_tr[date_obj.weekday()].lower()
                 display_date = f"{date_obj.day} {aylar_tr[date_obj.month]} {date_obj.year} <span style='font-size: 0.8em; color: #8a9ba8; font-weight: normal; margin-left: 6px;'>{gun_adi}</span>"
             except:
                 display_date = date_val
