@@ -450,13 +450,11 @@ elif menu == "🏆 Başarılarım":
         ders_df = user_df[user_df['ders'] == d]
         if not ders_df.empty:
             b_df = ders_df[ders_df['tamamlandi'] == True]
-            
             toplam_video = 0
             for _, r in b_df.iterrows():
                 v_data = json.loads(r['videolar']) if isinstance(r['videolar'], str) else []
                 toplam_video += len(v_data)
             y = int((len(b_df)/len(ders_df))*100) if len(ders_df) > 0 else 0
-            
             st.markdown(f"### {ikon} {d} (%{y})")
             st.progress(y/100)
             col_d1, col_d2, col_d3 = st.columns(3)
