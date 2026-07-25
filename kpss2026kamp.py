@@ -452,15 +452,10 @@ elif menu == "🏆 Başarılarım":
             b_df = ders_df[ders_df['tamamlandi'] == True]
             
             toplam_video = 0
-            izlenen_video = 0 
-            for _, r in ders_df.iterrows():
+            for _, r in b_df.iterrows():
                 v_data = json.loads(r['videolar']) if isinstance(r['videolar'], str) else []
                 toplam_video += len(v_data)
-                # Sadece izlendi olarak işaretlenen videoları say
-                izlenen_video += sum(1 for v in v_data if isinstance(v, dict) and v.get('done') == True)
-            
-            # İlerleme Yüzdesi (İzlenen Video / Toplam Video)
-            y = int((izlenen_video / toplam_video) * 100) if toplam_video > 0 else 0
+            y = int((len(b_df)/len(ders_df))*100) if len(ders_df) > 0 else 0
             
             st.markdown(f"### {ikon} {d} (%{y})")
             st.progress(y/100)
